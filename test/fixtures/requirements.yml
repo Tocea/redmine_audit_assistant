@@ -1,0 +1,39 @@
+---
+req_001:
+ id: 1
+ name: Audit de la base de données
+ description:
+ charge: 9,5
+ category: catégorie
+
+req_002:
+ id: 2
+ name: permettre la reprise du modèle de données par une nouvelle équipe
+ description:
+ charge:
+ category: objectif
+ requirement_id: 1
+
+req_003:
+  id: 3
+  name: identifier les optimisations possibles pour améliorer la performance du modèle
+  description:
+  charge:
+  category: objectif
+  requirement_id: 1
+ 
+req_004:
+  id: 4
+  name: identifier des optimisations pour les serveurs SGBD
+  description:
+  charge:
+  category: objectif
+  requirement_id: 1
+
+req_005:
+  id: 5
+  name: Analyse de la pertinence de la localisation des données et de la structure
+  description:
+  charge: 3
+  category: pratique
+  requirement_id: 4

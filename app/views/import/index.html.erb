@@ -1,0 +1,11 @@
+<h2>Importer des tâches</h2>
+
+<%= form_for @requirement, url: {action: "import", :project_id => @project.id}, html: {class: "nifty_form"} do |f| %>
+<div class="box">
+	<p>
+		<label><%= l(:label_attachment_plural) %></label>
+		<%= render :partial => 'attachments/form' %>
+	</p>
+</div>
+<%= submit_tag l(:button_save) %>
+<% end %>
