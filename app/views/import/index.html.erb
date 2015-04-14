@@ -1,7 +1,11 @@
 <h2>Importer des tâches</h2>
 
 <%= form_for @requirement, url: {action: "import", :project_id => @project.id}, html: {class: "nifty_form"} do |f| %>
-<div class="box">
+<div class="box tabular">
+	<p>
+		<label><%= l(:field_fixed_version)%></label>
+		<%= select_tag(:version_id, options_for_select(@select_versions))%>
+	</p>
 	<p>
 		<label><%= l(:label_attachment_plural) %></label>
 		<%= render :partial => 'attachments/form' %>

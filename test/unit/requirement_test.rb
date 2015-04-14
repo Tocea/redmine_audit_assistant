@@ -17,7 +17,7 @@ class RequirementTest < ActiveSupport::TestCase
     requirement.expects(:children).returns([])
     
     project = mock()
-    project.expects(:instance_of?).with(Project).returns(true)
+    project.expects(:instance_of?).with(Issue).returns(false)
     issue = mock()
     
     AuditHelper::AuditIssueFactory
@@ -34,10 +34,10 @@ class RequirementTest < ActiveSupport::TestCase
     requirement = requirements(:req_001)
     
     project = mock()
-    project.expects(:instance_of?).with(Project).returns(true)
+    project.expects(:instance_of?).with(Issue).returns(false)
     issue = mock()
     issue.expects(:project).at_least_once().returns(project)
-    issue.expects(:instance_of?).at_least_once().with(Project).returns(false)
+    issue.expects(:instance_of?).at_least_once().with(Issue).returns(true)
     
     AuditHelper::AuditIssueFactory
       .expects(:createIssue)
@@ -54,6 +54,5 @@ class RequirementTest < ActiveSupport::TestCase
     assert_equal issue, requirement.toIssue(project)
 
   end 
-  
 
 end

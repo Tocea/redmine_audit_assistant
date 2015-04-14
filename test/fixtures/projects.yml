@@ -2,3 +2,5 @@
 test_project:
  id: 1
  name: test_project
+ lft: 1
+ rgt: 2

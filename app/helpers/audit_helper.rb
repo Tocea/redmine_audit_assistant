@@ -39,6 +39,13 @@ module AuditHelper
 
 		def self.createIssue(requirement, project, parent)
 		  
+		  # check if the parameter 'project' is an
+      # entire project or a project version
+		  if project.instance_of? Version
+		    version = project
+		    project = version.project
+		  end
+		  
 		  # get the tracker
 			tracker_name = requirement.category
 			tracker = AuditHelper::TrackerFactory.find_or_create(project, tracker_name)
@@ -64,8 +71,10 @@ module AuditHelper
 
       # check if it's a sub-issue
 			if parent
+			  
 				issue.project = parent.project
 				issue.parent = parent
+				issue.fixed_version_id = parent.fixed_version_id		
 				
 				# get the root of the issue(s)
 				root = issue
@@ -73,7 +82,14 @@ module AuditHelper
 				  root = root.parent
 				end
 				issue.root_id = root.id
-
+				
+      else
+        
+        # set the version id
+        if version
+          issue.fixed_version_id = version.id
+        end
+        
 			end					
 
       # check if the issue can be validated

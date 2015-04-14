@@ -81,5 +81,31 @@ class IssueFactoryTest < ActiveSupport::TestCase
 		assert_equal 1, issues.count
 
 	end
+	
+	test "it should create an issue from a project version" do
+	  
+	  requirement = Requirement.new(
+      :name => "my subject",
+      :description => "my description",
+      :category => "my tracker"
+    )
+  
+    project = Project.find(1)
+    
+    version = Version.new(
+      :name => 'Version 1.0 buguée',
+      :project_id => project.id
+    )
+    version.save
+
+    issue = AuditHelper::AuditIssueFactory
+        .createIssue(requirement, version, nil)
+    
+    issues = Issue.where(project_id: project.id, subject: requirement.name)
+    
+    assert_equal 1, issues.count
+    assert_equal version.id, issues[0].fixed_version_id
+
+	end
 
 end

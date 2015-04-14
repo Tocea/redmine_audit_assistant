@@ -9,12 +9,12 @@ class Requirement < ActiveRecord::Base
   
   def toIssue(parent)
     
-    if parent.instance_of? Project
-      project = parent
-      parent_issue = nil
-    else
+    if parent.instance_of? Issue
       parent_issue = parent
       project = parent.project
+    else
+      project = parent
+      parent_issue = nil  
     end
     
     @issue = AuditHelper::AuditIssueFactory
