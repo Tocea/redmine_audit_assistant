@@ -6,6 +6,8 @@ SimpleCov.start do
    add_filter do |source_file|
      !source_file.filename.include? "/plugins/"
    end
+   add_filter '/lib/'
+   add_filter '/db/'
 end
 Coveralls.wear!('rails')
 
