@@ -3,8 +3,9 @@ require 'simplecov'
 require 'coveralls'
 SimpleCov.formatter = Coveralls::SimpleCov::Formatter
 SimpleCov.start do
-   add_filter 'lib/'
-   add_filter 'app/'
+   add_filter do |source_file|
+     !source_file.filename.include? "/plugins/"
+   end
 end
 Coveralls.wear!('rails')
 
