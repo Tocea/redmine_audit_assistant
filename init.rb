@@ -5,8 +5,6 @@ Redmine::Plugin.register :redmine_audit_assistant do
   version '0.0.1'
   url 'http://example.com/path/to/plugin'
   author_url 'http://www.tocea.com'
-  permission :audit, { :audit => [:index, :create] }, :public => true
-  menu :project_menu, :audit, { :controller => 'audit', :action => 'index' }, :caption => 'Audit', :after => :activity, :param => :project_id
   permission :import, { :import => [:index, :import] }, :public => true
   menu :project_menu, :import, { :controller => 'import', :action => 'index' }, :caption => 'Import', :after => :activity, :param => :project_id
 end
