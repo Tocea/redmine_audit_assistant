@@ -1,7 +1,0 @@
----
-CM_1_1_1:
-  id: 1
-  code: CM 1.1.1
-  name: La structure du dépôt est documentée
-  description: Une structure des dépôt documentée permet au développeur de prendre rapidement en main l’application ainsi que connaître rapidement la localisation des différentes entités de l’application.
-  goal_id: 1

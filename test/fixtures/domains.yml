@@ -1,7 +1,0 @@
----
-CM_1:
-  id: 1
-  code: CM 1
-  name: Gestion des sources de l'application
-  description: L’intention du domaine de processus « Gestion de la configuration » est d’établir une stratégie pour gérer les changements qui se produisent dans le projet.
-  category_id: 1

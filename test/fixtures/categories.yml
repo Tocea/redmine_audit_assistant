@@ -1,7 +1,0 @@
----
-CM:
-  id: 1
-  code: CM
-  name: Gestion de la configuration
-  description:  L'intention du domaine de processus « Gestion de la configuration » est d'établir une stratégie pour gérer les changements qui se produisent dans le projet
-  audit_id: 1

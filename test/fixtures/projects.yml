@@ -4,3 +4,9 @@ test_project:
  name: test_project
  lft: 1
  rgt: 2
+ 
+project_002:
+  id: 2
+  name: my project
+  lft: 1
+  rgt: 2

@@ -8,3 +8,8 @@ Redmine::Plugin.register :redmine_audit_assistant do
   permission :import, { :import => [:index, :import] }, :public => true
   menu :project_menu, :import, { :controller => 'import', :action => 'index' }, :caption => 'Import', :after => :activity, :param => :project_id
 end
+
+
+require 'autoclose_issue_patch'
+
+

@@ -96,8 +96,16 @@ module AuditHelper
       if !issue.valid?
         puts issue.errors.full_messages
       end
-      
+
       # save the issue
+      issue.save
+      
+      # activate the autoclose custom field for this project/tracker
+      autoclose_field = AutocloseIssuePatch::customField(project, tracker) 
+      
+      # set the value of the autoclose field    
+      issue.custom_field_values = { autoclose_field.id => '1' }
+      issue.save_custom_field_values
       issue.save
       
 			issue
