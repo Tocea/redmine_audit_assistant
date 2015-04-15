@@ -9,10 +9,19 @@ module AutocloseIssuePatch extend ActiveSupport::Concern
      
     end
     
+    def controller_issues_bulk_edit_before_save(context={})
+      
+      Rails.logger.info "running AutoCloseIssueHook from contextual menu..."
+      issue = context[:issue]
+      issue.save
+      AutocloseIssueHook.close_parent_issue(issue)
+      
+    end
+    
     def self.close_parent_issue(issue)
       
       # reload the issue
-      issue.reload
+      issue.reload     
       
       field = AutocloseIssuePatch::customField(nil, nil)     
       
