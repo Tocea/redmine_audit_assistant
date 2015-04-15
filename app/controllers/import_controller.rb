@@ -3,7 +3,11 @@ require 'yaml'
 class ImportController < ApplicationController
   unloadable
 
+  helper :import
+  include ImportHelper
+
   def index
+    
     @project = Project.find(params[:project_id])
     @requirement = Requirement.new
     
@@ -17,7 +21,7 @@ class ImportController < ApplicationController
     
     if params[:error_parsing_file]
       flash[:error] = l(:error_parsing_file)
-    end   
+    end  
     
   end
 
@@ -46,10 +50,10 @@ class ImportController < ApplicationController
     
     begin     
       # convert the attachment to Requirement objects
-      requirements = ImportHelper::import_from_yaml(attach.diskfile)  
-    rescue      
+      requirements = import_from_yaml(attach.diskfile)
+    rescue StandardError=>e  
       # redirect to the index page if the file cannot be parsed
-      Rails.logger.info "Error parsing file"
+      Rails.logger.info "Error parsing file: #{e}"
       redirect_to :controller => 'import', :action => 'index', :project_id => @project.id, :error_parsing_file => true
       return false
     end

@@ -1,13 +1,15 @@
 module ImportHelper
   
-  @fields = {
-    :name => 'name',
-    :description => 'description',
-    :charge => 'charge',
-    :category => 'type'
-  }
+  def fields
+    return {
+      :name => 'name',
+      :description => 'description',
+      :charge => 'charge',
+      :category => 'type'
+    }
+  end
   
-  def self.import_from_yaml(file_location)
+  def import_from_yaml(file_location)
     
     # convert YAML file to ruby object
     object = YAML.load_file(file_location)
@@ -23,15 +25,15 @@ module ImportHelper
   end
   
   # convert the object from the yaml file to a Requirement object
-  def self.extract_requirement(object, parent_id)
+  def extract_requirement(object, parent_id)
        
     # create a new Requirement object
     req = Requirement.new
     
     # set the requirement's properties
-    @fields.keys.each do |key|
-      if (object[@fields[key]])
-        req[key] = object[@fields[key]]
+    fields.keys.each do |key|
+      if (object[fields[key]])
+        req[key] = object[fields[key]]
       end
     end   
     

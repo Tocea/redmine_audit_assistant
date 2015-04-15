@@ -4,11 +4,16 @@ class ImportYamlTest < ActiveSupport::TestCase
 
   self.fixture_path = File.dirname(__FILE__) + '/../fixtures'
 
+  setup do
+    @helper = Object.new
+    @helper.extend(ImportHelper)
+  end
+
   test "it should extract requirement objects from the YAML file" do
     
     file_location = fixture_path + '/meth_dgac.yml'
     
-    requirements = ImportHelper::import_from_yaml(file_location)
+    requirements = @helper.import_from_yaml(file_location)
     puts requirements.inspect
     
     Requirement.find(:all).each do |r|
