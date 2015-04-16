@@ -38,7 +38,9 @@ class ImportController < ApplicationController
     
     # redirect to the index page if no attachment has been uploaded
     attachments = params[:attachments]
-    token = attachments[attachments.keys[0]]["token"]   
+    if attachments
+      token = attachments[attachments.keys[0]]["token"]  
+    end
     if !token
       Rails.logger.info "No attachment found!"
       redirect_to :controller => 'import', :action => 'index', :project_id => @project.id
