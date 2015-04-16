@@ -3,7 +3,8 @@ require File.expand_path('../../test_helper', __FILE__)
 class ImportYamlTest < ActiveSupport::TestCase
 
   self.fixture_path = File.dirname(__FILE__) + '/../fixtures'
-
+  fixtures :projects
+  
   setup do
     @helper = Object.new
     @helper.extend(ImportHelper)
@@ -13,18 +14,30 @@ class ImportYamlTest < ActiveSupport::TestCase
     
     file_location = fixture_path + '/meth_dgac.yml'
     
-    requirements = @helper.import_from_yaml(file_location)
-    puts requirements.inspect
+    results = @helper.import_from_yaml(file_location)
     
-    Requirement.find(:all).each do |r|
-      puts r.inspect
-    end
+    assert_not_nil results, "it should return something"
+    assert_not_nil results[:requirements], "it should return requirement objects"
     
-    assert_equal 4, Requirement.count
+    requirements = results[:requirements]
+    
     assert_equal 1, requirements.count
     assert_equal 2, requirements[0].children.count
     assert_equal 0, requirements[0].children[0].children.count
     assert_equal 1, requirements[0].children[1].children.count
+    
+  end
+  
+  test "it should extract the version data from the YAML file" do
+    
+    file_location = fixture_path + '/meth_dgac_with_version.yml'
+    
+    results = @helper.import_from_yaml(file_location)
+    
+    assert_not_nil results, "it should return something"
+    assert_not_nil results[:version], "it should return a version"
+    assert_not_nil results[:version].name, "the version name should have been set"
+    assert_not_nil results[:version].effective_date, "the version date should have been set"
     
   end
 

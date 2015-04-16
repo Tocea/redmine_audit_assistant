@@ -11,6 +11,19 @@ class ImportControllerTest < ActionController::TestCase
   fixtures :trackers
   fixtures :users
   
+  def create_attachment(location, token='X')
+    
+    diskfile = self.fixture_path+'/'+location
+    
+    # give the file 'diskfile' when an attachment is needed
+    attach = mock()
+    attach.expects(:diskfile).returns(diskfile)
+    Attachment.expects(:find_by_token).with(token).returns(attach)
+    
+    { :diskfile => diskfile, :token => token }
+    
+  end
+  
   test "should get index" do   
     
     get :index, {'project_id' => 1}
@@ -27,19 +40,13 @@ class ImportControllerTest < ActionController::TestCase
   
   test "should import requirements from file and redirect to the issue page" do
     
-    diskfile = self.fixture_path+"/meth_dgac.yml"
-    token = 'X'
-    
-    # give the file meth_dgac.yml when an attachment is needed
-    attach = mock()
-    attach.expects(:diskfile).returns(diskfile)
-    Attachment.expects(:find_by_token).with(token).returns(attach)
+    file = create_attachment('meth_dgac.yml')   
    
     # get the maximum value of the column 'id' in table 'issues'
     max_id = Issue.maximum(:id)
    
     # make the request
-    get :import, {'project_id' => 1, 'attachments' => { "1"=>{"filename"=>diskfile, "token"=>token}} }
+    get :import, {'project_id' => 1, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
     
     # requirements should have been created
     assert Requirement.count > 0  
@@ -53,18 +60,37 @@ class ImportControllerTest < ActionController::TestCase
     
   end
   
+  test "should create a version in the project if a version is defined in the file" do
+    
+    file = create_attachment('meth_dgac_with_version.yml')   
+ 
+    # a new version should have been created
+    assert_difference 'Version.count' do
+      # make the request
+      get :import, {'project_id' => 1, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
+    end
+    
+  end
+  
+  test "should not create a new version if the version defined in the file already exists" do
+    
+    file = create_attachment('meth_dgac_with_version.yml')
+    
+    version = Version.new(:project_id => 1, :name => 'Audit DGAC')
+    version.save
+    
+    assert_no_difference 'Version.count', 'a version should not be created' do
+      get :import, {'project_id' => 1, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
+    end
+    
+  end
+  
   test "should redirect to index if the file cannot be parsed" do
     
-    diskfile = self.fixture_path+"/file_not_found.yml"
-    token = 'X'
-    
-    # give the file meth_dgac.yml when an attachment is needed
-    attach = mock()
-    attach.expects(:diskfile).returns(diskfile)
-    Attachment.expects(:find_by_token).with(token).returns(attach)
+    file = create_attachment('file_not_found.yml')
     
     # make the request
-    get :import, {'project_id' => 1, 'attachments' => { "1"=>{"filename"=>diskfile, "token"=>token}} }
+    get :import, {'project_id' => 1, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
     
     # we should have been redirected to the index page
     assert_redirected_to :controller => 'import', :action => 'index', :project_id => 1, :error_parsing_file => true

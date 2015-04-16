@@ -12,7 +12,7 @@ class ImportController < ApplicationController
     @requirement = Requirement.new
     
     @versions = @project.shared_versions.open
-    puts @versions.inspect
+    Rails.logger.info @versions.inspect
     
     @select_versions = [[l(:label_none), 0]]
     @versions.each do |v|
@@ -51,8 +51,9 @@ class ImportController < ApplicationController
     attach = Attachment.find_by_token(token)
     
     begin     
-      # convert the attachment to Requirement objects
-      requirements = import_from_yaml(attach.diskfile)
+      # extract data from the attachment file
+      data = import_from_yaml(attach.diskfile)
+      requirements = data[:requirements]
     rescue StandardError=>e  
       # redirect to the index page if the file cannot be parsed
       Rails.logger.info "Error parsing file: #{e}"
@@ -60,6 +61,23 @@ class ImportController < ApplicationController
       return false
     end
     
+    # check if the version is specified in the file
+    if !@version && data[:version]
+      @version = data[:version]
+      # look in the db if the version already exists     
+      version_db = Version.where(project_id: @project.id, name: @version.name).first
+      if version_db
+        # use the version that already exists
+        @version = version_db
+      else
+        # create a new version
+        @version.project_id = @project.id
+        if !@version.valid?
+          Rails.logger.test @version.errors.full_messages
+        end
+        @version.save
+      end
+    end
     
     # create issues from the requirements
     requirements.each do |r|
