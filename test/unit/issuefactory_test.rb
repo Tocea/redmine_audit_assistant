@@ -107,5 +107,56 @@ class IssueFactoryTest < ActiveSupport::TestCase
     assert_equal version.id, issues[0].fixed_version_id
 
 	end
+	
+	test "it should set the dates of the issue" do
+	  
+	  requirement = Requirement.new(
+      :name => "my subject",
+      :description => "my description",
+      :category => "my tracker",
+      :effective_date => "20/04/2015".to_date,
+      :start_date => "01/04/2015".to_date
+    )
+    
+    project = Project.find(1)
+    
+    issue = AuditHelper::AuditIssueFactory.createIssue(requirement, project, nil)
+    
+    issues = Issue.where(project_id: project.id, subject: requirement.name)
+    
+    assert_equal 1, issues.count
+    assert_equal requirement.start_date, issues[0].start_date
+    assert_equal requirement.effective_date, issues[0].due_date
+	  
+	end
+	
+	 test "it should use the parent's dates if the children doesn't have dates" do
+    
+    project = Project.find(1)
+    
+    requirement = Requirement.new(
+      :name => "my subject",
+      :description => "my description",
+      :category => "my tracker",
+      :effective_date => "20/04/2015".to_date,
+      :start_date => "01/04/2015".to_date
+    )
+    
+    root_issue = AuditHelper::AuditIssueFactory.createIssue(requirement, project, nil)
+    
+    sub_requirement = Requirement.new(
+      :name => "my sub-requirement",
+      :description => "my sub-description",
+      :category => "my tracker"
+    )
+    
+    child_issue = AuditHelper::AuditIssueFactory.createIssue(sub_requirement, project, root_issue)
+    
+    assert_equal requirement.start_date, root_issue.start_date
+    assert_equal requirement.effective_date, root_issue.due_date
+    assert_equal requirement.start_date, child_issue.start_date
+    assert_equal requirement.effective_date, child_issue.due_date
+    
+  end
 
 end

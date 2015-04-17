@@ -34,7 +34,9 @@ module AuditHelper
     @fields = {
       :subject => 'name',
       :description => 'description',
-      :estimated_hours => 'charge'
+      :estimated_hours => 'charge',
+      :start_date => 'start_date',
+      :due_date => 'effective_date'
     }
 
 		def self.createIssue(requirement, project, parent)
@@ -75,6 +77,16 @@ module AuditHelper
 				issue.project = parent.project
 				issue.parent = parent
 				issue.fixed_version_id = parent.fixed_version_id		
+				
+				# if no start_date specified, use the parent's one
+				if parent.start_date && !issue.start_date
+				  issue.start_date = parent.start_date
+				end
+				
+				# if no due_date specified, use the parent's one
+				if parent.due_date && !issue.due_date
+				  issue.due_date = parent.due_date
+				end
 				
 				# get the root of the issue(s)
 				root = issue

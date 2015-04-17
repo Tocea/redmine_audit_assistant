@@ -1,15 +1,17 @@
 module ImportHelper
   
-  def fields
+  def fields # mapping requirement properties => yaml properties found
     {
       :name => 'name',
       :description => 'description',
       :charge => 'charge',
-      :category => 'type'
+      :category => 'type',
+      :start_date => 'start_date',
+      :effective_date => 'effective_date'
     }
   end
   
-  def version_fields
+  def version_fields # mapping version properties => yaml properties found
     {
       :name => 'name',
       :description => 'description',
@@ -49,13 +51,7 @@ module ImportHelper
     req = Requirement.new
     
     # set the requirement's properties
-    assign_fields(req, object, fields)
-    
-    #fields.keys.each do |key|
-    #  if (object[fields[key]])
-    #    req[key] = object[fields[key]]
-    #  end
-    #end   
+    assign_fields(req, object, fields) 
     
     # set the parent of the requirement
     if parent_id
@@ -93,11 +89,30 @@ module ImportHelper
   end  
   
   def assign_fields(object, source, mapper)
+    
     mapper.keys.each do |key|
+      
       if (source[mapper[key]])
-        object[key] = source[mapper[key]]
+        
+        # extract the value of the property from the YAML file
+        value = source[mapper[key]]
+        
+        # get the type of the property      
+        if object.column_for_attribute(key)
+          type = object.column_for_attribute(key).type
+        end
+        
+        # type conversions
+        if (type && type.to_s == 'date')
+          value = value.to_date
+        end
+        
+        # assign the value to the object property
+        object[key] = value
+        
       end
     end
+    
     object
   end  
   

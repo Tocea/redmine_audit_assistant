@@ -38,6 +38,20 @@ class ImportYamlTest < ActiveSupport::TestCase
     assert_not_nil results[:version], "it should return a version"
     assert_not_nil results[:version].name, "the version name should have been set"
     assert_not_nil results[:version].effective_date, "the version date should have been set"
+    assert_kind_of Date, results[:version].effective_date, "the version date should be a Date instance"
+    
+  end
+  
+  test "it should extract requirement dates from the YAML file" do
+    
+    file_location = fixture_path + '/meth_dgac_with_dates.yml'
+    
+    results = @helper.import_from_yaml(file_location)
+    
+    assert_not_nil results, "it should return something"
+    assert_not_nil results[:requirements], "it should return requirement objects"
+    assert_kind_of Date, results[:requirements][0].start_date, "the start date should be a Date instance"
+    assert_kind_of Date, results[:requirements][0].effective_date, "the effective date should be a Date instance"
     
   end
 
