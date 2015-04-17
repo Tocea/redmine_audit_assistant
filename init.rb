@@ -11,5 +11,3 @@ end
 
 
 require 'autoclose_issue_patch'
-
-

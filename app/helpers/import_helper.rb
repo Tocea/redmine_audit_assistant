@@ -7,7 +7,8 @@ module ImportHelper
       :charge => 'charge',
       :category => 'type',
       :start_date => 'start_date',
-      :effective_date => 'effective_date'
+      :effective_date => 'effective_date',
+      :assignee_login => 'assignee'
     }
   end
   

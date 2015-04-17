@@ -6,11 +6,6 @@ class RequirementTest < ActiveSupport::TestCase
   self.fixture_path = File.dirname(__FILE__) + '/../fixtures'
   fixtures :requirements
   
-  test "it should load fixtures" do
-    requirements = Requirement.find(:all)
-    assert requirements.count > 0
-  end
-  
   test "it should call the issue factory and return an issue" do
 
     requirement = requirements(:req_001)
@@ -20,10 +15,7 @@ class RequirementTest < ActiveSupport::TestCase
     project.expects(:instance_of?).with(Issue).returns(false)
     issue = mock()
     
-    AuditHelper::AuditIssueFactory
-      .expects(:createIssue)
-      .with(requirement, project, nil)
-      .returns(issue)
+    requirement.expects(:createIssue).with(project, nil).returns(issue)
 
     assert_equal issue, requirement.toIssue(project)
 
@@ -39,20 +31,28 @@ class RequirementTest < ActiveSupport::TestCase
     issue.expects(:project).at_least_once().returns(project)
     issue.expects(:instance_of?).at_least_once().with(Issue).returns(true)
     
-    AuditHelper::AuditIssueFactory
-      .expects(:createIssue)
-      .with(requirement, project, nil)
-      .returns(issue)
+    requirement.expects(:createIssue).with(project, nil).returns(issue)
     
     requirement.children.each do |child|
-      AuditHelper::AuditIssueFactory
-        .expects(:createIssue)
-        .with(child, project, issue)
+      child.expects(:createIssue).with(project, issue)
       child.expects(:children).returns([])
     end
 
     assert_equal issue, requirement.toIssue(project)
 
   end 
+  
+  test "it should look for a User with its login" do
+    
+    login = 'jsnow'
+    
+    requirement = requirements(:req_001)
+    requirement.assignee_login = login
+    
+    User.expects(:find_by_login).with(login)
+    
+    requirement.assignee
+    
+  end
 
 end

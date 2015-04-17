@@ -7,6 +7,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
 	fixtures :projects
 	fixtures :issue_statuses
 	fixtures :issues
+	fixtures :users
 
 	test "it should create a sub-issue" do	
 
@@ -18,8 +19,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
 	
 		parent = Issue.find(1)		
 
-		issue = AuditHelper::AuditIssueFactory
-				.createIssue(requirement, parent.project, parent)
+		issue = requirement.createIssue(parent.project, parent)
 
 		issues = Issue.where(parent_id: parent.id)
 
@@ -40,8 +40,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
 	
 		project = Project.find(1)	
 
-		issue = AuditHelper::AuditIssueFactory
-				.createIssue(requirement, project, nil)
+		issue = requirement.createIssue(project, nil)
 		
 		issues = Issue.where(project_id: project.id, subject: requirement.name)
 		
@@ -62,8 +61,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
       :category => "my tracker"
     )
 
-		issue1 = AuditHelper::AuditIssueFactory
-				.createIssue(requirement, project, nil)
+		issue1 = requirement.createIssue(project, nil)
 		
 		issues = Issue.where(project_id: project.id, subject: requirement.name)
 		assert_equal 1, issues.count
@@ -74,8 +72,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
       :category => "my other tracker"
     )
 
-		issue2 = AuditHelper::AuditIssueFactory
-				.createIssue(sub_requirement, project, issues[0])
+		issue2 = sub_requirement.createIssue(project, issues[0])
 
 		issues = Issue.where(parent_id: issue1.id)
 		assert_equal 1, issues.count
@@ -98,8 +95,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
     )
     version.save
 
-    issue = AuditHelper::AuditIssueFactory
-        .createIssue(requirement, version, nil)
+    issue = requirement.createIssue(version, nil)
     
     issues = Issue.where(project_id: project.id, subject: requirement.name)
     
@@ -120,7 +116,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
     
     project = Project.find(1)
     
-    issue = AuditHelper::AuditIssueFactory.createIssue(requirement, project, nil)
+    issue = requirement.createIssue(project, nil)
     
     issues = Issue.where(project_id: project.id, subject: requirement.name)
     
@@ -142,7 +138,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
       :start_date => "01/04/2015".to_date
     )
     
-    root_issue = AuditHelper::AuditIssueFactory.createIssue(requirement, project, nil)
+    root_issue = requirement.createIssue(project, nil)
     
     sub_requirement = Requirement.new(
       :name => "my sub-requirement",
@@ -150,12 +146,61 @@ class IssueFactoryTest < ActiveSupport::TestCase
       :category => "my tracker"
     )
     
-    child_issue = AuditHelper::AuditIssueFactory.createIssue(sub_requirement, project, root_issue)
+    child_issue = sub_requirement.createIssue(project, root_issue)
     
     assert_equal requirement.start_date, root_issue.start_date
     assert_equal requirement.effective_date, root_issue.due_date
     assert_equal requirement.start_date, child_issue.start_date
     assert_equal requirement.effective_date, child_issue.due_date
+    
+  end
+  
+  test "it should assign a user to an issue" do
+    
+    project = Project.find(1)
+    
+    user_login = "jsnow"
+    assert_not_nil User.find_by_login(user_login)
+    
+    requirement = Requirement.new(
+      :name => "my subject",
+      :description => "my description",
+      :category => "my tracker",
+      :assignee_login => user_login
+    )
+    
+    issue = requirement.createIssue(project, nil)
+    
+    puts issue.assigned_to.inspect
+    
+    assert_equal user_login, issue.assigned_to.login
+    
+  end
+  
+  test "it should assign the parent's user to an issue" do
+    
+    project = Project.find(1)
+    
+    user_login = "jsnow"
+    
+    requirement = Requirement.new(
+      :name => "my subject",
+      :description => "my description",
+      :category => "my tracker",
+      :assignee_login => user_login
+    )
+    
+    issue = requirement.createIssue(project, nil)
+    
+    sub_requirement = Requirement.new(
+      :name => "my subject",
+      :description => "my description",
+      :category => "my tracker"
+    )
+ 
+    child_issue = sub_requirement.createIssue(project, issue)
+    
+    assert_equal user_login, child_issue.parent.assigned_to.login
     
   end
 

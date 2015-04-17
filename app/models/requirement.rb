@@ -5,7 +5,13 @@ class Requirement < ActiveRecord::Base
   
   attr_accessor :issue
   
+  include RequirementToIssueHelper
+  
   @issue = nil
+  
+  def assignee
+    User.find_by_login(self.assignee_login)
+  end
   
   def toIssue(parent)
     
@@ -17,8 +23,10 @@ class Requirement < ActiveRecord::Base
       parent_issue = nil  
     end
     
-    @issue = AuditHelper::AuditIssueFactory
-        .createIssue(self, project, parent_issue)
+    #@issue = AuditHelper::AuditIssueFactory
+     #   .createIssue(self, project, parent_issue)
+
+    @issue = createIssue(project, parent_issue)
 
     self.children.each do |child|
       child.toIssue(issue)
