@@ -24,6 +24,28 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     Issue.any_instance.stubs(:custom_value_for).with(1).returns('1')
   end
   
+    
+  test "it should react to hook controller_issues_edit_after_save" do
+    
+    issue = stub()
+    
+    AutocloseIssuePatch::AutocloseIssueHook.stubs(:close_parent_issue).returns(nil)
+    
+    Redmine::Hook.call_hook(:controller_issues_edit_after_save, { :issue => issue })
+    
+  end
+  
+  test "it should react to hook controller_issues_bulk_edit_before_save" do
+    
+    issue = stub()
+    issue.expects(:save).returns(true)
+    
+    AutocloseIssuePatch::AutocloseIssueHook.stubs(:close_parent_issue).returns(nil)
+    
+    Redmine::Hook.call_hook(:controller_issues_bulk_edit_before_save, { :issue => issue })
+    
+  end
+  
   test "it should close the parent issue when all child issues are closed" do
     
     mock_custom_field
