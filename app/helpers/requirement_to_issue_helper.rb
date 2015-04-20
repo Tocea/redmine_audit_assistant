@@ -24,8 +24,16 @@ module RequirementToIssueHelper
     # get the tracker
     tracker = createTracker(project, requirement)
     
-    # get the priority
-    priority = IssuePriority.find_or_create_by_name("Normal")
+    # get the priority from the requirement, the parent issue
+    # or use the default priority
+    priority = requirement.priority
+    if !priority
+      if parent
+        priority = parent.priority
+      else
+        priority = IssuePriority.default
+      end     
+    end
 
     # get the user
     if requirement.assignee
@@ -42,7 +50,7 @@ module RequirementToIssueHelper
       :tracker => tracker, 
       :project => project,
       :assigned_to => user,
-      :priority => priority     
+      :priority => priority
     )
     
     # set the issue's properties from the requirement

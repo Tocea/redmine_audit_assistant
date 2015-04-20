@@ -7,6 +7,7 @@ class RequirementTest < ActiveSupport::TestCase
 	fixtures :projects
 	fixtures :issue_statuses
 	fixtures :requirements
+	fixtures :enumerations
 
 	test "we should be able to create issues from a requirement instance" do
 	

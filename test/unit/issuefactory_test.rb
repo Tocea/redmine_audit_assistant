@@ -8,6 +8,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
 	fixtures :issue_statuses
 	fixtures :issues
 	fixtures :users
+	fixtures :enumerations
 
 	test "it should create a sub-issue" do	
 
@@ -201,6 +202,24 @@ class IssueFactoryTest < ActiveSupport::TestCase
     child_issue = sub_requirement.createIssue(project, issue)
     
     assert_equal user_login, child_issue.parent.assigned_to.login
+    
+  end
+  
+  test "it should attach a priority to an issue" do
+    
+    project = Project.find(1)
+    
+    priority = IssuePriority.find(3)
+    
+    requirement = Requirement.new(
+      :name => "my subject",
+      :category => 'my tracker',
+      :priority_id => priority.position
+    )
+    
+    issue = requirement.createIssue(project, nil)
+    
+    assert_equal priority, issue.priority
     
   end
 

@@ -10,6 +10,7 @@ class ImportControllerTest < ActionController::TestCase
   fixtures :issues
   fixtures :trackers
   fixtures :users
+  fixtures :enumerations
   
   def create_attachment(location, token='X')
     

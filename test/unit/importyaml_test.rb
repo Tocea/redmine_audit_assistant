@@ -54,5 +54,17 @@ class ImportYamlTest < ActiveSupport::TestCase
     assert_kind_of Date, results[:requirements][0].effective_date, "the effective date should be a Date instance"
     
   end
+  
+  test "it should extract requirement priority from the YAML file" do
+    
+    file_location = fixture_path + '/meth_dgac_with_priority.yml'
+    
+    results = @helper.import_from_yaml(file_location)
+    
+    assert_not_nil results, "it should return something"
+    assert_not_nil results[:requirements], "it should return requirement objects"
+    assert_not_nil results[:requirements][0].priority_id, "the priority should have been set" 
+    
+  end
 
 end

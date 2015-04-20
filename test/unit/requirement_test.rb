@@ -54,5 +54,19 @@ class RequirementTest < ActiveSupport::TestCase
     requirement.assignee
     
   end
+  
+  test "it should attach a priority object to a requirement from a position" do
+    
+    pos = 1
+    
+    requirement = requirements(:req_001)
+    
+    requirement.priority_id = pos
+    
+    IssuePriority.expects(:find_by_position).with(pos)
+    
+    requirement.priority
+    
+  end
 
 end

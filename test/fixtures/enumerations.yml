@@ -1,0 +1,23 @@
+---
+priority_001: 
+  name: Low
+  id: 1
+  type: IssuePriority
+  active: true
+  position: 1
+
+priority_002: 
+  name: Normal
+  id: 2
+  type: IssuePriority
+  active: true
+  is_default: true
+  position: 2
+  
+priority_003: 
+  name: High
+  id: 3
+  type: IssuePriority
+  active: true
+  position: 3
+  

@@ -8,7 +8,8 @@ module ImportHelper
       :category => 'type',
       :start_date => 'start_date',
       :effective_date => 'effective_date',
-      :assignee_login => 'assignee'
+      :assignee_login => 'assignee',
+      :priority_id => 'priority'
     }
   end
   
