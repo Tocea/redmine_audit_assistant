@@ -22,7 +22,10 @@ module RequirementToIssueHelper
     end  
     
     # get the tracker
-    tracker = createTracker(project, requirement)
+    tracker = get_or_create_tracker(project, requirement)
+    
+    # get the issue category
+    issue_category = get_or_create_issue_category(project, requirement)
     
     # get the priority from the requirement, the parent issue
     # or use the default priority
@@ -52,6 +55,11 @@ module RequirementToIssueHelper
       :assigned_to => user,
       :priority => priority
     )
+    
+    # set the category
+    if issue_category
+      issue.category = issue_category
+    end
     
     # set the issue's properties from the requirement
     @fields = issue_fields
@@ -121,7 +129,7 @@ module RequirementToIssueHelper
     
   end
   
-  def createTracker(project, requirement)
+  def get_or_create_tracker(project, requirement)
     
     name = requirement.category
     
@@ -132,6 +140,25 @@ module RequirementToIssueHelper
     end
     
     tracker     
+  end
+  
+  def get_or_create_issue_category(project, requirement)
+    
+    category = nil
+    name = requirement.issue_category_name
+    
+    if name
+      
+      category = IssueCategory.where(project_id: project.id, name: name).first
+      
+      if !category
+        category = IssueCategory.new(:project_id => project.id, :name => name)
+        category.save
+      end      
+      
+    end
+    
+    category
   end
 
 end

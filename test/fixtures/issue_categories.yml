@@ -1,4 +1,5 @@
 --- 
-issue_priorities_001: 
+issue_category_001: 
   id: 1
-  name: Normal
+  name: Super Category 1
+  project_id: 1

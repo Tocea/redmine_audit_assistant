@@ -222,5 +222,39 @@ class IssueFactoryTest < ActiveSupport::TestCase
     assert_equal priority, issue.priority
     
   end
+  
+  test "it should create a category and attach it to an issue" do
+    
+    project = Project.find(1)
+        
+    requirement = Requirement.new(
+      :name => "my subject",
+      :category => 'my tracker',
+      :issue_category_name => 'my super category'
+    )
+    
+    issue = requirement.createIssue(project, nil)
+    
+    assert_equal requirement.issue_category_name, issue.category.name
+    
+  end
+  
+  test "it should attach an existing category to an issue" do
+    
+    project = Project.find(1)
+    issue_category = IssueCategory.find(1)
+    
+    requirement = Requirement.new(
+      :name => "my subject",
+      :category => 'my tracker',
+      :issue_category_name => issue_category.name
+    )
+    
+    issue = requirement.createIssue(project, nil)
+
+    assert_not_nil issue.category
+    assert_equal issue_category, issue.category
+    
+  end
 
 end

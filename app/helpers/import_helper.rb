@@ -9,7 +9,8 @@ module ImportHelper
       :start_date => 'start_date',
       :effective_date => 'effective_date',
       :assignee_login => 'assignee',
-      :priority_id => 'priority'
+      :priority_id => 'priority',
+      :issue_category_name => 'category'
     }
   end
   
