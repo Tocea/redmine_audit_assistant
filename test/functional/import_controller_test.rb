@@ -14,7 +14,7 @@ class ImportControllerTest < ActionController::TestCase
   
   def create_attachment(location, token='X')
     
-    diskfile = self.fixture_path+'/'+location
+    diskfile = self.fixture_path+'/files/'+location
     
     # give the file 'diskfile' when an attachment is needed
     attach = mock()

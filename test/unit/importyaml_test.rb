@@ -9,12 +9,14 @@ class ImportYamlTest < ActiveSupport::TestCase
     @helper = Object.new
     @helper.extend(ImportHelper)
   end
+  
+  def use_file(filename)
+    fixture_path + '/files/' + filename 
+  end
 
   test "it should extract requirement objects from the YAML file" do
     
-    file_location = fixture_path + '/meth_dgac.yml'
-    
-    results = @helper.import_from_yaml(file_location)
+    results = @helper.import_from_yaml(use_file 'meth_dgac.yml')
     
     assert_not_nil results, "it should return something"
     assert_not_nil results[:requirements], "it should return requirement objects"
@@ -29,10 +31,8 @@ class ImportYamlTest < ActiveSupport::TestCase
   end
   
   test "it should extract the version data from the YAML file" do
-    
-    file_location = fixture_path + '/meth_dgac_with_version.yml'
-    
-    results = @helper.import_from_yaml(file_location)
+        
+    results = @helper.import_from_yaml(use_file 'meth_dgac_with_version.yml')
     
     assert_not_nil results, "it should return something"
     assert_not_nil results[:version], "it should return a version"
@@ -43,10 +43,8 @@ class ImportYamlTest < ActiveSupport::TestCase
   end
   
   test "it should extract requirement dates from the YAML file" do
-    
-    file_location = fixture_path + '/meth_dgac_with_dates.yml'
-    
-    results = @helper.import_from_yaml(file_location)
+        
+    results = @helper.import_from_yaml(use_file 'meth_dgac_with_dates.yml')
     
     assert_not_nil results, "it should return something"
     assert_not_nil results[:requirements], "it should return requirement objects"
@@ -57,9 +55,7 @@ class ImportYamlTest < ActiveSupport::TestCase
   
   test "it should extract requirement priority from the YAML file" do
     
-    file_location = fixture_path + '/meth_dgac_with_priority.yml'
-    
-    results = @helper.import_from_yaml(file_location)
+    results = @helper.import_from_yaml(use_file 'meth_dgac_with_priority.yml')
     
     assert_not_nil results, "it should return something"
     assert_not_nil results[:requirements], "it should return requirement objects"
@@ -68,10 +64,8 @@ class ImportYamlTest < ActiveSupport::TestCase
   end
   
   test "it should extract requirement categories from the YAML file" do
-    
-    file_location = fixture_path + '/meth_dgac_with_category.yml'
-    
-    results = @helper.import_from_yaml(file_location)
+        
+    results = @helper.import_from_yaml(use_file 'meth_dgac_with_category.yml')
     
     assert_not_nil results, "it should return something"
     assert_not_nil results[:requirements], "it should return requirement objects"
@@ -81,9 +75,7 @@ class ImportYamlTest < ActiveSupport::TestCase
   
   test "it should extract a checklist from the YAML file" do
     
-    file_location = fixture_path + '/meth_dgac_with_checklist.yml'
-    
-    results = @helper.import_from_yaml(file_location)
+    results = @helper.import_from_yaml(use_file 'meth_dgac_with_checklist.yml')
     
     assert_not_nil results, "it should return something"
     assert_not_nil results[:requirements], "it should return requirement objects"
