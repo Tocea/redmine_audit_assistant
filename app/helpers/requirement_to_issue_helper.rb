@@ -17,16 +17,50 @@ module RequirementToIssueHelper
       :due_date => 'effective_date'
     }
   end
+  
+  # convert a requirement and all its children to Redmine issues
+  def toIssue(parent)
+    
+    # check parent type
+    case parent.class.to_s
+    when 'Issue'
+      parent_issue = parent
+      project = parent.project
+      version = nil
+    when 'Project'
+      project = parent
+      parent_issue = nil
+      version = nil
+    when 'Version'
+      version = parent
+      project = version.project
+      parent_issue = nil
+    else
+      puts parent.class.to_s+' not found'
+      return nil
+    end  
+    
+    self.issue = createIssue(
+      :project => project, 
+      :version => version,
+      :parent_issue => parent_issue
+     )
 
-  def createIssue(project, parent)
+    self.children.each do |child|
+      child.toIssue(issue)
+    end
+
+    self.issue
+  end
+
+  # create an issue from a requirement
+  def createIssue(args)
+    
+    project = args[:project]
+    version = args[:version]
+    parent = args[:parent_issue]
     
     requirement = self
-    
-    # check if the parameter 'project' is an entire project or a project version
-    if project.instance_of? Version
-      version = project
-      project = version.project
-    end  
     
     # get the tracker
     tracker = get_or_create_tracker(project, requirement)
@@ -79,33 +113,12 @@ module RequirementToIssueHelper
     # check if it's a sub-issue
     if parent
       
-      issue.project = parent.project
-      issue.parent = parent
-      issue.fixed_version_id = parent.fixed_version_id    
+      assign_from_parent(issue, parent)
       
-      # if no start_date specified, use the parent's one
-      if parent.start_date && !issue.start_date
-        issue.start_date = parent.start_date
-      end
+    elsif version
       
-      # if no due_date specified, use the parent's one
-      if parent.due_date && !issue.due_date
-        issue.due_date = parent.due_date
-      end
-      
-      # get the root of the issue(s)
-      root = issue
-      while root.parent
-        root = root.parent
-      end
-      issue.root_id = root.id
-      
-    else
-      
-      # set the version id
-      if version
-        issue.fixed_version_id = version.id
-      end
+      # set the version id if it hasn't been inherited from parent
+      issue.fixed_version_id = version.id
       
     end     
 
@@ -124,6 +137,33 @@ module RequirementToIssueHelper
     
   end
   
+  # assign properties to an issue from its parent
+  def assign_from_parent(issue, parent)
+    
+    issue.parent = parent
+    issue.fixed_version_id = parent.fixed_version_id    
+    
+    # if no start_date specified, use the parent's one
+    if parent.start_date && !issue.start_date
+      issue.start_date = parent.start_date
+    end
+    
+    # if no due_date specified, use the parent's one
+    if parent.due_date && !issue.due_date
+      issue.due_date = parent.due_date
+    end
+    
+    # get the root of the issue(s)
+    root = issue
+    while root.parent
+      root = root.parent
+    end
+    issue.root_id = root.id
+    
+    issue
+  end
+  
+  # set custom fields values
   def assign_custom_fields(requirement, issue)
     
     # activate the autoclose custom field for this project/tracker
@@ -139,6 +179,8 @@ module RequirementToIssueHelper
     
   end
   
+  # retrieve a tracker from a requirement instance
+  # or create one if it doesn't exist yet
   def get_or_create_tracker(project, requirement)
     
     name = requirement.category
@@ -152,6 +194,8 @@ module RequirementToIssueHelper
     tracker     
   end
   
+  # retrieve an issue category from a requirement instance
+  # or create one if it doesn't exist yet
   def get_or_create_issue_category(project, requirement)
     
     category = nil

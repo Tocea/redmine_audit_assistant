@@ -38,9 +38,7 @@ class ImportController < ApplicationController
     
     # redirect to the index page if no attachment has been uploaded
     attachments = params[:attachments]
-    if attachments
-      token = attachments[attachments.keys[0]]["token"]  
-    end
+    token = attachments[attachments.keys[0]]["token"] if attachments
     if !token
       Rails.logger.info "No attachment found!"
       redirect_to :controller => 'import', :action => 'index', :project_id => @project.id
@@ -63,29 +61,12 @@ class ImportController < ApplicationController
     
     # check if the version is specified in the file
     if !@version && data[:version]
-      @version = data[:version]
-      # look in the db if the version already exists     
-      version_db = Version.where(project_id: @project.id, name: @version.name).first
-      if version_db
-        # use the version that already exists
-        @version = version_db
-      else
-        # create a new version
-        @version.project_id = @project.id
-        if !@version.valid?
-          Rails.logger.test @version.errors.full_messages
-        end
-        @version.save
-      end
+      @version = get_or_create_version(data[:version], @project)
     end
     
     # create issues from the requirements
     requirements.each do |r|
-      if @version
-        r.toIssue(@version)
-      else
-        r.toIssue(@project)
-      end    
+      r.toIssue(@version ? @version : @project)  
     end
     
     if requirements.count == 1
@@ -97,4 +78,24 @@ class ImportController < ApplicationController
     end
     
   end
+  
+  # create a new version of a project
+  # or retrieve it from the db if it already exists
+  def get_or_create_version(version, project)  
+    # look in the db if the version already exists     
+    version_db = Version.where(project_id: project.id, name: version.name).first
+    if version_db
+      # use the version that already exists
+      version = version_db
+    else
+      # create a new version
+      version.project_id = project.id
+      if !version.valid?
+        Rails.logger.test version.errors.full_messages
+      end
+      version.save
+    end
+    version
+  end
+  
 end

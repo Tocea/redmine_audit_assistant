@@ -12,10 +12,14 @@ class RequirementTest < ActiveSupport::TestCase
     requirement.expects(:children).returns([])
     
     project = mock()
-    project.expects(:instance_of?).with(Issue).returns(false)
+    project.expects(:class).returns(Project)
     issue = mock()
     
-    requirement.expects(:createIssue).with(project, nil).returns(issue)
+    requirement.expects(:createIssue).with({ 
+         :project => project, 
+         :version => nil, 
+         :parent_issue => nil
+    }).returns(issue)
 
     assert_equal issue, requirement.toIssue(project)
 
@@ -26,15 +30,24 @@ class RequirementTest < ActiveSupport::TestCase
     requirement = requirements(:req_001)
     
     project = mock()
-    project.expects(:instance_of?).with(Issue).returns(false)
+    project.expects(:class).returns(Project)
+
     issue = mock()
-    issue.expects(:project).at_least_once().returns(project)
-    issue.expects(:instance_of?).at_least_once().with(Issue).returns(true)
+    issue.expects(:class).at_least_once.returns(Issue)
+    issue.expects(:project).at_least_once.returns(project)
     
-    requirement.expects(:createIssue).with(project, nil).returns(issue)
+    requirement.expects(:createIssue).with({ 
+      :project => project, 
+      :version => nil, 
+      :parent_issue => nil 
+    }).returns(issue)
     
     requirement.children.each do |child|
-      child.expects(:createIssue).with(project, issue)
+      child.expects(:createIssue).with({
+        :project => project, 
+        :version => nil, 
+        :parent_issue => issue 
+      })
       child.expects(:children).returns([])
     end
 

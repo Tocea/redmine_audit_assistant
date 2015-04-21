@@ -20,7 +20,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
 	
 		parent = Issue.find(1)		
 
-		issue = requirement.createIssue(parent.project, parent)
+		issue = requirement.toIssue(parent)
 
 		issues = Issue.where(parent_id: parent.id)
 
@@ -41,7 +41,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
 	
 		project = Project.find(1)	
 
-		issue = requirement.createIssue(project, nil)
+		issue = requirement.toIssue(project)
 		
 		issues = Issue.where(project_id: project.id, subject: requirement.name)
 		
@@ -62,7 +62,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
       :category => "my tracker"
     )
 
-		issue1 = requirement.createIssue(project, nil)
+		issue1 = requirement.toIssue(project)
 		
 		issues = Issue.where(project_id: project.id, subject: requirement.name)
 		assert_equal 1, issues.count
@@ -73,7 +73,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
       :category => "my other tracker"
     )
 
-		issue2 = sub_requirement.createIssue(project, issues[0])
+		issue2 = sub_requirement.toIssue(issues[0])
 
 		issues = Issue.where(parent_id: issue1.id)
 		assert_equal 1, issues.count
@@ -96,7 +96,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
     )
     version.save
 
-    issue = requirement.createIssue(version, nil)
+    issue = requirement.toIssue(version)
     
     issues = Issue.where(project_id: project.id, subject: requirement.name)
     
@@ -117,7 +117,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
     
     project = Project.find(1)
     
-    issue = requirement.createIssue(project, nil)
+    issue = requirement.toIssue(project)
     
     issues = Issue.where(project_id: project.id, subject: requirement.name)
     
@@ -139,7 +139,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
       :start_date => "01/04/2015".to_date
     )
     
-    root_issue = requirement.createIssue(project, nil)
+    root_issue = requirement.toIssue(project)
     
     sub_requirement = Requirement.new(
       :name => "my sub-requirement",
@@ -147,7 +147,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
       :category => "my tracker"
     )
     
-    child_issue = sub_requirement.createIssue(project, root_issue)
+    child_issue = sub_requirement.toIssue(root_issue)
     
     assert_equal requirement.start_date, root_issue.start_date
     assert_equal requirement.effective_date, root_issue.due_date
@@ -170,7 +170,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
       :assignee_login => user_login
     )
     
-    issue = requirement.createIssue(project, nil)
+    issue = requirement.toIssue(project)
     
     puts issue.assigned_to.inspect
     
@@ -191,7 +191,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
       :assignee_login => user_login
     )
     
-    issue = requirement.createIssue(project, nil)
+    issue = requirement.toIssue(project)
     
     sub_requirement = Requirement.new(
       :name => "my subject",
@@ -199,7 +199,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
       :category => "my tracker"
     )
  
-    child_issue = sub_requirement.createIssue(project, issue)
+    child_issue = sub_requirement.toIssue(issue)
     
     assert_equal user_login, child_issue.parent.assigned_to.login
     
@@ -217,7 +217,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
       :priority_id => priority.position
     )
     
-    issue = requirement.createIssue(project, nil)
+    issue = requirement.toIssue(project)
     
     assert_equal priority, issue.priority
     
@@ -233,7 +233,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
       :issue_category_name => 'my super category'
     )
     
-    issue = requirement.createIssue(project, nil)
+    issue = requirement.toIssue(project)
     
     assert_equal requirement.issue_category_name, issue.category.name
     
@@ -250,7 +250,7 @@ class IssueFactoryTest < ActiveSupport::TestCase
       :issue_category_name => issue_category.name
     )
     
-    issue = requirement.createIssue(project, nil)
+    issue = requirement.toIssue(project)
 
     assert_not_nil issue.category
     assert_equal issue_category, issue.category

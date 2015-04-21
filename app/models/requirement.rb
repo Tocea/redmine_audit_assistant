@@ -19,23 +19,4 @@ class Requirement < ActiveRecord::Base
     IssuePriority.find_by_position(self.priority_id)
   end
   
-  def toIssue(parent)
-    
-    if parent.instance_of? Issue
-      parent_issue = parent
-      project = parent.project
-    else
-      project = parent
-      parent_issue = nil  
-    end
-    
-    @issue = createIssue(project, parent_issue)
-
-    self.children.each do |child|
-      child.toIssue(issue)
-    end
-
-    @issue
-  end
-  
 end
