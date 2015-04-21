@@ -2,6 +2,7 @@
 [![Build Status](https://travis-ci.org/Tocea/redmine_audit_assistant.svg?branch=dev)](https://travis-ci.org/Tocea/redmine_audit_assistant)
 [![Coverage Status](https://coveralls.io/repos/Tocea/redmine_audit_assistant/badge.svg?branch=dev)](https://coveralls.io/r/Tocea/redmine_audit_assistant?branch=dev)
 [![Dependency Status](https://gemnasium.com/Tocea/redmine_audit_assistant.svg)](https://gemnasium.com/Tocea/redmine_audit_assistant)
+[![Code Climate](https://codeclimate.com/github/Tocea/redmine_audit_assistant/badges/gpa.svg)](https://codeclimate.com/github/Tocea/redmine_audit_assistant)
 
 # redmine audit assistant
 
