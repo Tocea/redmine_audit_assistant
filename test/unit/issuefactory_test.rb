@@ -256,5 +256,13 @@ class IssueFactoryTest < ActiveSupport::TestCase
     assert_equal issue_category, issue.category
     
   end
+  
+  test "it should include the checklist module" do
+    
+    modules = Requirement.ancestors.select{|o| o.class == Module }
+    
+    assert modules.include? ChecklistHelper
+    
+  end
 
 end

@@ -78,5 +78,18 @@ class ImportYamlTest < ActiveSupport::TestCase
     assert_not_nil results[:requirements][0].issue_category_name, "the category name should have been set" 
     
   end
+  
+  test "it should extract a checklist from the YAML file" do
+    
+    file_location = fixture_path + '/meth_dgac_with_checklist.yml'
+    
+    results = @helper.import_from_yaml(file_location)
+    
+    assert_not_nil results, "it should return something"
+    assert_not_nil results[:requirements], "it should return requirement objects"
+    assert_not_nil results[:requirements][0].checklist, "the checklist should not be nil"
+    assert_equal 3, results[:requirements][0].checklist.length, "the checklist should contain 3 items"
+    
+  end
 
 end

@@ -1,5 +1,12 @@
 module RequirementToIssueHelper
   
+  # include ChecklistHelper into the class into which this module is included
+  def self.included klass
+    klass.class_eval do
+      include ChecklistHelper
+    end
+  end
+  
   # mapping of the properties of an issue with the properties of a requirement
   def issue_fields 
     {
@@ -126,6 +133,9 @@ module RequirementToIssueHelper
     issue.custom_field_values = { autoclose_field.id => '1' }
     issue.save_custom_field_values
     issue.save
+    
+    # create issue checklist
+    create_issue_checklist(requirement, issue)
     
   end
   

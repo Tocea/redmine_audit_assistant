@@ -68,5 +68,17 @@ class RequirementTest < ActiveSupport::TestCase
     requirement.priority
     
   end
+  
+  test "it should store a checklist in a requirement object" do
+    
+    requirement = requirements(:req_001)
+    
+    requirement.checklist = ['string1', 'string2', 'string3']
+    
+    requirement.save
+    
+    assert_equal 3, Requirement.find(requirement.id).checklist.length
+    
+  end
 
 end

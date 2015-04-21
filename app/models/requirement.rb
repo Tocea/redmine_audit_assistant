@@ -5,6 +5,8 @@ class Requirement < ActiveRecord::Base
   
   attr_accessor :issue
   
+  serialize :checklist
+  
   include RequirementToIssueHelper
   
   @issue = nil

@@ -10,7 +10,8 @@ module ImportHelper
       :effective_date => 'effective_date',
       :assignee_login => 'assignee',
       :priority_id => 'priority',
-      :issue_category_name => 'category'
+      :issue_category_name => 'category',
+      :checklist => 'checklist'
     }
   end
   
