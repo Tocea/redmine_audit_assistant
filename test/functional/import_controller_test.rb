@@ -86,6 +86,21 @@ class ImportControllerTest < ActionController::TestCase
     
   end
   
+  test "should use a version of a project if an id version is set in the parameters" do
+    
+    file = create_attachment('meth_dgac.yml')
+    
+    version = Version.new(:project_id => 1, :name => 'Audit DGAC')
+    version.save
+    
+    # there should be more issues attach to this version
+    assert_difference 'Issue.where(fixed_version_id: version.id).count', 4 do
+      # make the request
+      get :import, {'project_id' => 1, 'version_id' => version.id, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
+    end
+    
+  end
+  
   test "should redirect to index if the file cannot be parsed" do
     
     file = create_attachment('file_not_found.yml')
