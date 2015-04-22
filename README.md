@@ -3,6 +3,7 @@
 [![Coverage Status](https://coveralls.io/repos/Tocea/redmine_audit_assistant/badge.svg?branch=dev)](https://coveralls.io/r/Tocea/redmine_audit_assistant?branch=dev)
 [![Dependency Status](https://gemnasium.com/Tocea/redmine_audit_assistant.svg)](https://gemnasium.com/Tocea/redmine_audit_assistant)
 [![Code Climate](https://codeclimate.com/github/Tocea/redmine_audit_assistant/badges/gpa.svg)](https://codeclimate.com/github/Tocea/redmine_audit_assistant)
+[![Inline docs](http://inch-ci.org/github/Tocea/redmine_audit_assistant.svg?branch=dev)](http://inch-ci.org/github/Tocea/redmine_audit_assistant)
 
 # redmine audit assistant
 
