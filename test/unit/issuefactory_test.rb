@@ -205,6 +205,27 @@ class IssueFactoryTest < ActiveSupport::TestCase
     
   end
   
+  test "it should not fail if a non-existing user is assigned to an issue" do
+    
+    project = Project.find(1)
+    
+    user_login = "nobody"
+    
+    requirement = Requirement.new(
+      :name => "my subject",
+      :description => "my description",
+      :category => "my tracker",
+      :assignee_login => user_login
+    )
+    
+    issue = requirement.toIssue(project)
+    
+    puts issue.assigned_to.inspect
+    
+    assert_equal User.current.login, issue.assigned_to.login
+    
+  end
+  
   test "it should attach a priority to an issue" do
     
     project = Project.find(1)
