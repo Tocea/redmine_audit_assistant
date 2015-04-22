@@ -71,22 +71,13 @@ module RequirementToIssueHelper
     # get the priority from the requirement, the parent issue
     # or use the default priority
     priority = requirement.priority
-    if !priority
-      if parent
-        priority = parent.priority
-      else
-        priority = IssuePriority.default
-      end     
-    end
+    priority = parent.priority if !priority && parent
+    priority = IssuePriority.default if !priority
 
     # get the user
-    if requirement.assignee
-      user = requirement.assignee
-    elsif parent
-      user = parent.assigned_to
-    else
-      user = User.current
-    end
+    user = requirement.assignee
+    user = parent.assigned_to if !user && parent
+    user = User.current if !user
 
     # create a new issue
     issue = Issue.new(
