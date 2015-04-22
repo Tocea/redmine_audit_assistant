@@ -1,4 +1,4 @@
-<h2>Importer des tâches</h2>
+<h2><%= l(:import_page_title) %></h2>
 
 <%= form_for @requirement, url: {action: "import", :project_id => @project.id}, html: {class: "nifty_form"} do |f| %>
 <div class="box tabular">
