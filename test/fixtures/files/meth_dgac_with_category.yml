@@ -1,0 +1,26 @@
+---
+requirements:
+ - name: Audit de la base de données
+   description:
+   charge: 9.5
+   type: catégorie
+   category: Categories
+   children:
+    - name: permettre la reprise du modèle de données par une nouvelle équipe
+      description:
+      charge:
+      type: objectif
+      category: Objectifs
+    - name: identifier des optimisations pour les serveurs SGBD
+      description:
+      charge:
+      type: objectif
+      category: Objectifs
+      children:
+       - name: permettre la reprise du modèle de données par une nouvelle équipe
+         description:
+         charge:
+         type: pratique
+         category: Pratiques
+         children:
+

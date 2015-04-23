@@ -1,0 +1,15 @@
+<h2><%= l(:import_page_title) %></h2>
+
+<%= form_for @requirement, url: {action: "import", :project_id => @project.id}, html: {class: "nifty_form"} do |f| %>
+<div class="box tabular">
+	<p>
+		<label><%= l(:field_fixed_version)%></label>
+		<%= select_tag(:version_id, options_for_select(@select_versions))%>
+	</p>
+	<p>
+		<label><%= l(:label_attachment_plural) %></label>
+		<%= render :partial => 'attachments/form' %>
+	</p>
+</div>
+<%= submit_tag l(:button_save) %>
+<% end %>
