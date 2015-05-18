@@ -24,10 +24,21 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     Issue.any_instance.stubs(:custom_value_for).with(1).returns('1')
   end
   
+  def close_issue(issue)
+    issue.status_id = 5
+    issue.priority = priority    
+    if !issue.valid?
+      puts issue.errors.full_messages
+    end
+    issue.save
+    assert issue.status.is_closed
+  end
+  
     
   test "it should react to hook controller_issues_edit_after_save" do
     
     issue = stub()
+    issue.expects(:fixed_version_id).returns(nil)
     
     AutocloseIssuePatch::AutocloseIssueHook.stubs(:close_parent_issue).returns(nil)
     
@@ -38,6 +49,7 @@ class AutocloseIssueTest < ActiveSupport::TestCase
   test "it should react to hook controller_issues_bulk_edit_before_save" do
     
     issue = stub()
+    issue.expects(:fixed_version_id).returns(nil)
     issue.expects(:save).returns(true)
     
     AutocloseIssuePatch::AutocloseIssueHook.stubs(:close_parent_issue).returns(nil)
@@ -52,10 +64,7 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     
     # close an issue
     issue = Issue.find(3)
-    issue.status_id = 5
-    issue.priority = priority 
-    issue.save
-    assert issue.status.is_closed
+    close_issue issue
     
     # the parent issue must not be closed
     assert !issue.parent.status.is_closed
@@ -73,10 +82,7 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     
     # close an issue
     issue = Issue.find(3)
-    issue.status_id = 5
-    issue.priority = priority 
-    issue.save  
-    assert issue.status.is_closed
+    close_issue issue
     
     # the parent issue must not be closed
     assert !issue.parent.status.is_closed
@@ -96,10 +102,7 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     
     # close an issue
     issue = Issue.find(4)
-    issue.status_id = 5
-    issue.priority = priority
-    issue.save  
-    assert issue.status.is_closed 
+    close_issue issue
     
     # the parent issue and its parent must not be closed    
     assert !issue.parent.status.is_closed
@@ -122,10 +125,7 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     
     # close an issue
     issue = Issue.find(5)
-    issue.status_id = 5
-    issue.priority = priority
-    issue.save  
-    assert issue.status.is_closed 
+    close_issue issue
     
     # the parent issue must not be closed
     assert !issue.parent.status.is_closed
@@ -195,6 +195,108 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     
     # the tracker should be included in the custom field trackers list
     assert field.trackers.include? tracker
+    
+  end
+  
+  test "it should close the version if all child issues are closed" do
+    
+    # get an issue
+    issue = Issue.find(1) 
+    
+    # create a version
+    version = Version.new(
+      :name => 'version1',
+      :description => 'description',
+      :project_id => issue.project_id
+    )
+    version.save
+    
+    # close the issue
+    close_issue issue
+    
+    # the issue should not have a parent
+    assert_nil issue.parent
+    
+    # assign the version to the issue
+    issue.fixed_version_id = version.id
+    issue.save
+    
+    # the version should be attached to only one issue
+    assert_equal 1, Issue.where(fixed_version_id: version.id).count
+    
+    # the version should not be closed yet
+    assert_equal 'open', version.status
+    
+    # run the function
+    AutocloseIssuePatch::AutocloseIssueHook.close_version(version)
+    
+    # the version should now be closed
+    assert_equal 'closed', version.status
+    
+  end
+  
+  test "it should not close the version if a child issue is still open" do
+    
+    # get an issue
+    issue = Issue.find(1) 
+    issue.priority = priority  
+    issue.save
+    
+    # create a version
+    version = Version.new(
+      :name => 'version1',
+      :description => 'description',
+      :project_id => issue.project_id
+    )
+    version.save
+    
+    # the issue should not be closed
+    assert !issue.status.is_closed
+    
+    # the issue should not have a parent
+    assert_nil issue.parent
+    
+    # assign the version to the issue
+    issue.fixed_version_id = version.id
+    issue.save
+    
+    # the version should be attached to only one issue
+    assert_equal 1, Issue.where(fixed_version_id: version.id).count
+    
+    # the version should not be closed yet
+    assert_equal 'open', version.status
+    
+    # run the function
+    AutocloseIssuePatch::AutocloseIssueHook.close_version(version)
+    
+    # the version should not have been closed
+    assert_equal 'open', version.status
+    
+  end
+  
+  test "it should not close the version if there is no child issue" do
+    
+    project = Project.find(1)
+   
+    # create a version
+    version = Version.new(
+      :name => 'version1',
+      :description => 'description',
+      :project_id => project.id
+    )
+    version.save
+    
+    # the version should not be attached to issues
+    assert_equal 0, Issue.where(fixed_version_id: version.id).count
+    
+    # the version should not be closed yet
+    assert_equal 'open', version.status
+    
+    # run the function
+    AutocloseIssuePatch::AutocloseIssueHook.close_version(version)
+    
+    # the version should not have been closed
+    assert_equal 'open', version.status
     
   end
   
