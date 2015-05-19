@@ -84,7 +84,13 @@ class ImportController < ApplicationController
   def get_or_create_version(version, project)  
     # look in the db if the version already exists     
     version_db = Version.where(project_id: project.id, name: version.name).first
-    if version_db
+    if version_db     
+      # check if the effective date have changed
+      if version.effective_date && version.effective_date != version_db.effective_date
+        # update the effective date
+        version_db.effective_date = version.effective_date
+        version_db.save
+      end
       # use the version that already exists
       version = version_db
     else

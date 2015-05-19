@@ -285,5 +285,31 @@ class IssueFactoryTest < ActiveSupport::TestCase
     assert modules.include? ChecklistHelper
     
   end
+  
+  test "it should assign the version's effective date to an issue if no due date specified" do
+    
+    requirement = Requirement.new(
+      :name => "my subject",
+      :description => "my description",
+      :category => "my tracker"
+    )
+  
+    project = Project.find(1)
+    
+    version = Version.new(
+      :name => 'Version 1.0 buguée',
+      :project_id => project.id,
+      :effective_date => Date.new(2015,5,19)
+    )
+    version.save
+
+    issue = requirement.toIssue(version)
+    
+    issues = Issue.where(project_id: project.id, subject: requirement.name)
+    
+    assert_equal 1, issues.count
+    assert_equal version.effective_date, issues[0].due_date
+    
+  end
 
 end

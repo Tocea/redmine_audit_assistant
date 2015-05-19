@@ -105,13 +105,19 @@ module RequirementToIssueHelper
     if parent
       
       assign_from_parent(issue, parent)
-      
-    elsif version
+     
+    end 
+    
+    if version
       
       # set the version id if it hasn't been inherited from parent
-      issue.fixed_version_id = version.id
+      issue.fixed_version_id = version.id unless issue.fixed_version_id
       
-    end     
+      # set due date to the version's effective date
+      # if no due date have been assigned yet
+      issue.due_date = version.effective_date unless issue.due_date
+      
+    end    
 
     # check if the issue can be validated
     if !issue.valid?

@@ -86,6 +86,23 @@ class ImportControllerTest < ActionController::TestCase
     
   end
   
+  test "should update the version effective date if the version already exists but with another effective date" do
+    
+    file = create_attachment('meth_dgac_with_version.yml')
+    
+    original_date = Date.new(2010,1,1)
+    
+    version = Version.new(:project_id => 1, :name => 'Audit DGAC', :effective_date => original_date)
+    version.save
+    
+    get :import, {'project_id' => 1, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
+    
+    version_db = Version.where(name: version.name).first
+    
+    assert_not_equal original_date, version_db.effective_date
+    
+  end
+  
   test "should use a version of a project if an id version is set in the parameters" do
     
     file = create_attachment('meth_dgac.yml')
