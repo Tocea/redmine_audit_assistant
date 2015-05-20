@@ -1,0 +1,95 @@
+<h2><%= l(:progress_report_title) %></h2>
+
+<%= form_tag '/progress-report?project_id='+@project.id.to_s do |f| %>
+
+<div class="box tabular">
+	<p>
+		<label><%= l(:label_date_range)%></label>
+		<%= select_tag(:period, options_for_select(@periods))%>
+	</p>
+	<p>
+		<label><%= l(:field_fixed_version)%></label>
+		<%= select_tag(:version_id, options_for_select(@select_versions))%>
+	</p>
+</div>
+
+<div class="autoscroll">
+	<h4><%= l(:current_issues_to_work_on) %></h4>
+	<table class="list issues">
+		<thead>
+			<th class="checkbox hide-when-print">
+				<img alt="Toggle_check" src="/images/toggle_check.png?1426532353">
+			</th>
+			<th>#</th>
+			<th><%= l(:field_tracker)%></th>
+			<th><%= l(:field_status)%></th>			
+			<th><%= l(:field_priority)%></th>
+			<th><%= l(:field_subject)%></th>
+			<th><%= l(:field_assigned_to)%></th>
+			<th><%= l(:field_estimated_hours)%></th>		
+		</thead>
+		<tbody>
+			<% for @issue in @issues %>
+				<tr data-version="<%= @issue.fixed_version_id %>">
+					<td><%= check_box_tag 'issues_ids[]', @issue.id %></td>
+					<td><%= @issue.id %></td>
+					<td><%= @issue.tracker.name %></td>
+					<td><%= @issue.status.name %></td>
+					<td><%= @issue.priority.name %></td>
+					<td style="text-align: left;"><%= @issue.subject %></td>
+					<td><%= @issue.assigned_to.to_s %></td>
+					<td><%= @issue.estimated_hours %></td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+</div>
+
+<h4><%= l(:members_occupations) %></h4>
+<div class="box tabular">
+	<% for @user in @users %>
+		<p>
+			<label><%= @user.to_s %></label>
+			<%= text_field_tag "member_occupation["+@user.id.to_s+"]", "100", :size => 3 %> %
+		</p>
+	<% end %>
+</div>
+
+<div class="box tabular">	
+	<p>
+		<label><%= l(:what_went_wrong) %></label>
+		<%= text_area_tag "what_went_wrong", "", :rows => "10" %>
+	</p>	
+</div>
+
+<%= submit_tag l(:button_save) %>
+<% end %>
+
+<script type="text/javascript">
+	
+	$(document).ready(function() {
+		
+		var version_selector = '#version_id';
+		var issues_selector = '.issues';
+		
+		var selectVersion = function(version_id) {
+			$(issues_selector+' tbody tr').each(function(i, e) {
+				var vid = $(e).data('version');
+				if (vid == version_id) {
+					$(e).show();									
+				}else{
+					$(e).hide();
+					$(e).find("input[type='checkbox']").attr('checked', false);
+				}
+			});
+		}
+		
+		$(version_selector).change(function(){
+			selectVersion($(version_selector).val());
+		});
+		
+		selectVersion($(version_selector).val());
+		
+	});
+	
+</script>

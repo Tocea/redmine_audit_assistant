@@ -2,3 +2,21 @@
 fr:
   error_parsing_file: "Impossible d'importer les données de ce fichier."
   import_page_title: "Importer des tâches"
+  progress_report_title: "Rapport d'avancement"
+  what_went_wrong: "Qu’est ce qui ralentit l’équipe ou bloque sa progression ?"
+  current_issues_to_work_on: Qu’est ce que fera l’équipe cette semaine ?
+  members_occupations: "% occupation / personne"
+  weekly_report: Compte rendu de la semaine
+  project_identity: Identité du projet
+  project_name: "Nom du projet :"
+  etape: Etape
+  date_start_project: Date de début de projet
+  date_effective_project: Date de fin prévue
+  date_estimated_project: Date de fin estimée
+  total_effective_charge: Totale prévue
+  total_estimated_charge: Totale estimée
+  total_left_charge: Totale restante
+  charge: charge
+  project_progress: Avancement Projet
+  what_has_been_done_since_last_time: "Qu’est ce que l’équipe a réalisé depuis la dernière fois ?"
+  what_will_be_done_this_week: "Que fera l'équipe cette semaine ?"

@@ -1,0 +1,36 @@
+--- 
+journals_001:
+  created_on: 2015-04-20
+  notes: "Journal notes"
+  id: 1
+  journalized_type: Issue
+  user_id: 1
+  journalized_id: 1
+journals_002: 
+  created_on: 2015-04-20
+  notes: "Some notes with Redmine links: #2, r2."
+  id: 2
+  journalized_type: Issue
+  user_id: 2
+  journalized_id: 1
+journals_003: 
+  created_on: 2015-05-20
+  notes: "Some notes with Redmine links: #2, r2."
+  id: 3
+  journalized_type: Issue
+  user_id: 2
+  journalized_id: 1
+journals_004:
+  created_on: 2015-03-01
+  notes: "Journal notes"
+  id: 4
+  journalized_type: Issue
+  user_id: 1
+  journalized_id: 1
+journals_005:
+  created_on: 2015-05-10
+  notes: "Journal notes"
+  id: 5
+  journalized_type: Issue
+  user_id: 1
+  journalized_id: 1
