@@ -49,23 +49,13 @@ class ProgressReportHelperTest < ActiveSupport::TestCase
     
   end
   
-  test "it should retrieve the issues that have changed during a particular period" do
-    
-    issues = [Issue.find(1), Issue.find(2), Issue.find(3)]
-    date_from = "2015-04-01".to_date
-    date_to = "2015-04-30".to_date
-    
-    assert_equal 1, @helper.issues_updated(issues, date_from, date_to).count
-    
-  end
-  
   test "it should not fail if the period is incorrect" do
     
     issues = [Issue.find(1), Issue.find(2), Issue.find(3)]
     date_to = "2015-04-01".to_date
     date_from = "2015-04-30".to_date
     
-    assert_equal 0, @helper.issues_updated(issues, date_from, date_to).count
+    assert_equal 0, @helper.get_issues_journals(issues, date_from, date_to).count
     
   end
   
@@ -73,7 +63,7 @@ class ProgressReportHelperTest < ActiveSupport::TestCase
     
     issues = [Issue.find(1), Issue.find(2), Issue.find(3)]
     
-    assert_equal 0, @helper.issues_updated(issues, nil, nil).count
+    assert_equal 0, @helper.get_issues_journals(issues, nil, nil).count
     
   end
   
@@ -82,7 +72,17 @@ class ProgressReportHelperTest < ActiveSupport::TestCase
     date_to = "2015-04-01".to_date
     date_from = "2015-04-30".to_date
     
-    assert_equal 0, @helper.issues_updated(nil, date_from, date_to).count
+    assert_equal 0, @helper.get_issues_journals(nil, date_from, date_to).count
+    
+  end
+  
+  test "it should return the journals of given issues during a given period" do
+    
+    issues = [Issue.find(1), Issue.find(2), Issue.find(3)]
+    date_from = "2015-04-01".to_date
+    date_to = "2015-04-30".to_date
+    
+    assert_equal 2, @helper.get_issues_journals(issues, date_from, date_to).count
     
   end
   

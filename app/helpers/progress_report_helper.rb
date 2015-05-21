@@ -1,7 +1,7 @@
 module ProgressReportHelper
   
-  # return the list of issues that has been updated during a given period
-  def issues_updated(issues, date_from, date_to)
+  # return the journals of given issues during a particular period  
+  def get_issues_journals(issues, date_from, date_to)
     
     if issues.blank? || date_from.nil? || date_to.nil?
       return Array.new
@@ -12,10 +12,6 @@ module ProgressReportHelper
         date_from: date_from,
         date_to: date_to
     })
-    
-    issues_ids_changed = journals.map { |j| j.journalized_id }
-    
-    issues.select { |issue| issues_ids_changed.include?(issue.id) }
     
   end
   
@@ -56,11 +52,15 @@ module ProgressReportHelper
     # clone the issue
     old_issue = issue.copy
     
-    # set the id (lost during the copy)
+    # set the properties lost during the copy
     old_issue.id = issue.id
+    old_issue.created_on = issue.created_on
     
     # get the list of all attributes
     props = issue.attributes.to_a
+    
+    # reject the attributes that cannot be changed
+    props.reject { |p| ['id', 'created_on'].include? p[0] }
     
     props.each do |p|
       value = get_property_value_at_period_end(issue, p[0], date_to)

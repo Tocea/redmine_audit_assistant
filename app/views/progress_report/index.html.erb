@@ -75,7 +75,7 @@
 		var selectVersion = function(version_id) {
 			$(issues_selector+' tbody tr').each(function(i, e) {
 				var vid = $(e).data('version');
-				if (vid == version_id) {
+				if (vid == version_id || version_id == 0) {
 					$(e).show();									
 				}else{
 					$(e).hide();
