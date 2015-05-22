@@ -7,20 +7,32 @@ class ProgressReportController < ApplicationController
   def index
     
     @project = Project.find(params[:project_id])
+      
+    @date_from = params[:date_from] ? params[:date_from].to_date : nil
     
-    issues_project = Issue.where(project_id: @project.id)
-    @issues = Array.new
+    @version = nil
     
-    issues_project.each do |issue|
-      @issues.push(issue) #unless issue.status.is_closed?
+    if !params[:version_id].blank? && params[:version_id] != '0'
+      # retrieve the version
+      version_id = params[:version_id]
+      @version = Version.find(version_id)
     end
+
+    report = create_report(@project, @version, @date_from, @date_to, nil)
+    
+    @periods = Array.new
+    
+    report.get_week_periods.each do |p|
+      date_lib = p[0].strftime("%d/%m/%y") + ' - ' + p[1].strftime("%d/%m/%y")
+      @periods.push([date_lib, p[0].strftime('%F')])
+    end
+    
+    @issues = report.issues.reject { |issue| issue.status.is_closed? }
     
     @users = @issues.map { |issue| issue.assigned_to }.uniq
         
-    @date_beggining_project = issues_project.map {|issue| issue.created_on }.min
-    
-    @periods = get_week_periods(@date_beggining_project)   
-    
+    @date_beggining_project = report.date_beginning
+
     @select_versions = [['root', 0]]
     @versions = @project.shared_versions.open
     @versions.each do |v|
@@ -45,14 +57,8 @@ class ProgressReportController < ApplicationController
     end
     
     @occupation_persons = params[:member_occupation] ? params[:member_occupation] : nil
-    
-    report = nil
-    
-    if @version
-      report = ProjectVersionProgressReport.new(@version, @date_from, @date_to, @occupation_persons)
-    else
-      report = ProjectProgressReport.new(@project, @date_from, @date_to, @occupation_persons)
-    end
+       
+    report = create_report(@project, @version, @date_from, @date_to, @occupation_persons)
     
     # get report's data
     @issues = report.issues
@@ -75,25 +81,19 @@ class ProgressReportController < ApplicationController
 
   end
   
-  def get_week_periods(date_beggining_project)
+  private # ---------------------------------------------------------------------------
+  
+  def create_report(project, version, date_from, date_to, occupation_persons)
     
-    periods = Array.new
+    report = nil
     
-    date_from = Chronic.parse('monday', :context => :past)
-    date_to = Chronic.parse('friday')
-    
-    while date_to >= date_beggining_project do
-      
-      date_lib = date_from.strftime("%d/%m/%y") + ' - ' + date_to.strftime("%d/%m/%y")
-      periods.push([date_lib, date_from])
-      
-      date_from = Chronic.parse('last monday', :now => date_from)
-      date_to = Chronic.parse('last friday', :now => date_to)
-      
+    if version
+      report = ProjectVersionProgressReport.new(version, date_from, date_to, occupation_persons)
+    else
+      report = ProjectProgressReport.new(project, date_from, date_to, occupation_persons)
     end
     
-    periods
-    
+    report
   end
   
 end

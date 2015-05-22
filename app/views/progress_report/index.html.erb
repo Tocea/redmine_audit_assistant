@@ -1,6 +1,6 @@
 <h2><%= l(:progress_report_title) %></h2>
 
-<%= form_tag '/progress-report?project_id='+@project.id.to_s do |f| %>
+<%= form_tag '/progress-report?project_id='+@project.id.to_s, :id => 'progress_report_form' do |f| %>
 
 <div class="box tabular">
 	<p>
@@ -62,7 +62,7 @@
 	</p>	
 </div>
 
-<%= submit_tag l(:button_save) %>
+<%= submit_tag l(:button_generate_report) %>
 <% end %>
 
 <script type="text/javascript">
@@ -71,24 +71,36 @@
 		
 		var version_selector = '#version_id';
 		var issues_selector = '.issues';
+		var period_selector = '#period';
 		
-		var selectVersion = function(version_id) {
-			$(issues_selector+' tbody tr').each(function(i, e) {
-				var vid = $(e).data('version');
-				if (vid == version_id || version_id == 0) {
-					$(e).show();									
-				}else{
-					$(e).hide();
-					$(e).find("input[type='checkbox']").attr('checked', false);
-				}
-			});
-		}
-		
-		$(version_selector).change(function(){
-			selectVersion($(version_selector).val());
+		$(period_selector).change(function() {
+			reloadView();
 		});
 		
-		selectVersion($(version_selector).val());
+		$(version_selector).change(function() {
+			reloadView();
+		});
+		
+		var reloadView = function() {
+			var url = $('#progress_report_form').attr('action');
+			url += '&date_from='+$(period_selector).val();
+			url += '&version_id='+$(version_selector).val();
+			document.location.href = url;
+		}
+		
+		$(period_selector+' option').each(function(i, e) {
+			var date_from = '<%= params[:date_from] %>';
+			if ($(e).attr('value') == date_from && date_from != '') {
+				$(e).attr('selected', 'selected');
+			}
+		});
+		
+		$(version_selector+' option').each(function(i, e) {
+			var version_id = '<%= params[:version_id] %>';
+			if ($(e).attr('value') == version_id && version_id != '') {
+				$(e).attr('selected', 'selected');
+			}
+		});
 		
 	});
 	

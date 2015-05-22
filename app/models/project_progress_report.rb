@@ -2,7 +2,7 @@ class ProjectProgressReport < ProgressReport
     
   def issues
     issues_list = Issue.where(project_id: @root.id)
-    issues_list.map { |issue| restore_issue_state(issue, @date_from, @date_to) }
+    restore_issues_states(issues_list, @date_from, @date_to)
   end
   
   def versions

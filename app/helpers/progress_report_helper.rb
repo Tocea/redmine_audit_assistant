@@ -48,7 +48,12 @@ module ProgressReportHelper
   
   # restore an issue to its last know state in a given period
   def restore_issue_state(issue, date_from, date_to)
-           
+    
+    # check if the issue existed during the given period
+    if issue.created_on.to_date > date_to.to_date
+      return nil
+    end
+    
     # clone the issue
     old_issue = issue.copy
     
@@ -71,6 +76,14 @@ module ProgressReportHelper
     
     old_issue
     
+  end
+  
+  def restore_issues_states(issues, date_from, date_to)
+    issues_list = issues
+    if date_from && date_to
+      issues_list = issues.map { |issue| restore_issue_state(issue, date_from, date_to) }.compact
+    end
+    issues_list
   end
   
 end

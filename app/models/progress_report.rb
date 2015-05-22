@@ -7,6 +7,16 @@ class ProgressReport
     @date_from = date_from
     @date_to = date_to
     @occupation_persons = format_occupation_persons_map(occupation_persons)
+    if !@date_from
+      @date_from = date_beginning
+    end
+    if !@date_to
+      to_end_of_week
+    end
+  end
+  
+  def to_end_of_week
+    @date_to = Chronic.parse('next friday', :now => @date_from)
   end
   
   @@nb_hours_per_day = 8
@@ -74,9 +84,9 @@ class ProgressReport
       if issue.estimated_hours
         tx = 1
         if @occupation_persons[issue.assigned_to_id]
-          tx += @occupation_persons[issue.assigned_to_id] / 100.0
+          tx = @occupation_persons[issue.assigned_to_id] / 100.00
         end
-        total += issue.estimated_hours * tx
+        total += issue.estimated_hours / tx
       end
     end
     
@@ -92,16 +102,40 @@ class ProgressReport
       if issue.estimated_hours && !issue.status.is_closed?
         tx = 1
         if @occupation_persons[issue.assigned_to_id]
-          tx += @occupation_persons[issue.assigned_to_id] / 100.00          
+          tx = @occupation_persons[issue.assigned_to_id] / 100.00        
         end
         done_ratio = issue.done_ratio ? issue.done_ratio : 0
         todo_ratio = 1 - (done_ratio / 100.00)
-        total += issue.estimated_hours * tx * todo_ratio
+        total += todo_ratio * issue.estimated_hours / tx
       end
     end
     
     format_hours(total, format)
     
+  end
+  
+  def get_week_periods
+    
+    date_beggining_project = date_beginning
+    periods = Array.new
+    
+    date_from = Chronic.parse('monday', :context => :past)
+    date_to = Chronic.parse('friday', :now => date_from)
+    
+    if date_beggining_project.nil?
+      date_beggining_project = @date_from
+    end
+    
+    while date_to >= date_beggining_project do
+          
+      periods.push([date_from, date_to])
+      
+      date_from = Chronic.parse('last monday', :now => date_from)
+      date_to = Chronic.parse('last friday', :now => date_to)
+      
+    end
+    
+    periods   
   end
   
   private # ----------------------------------------------------------------

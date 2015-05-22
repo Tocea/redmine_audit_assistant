@@ -34,14 +34,14 @@ class ProgressReportTest < ActiveSupport::TestCase
     report = ProgressReport.new(project, @date_from, @date_to, occupation_persons)
     
     issues = [
-      Issue.new(:assigned_to_id => 1, :estimated_hours => 10),  # => +1
-      Issue.new(:assigned_to_id => 2, :estimated_hours => 15),  # => +7.5
-      Issue.new(:assigned_to_id => 3, :estimated_hours => 5)    # => +0
+      Issue.new(:assigned_to_id => 1, :estimated_hours => 10),  # => 100
+      Issue.new(:assigned_to_id => 2, :estimated_hours => 15),  # => 30
+      Issue.new(:assigned_to_id => 3, :estimated_hours => 5)    # => 5
     ]
     
     report.stubs(:issues).returns(issues)
     
-    assert_equal 38.5, report.charge_estimated
+    assert_equal 135.0, report.charge_estimated
     
   end
   
@@ -54,9 +54,9 @@ class ProgressReportTest < ActiveSupport::TestCase
     report = ProgressReport.new(project, @date_from, @date_to, occupation_persons)
     
     issues = [
-      Issue.new(:assigned_to_id => 1, :estimated_hours => 10, :done_ratio => 20),  # => 8 left   => +0.8
-      Issue.new(:assigned_to_id => 2, :estimated_hours => 30, :done_ratio => 40),  # => 18 left  => +9
-      Issue.new(:assigned_to_id => 3, :estimated_hours => 5,  :done_ratio => 0)    # => 5 left   => +0
+      Issue.new(:assigned_to_id => 1, :estimated_hours => 10, :done_ratio => 20),  # => 8 left   => 80
+      Issue.new(:assigned_to_id => 2, :estimated_hours => 30, :done_ratio => 40),  # => 18 left  => 36
+      Issue.new(:assigned_to_id => 3, :estimated_hours => 5,  :done_ratio => 0)    # => 5 left   => 5
     ]
     
     status = mock()
@@ -65,7 +65,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     report.stubs(:issues).returns(issues)
     
-    assert_equal 40.8, report.charge_left
+    assert_equal 121.0, report.charge_left
     
   end
   
@@ -137,6 +137,55 @@ class ProgressReportTest < ActiveSupport::TestCase
     report.stubs(:issues).returns(issues)  
     
     assert_equal "2015-06-01".to_date, report.date_estimated
+    
+  end
+  
+  test "it should be possible to create a ProgressReport instance without specifying the date_from" do
+    
+    project = mock()
+    
+    date_from = 3.day.ago
+    
+    ProgressReport.any_instance.stubs(:date_beginning).returns(date_from)
+    
+    report = ProgressReport.new(project, nil, nil)
+    
+    assert_equal date_from, report.date_from
+    
+  end
+  
+  test "the date_to parameter should be calculated automatically if it is not specified" do
+    
+    project = mock()
+    
+    date_from = "2015-05-18".to_date
+    date_to = "2015-05-22".to_date
+    
+    report = ProgressReport.new(project, date_from, nil)
+    
+    assert_equal date_to, report.date_to.to_date
+    
+  end
+  
+  test "it should return all the weeks in the project/version" do
+    
+    project = mock()
+    
+    date_from = "2015-05-01".to_date
+    date_to = "2015-05-13".to_date
+
+    Time.stubs(:now).returns(Time.parse(date_to.to_s))
+    
+    ProgressReport.any_instance.stubs(:date_beginning).returns(date_from)
+    
+    report = ProgressReport.new(project, date_from, nil)
+
+    periods = report.get_week_periods
+    puts periods.to_s
+    
+    assert_equal 3, periods.count
+    assert_equal "2015-05-11".to_date, periods[0][0].to_date
+    assert_equal "2015-05-15".to_date, periods[0][1].to_date
     
   end
 
