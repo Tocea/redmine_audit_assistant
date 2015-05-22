@@ -9,14 +9,8 @@ class ProgressReportController < ApplicationController
     @project = Project.find(params[:project_id])
       
     @date_from = params[:date_from] ? params[:date_from].to_date : nil
-    
-    @version = nil
-    
-    if !params[:version_id].blank? && params[:version_id] != '0'
-      # retrieve the version
-      version_id = params[:version_id]
-      @version = Version.find(version_id)
-    end
+        
+    @version = get_version(params[:version_id])
 
     report = create_report(@project, @version, @date_from, @date_to, nil)
     
@@ -48,13 +42,9 @@ class ProgressReportController < ApplicationController
     
     # retrieve the dates
     @date_from = params[:period].to_date
-    @date_to = Chronic.parse('next friday', :now => @date_from)
+    @date_to = Chronic.parse('next friday', :now => @date_from)   
     
-    if !params[:version_id].blank? && params[:version_id] != '0'
-      # retrieve the version
-      version_id = params[:version_id]
-      @version = Version.find(version_id)
-    end
+    @version = get_version(params[:version_id])
     
     @occupation_persons = params[:member_occupation] ? params[:member_occupation] : nil
        
@@ -94,6 +84,18 @@ class ProgressReportController < ApplicationController
     end
     
     report
+  end
+  
+  # retrieve the version
+  def get_version(version_id)
+    
+    version = nil
+    if !version_id.blank? && version_id != '0'    
+      version = Version.find(version_id)
+    end
+    
+    version
+    
   end
   
 end
