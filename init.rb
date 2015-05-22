@@ -13,3 +13,4 @@ end
 
 
 require 'autoclose_issue_patch'
+require 'workflow_buttons_hook'

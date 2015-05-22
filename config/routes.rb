@@ -6,3 +6,5 @@ post 'import-requirements', :to => 'import#import'
 
 get 'progress-report', :to => 'progress_report#index'
 post 'progress-report', :to => 'progress_report#generate'
+
+get 'start-issue', :to => 'issues_custom_actions#start'
