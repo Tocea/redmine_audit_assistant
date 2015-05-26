@@ -22,3 +22,7 @@ fr:
   what_will_be_done_this_week: "Que fera l'équipe cette semaine ?"
   button_generate_report: Générer le rapport
   button_start_issue: Démarrer
+  status_from: "Statut de départ"
+  status_to: "Statut d'arrivée"
+  issue_custom_actions_settings_title: "Configuration des boutons de changement de statut"
+  issue_custom_actions_settings_error: "Impossible de créer une action avec ces paramétres"

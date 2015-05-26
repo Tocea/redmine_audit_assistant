@@ -1,18 +1,5 @@
-<style>
-	.progress-report-block {
-		margin-top: 20px;
-	}
-	.charge-table, .issues {
-		margin-top: 20px;
-	}
-	.progress-report-block h4 {
-		margin-top: 20px;
-		border-bottom: none;
-	}	
-	.progress-report-block table th {
-		-webkit-print-color-adjust: exact; 
-	}
-</style>
+
+<%= stylesheet_link_tag('audit_assistant.css', :plugin => 'redmine_audit_assistant') %>
 
 <h2> <%= l(:weekly_report)+' - '+l(:label_date_from)+' '+@date_from.strftime("%d/%m/%y")+' '+l(:label_date_to)+' '+@date_to.strftime("%d/%m/%y") %> </h2>
 
