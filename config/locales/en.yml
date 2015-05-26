@@ -21,3 +21,8 @@ en:
   what_has_been_done_since_last_time: "What has been done since last time?"
   what_will_be_done_this_week: "What will be done this week?"
   button_generate_report: "Generate report"
+  button_start_issue: Start
+  status_from: "From status"
+  status_to: "To status"
+  issue_custom_actions_settings_title: "Issue Action Status Settings"
+  issue_custom_actions_settings_error: "Cannot create an action with these parameters"

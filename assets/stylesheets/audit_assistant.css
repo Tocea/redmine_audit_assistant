@@ -1,0 +1,26 @@
+
+/* -----------------------------------------
+ *  ADMIN MENU
+ * -----------------------------------------
+ */
+#admin-menu .issues-custom-actions {
+	background-image: url('../images/ticket_edit.png');
+}
+
+/* -----------------------------------------
+ *  PROGRESS REPORT
+ * -----------------------------------------
+ */
+.progress-report-block {
+	margin-top: 20px;
+}
+.charge-table, .issues {
+	margin-top: 20px;
+}
+.progress-report-block h4 {
+	margin-top: 20px;
+	border-bottom: none;
+}	
+.progress-report-block table th {
+	-webkit-print-color-adjust: exact; 
+}

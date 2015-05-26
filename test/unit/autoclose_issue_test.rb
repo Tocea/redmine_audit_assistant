@@ -41,6 +41,7 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     issue.expects(:fixed_version_id).returns(nil)
     
     AutocloseIssuePatch::AutocloseIssueHook.stubs(:close_parent_issue).returns(nil)
+    AutocloseIssuePatch::AutocloseIssueHook.stubs(:set_date_start).returns(nil)
     
     Redmine::Hook.call_hook(:controller_issues_edit_after_save, { :issue => issue })
     
@@ -53,6 +54,7 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     issue.expects(:save).returns(true)
     
     AutocloseIssuePatch::AutocloseIssueHook.stubs(:close_parent_issue).returns(nil)
+    AutocloseIssuePatch::AutocloseIssueHook.stubs(:set_date_start).returns(nil)
     
     Redmine::Hook.call_hook(:controller_issues_bulk_edit_before_save, { :issue => issue })
     
@@ -297,6 +299,76 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     
     # the version should not have been closed
     assert_equal 'open', version.status
+    
+  end
+  
+  test "it should automatically set the start date of an issue when its status is no longer the default status" do
+    
+    # get an issue
+    issue = Issue.find(1) 
+    issue.start_date = nil
+    issue.priority = priority
+    issue.save
+    
+    # its status should be the default one
+    assert issue.status.is_default
+    
+    # its start date should not have been set
+    assert issue.start_date.nil?
+    
+    # let's change the status
+    issue.status = IssueStatus.find(2)
+    issue.save
+    
+    AutocloseIssuePatch::AutocloseIssueHook.set_date_start(issue)
+    
+    # the date should now be set
+    assert_not_nil issue.start_date
+    
+  end
+  
+  test "it should not automatically set the start date of an issue if the start date is already defined" do
+    
+    start_date = 3.day.ago.to_date
+    
+    # get an issue
+    issue = Issue.find(1) 
+    issue.priority = priority
+    issue.save
+    
+    # its status should be the default one
+    assert issue.status.is_default
+    
+    # let's change the status and set a start date
+    issue.status = IssueStatus.find(2)
+    issue.start_date = start_date
+    issue.save
+    
+    AutocloseIssuePatch::AutocloseIssueHook.set_date_start(issue)
+    
+    # the date should not have changed
+    assert_equal start_date, issue.start_date
+    
+  end
+  
+  test "it should not automatically set the start date of an issue which is still on the default status" do
+    
+    # get an issue
+    issue = Issue.find(1) 
+    issue.start_date = nil
+    issue.priority = priority
+    issue.save
+    
+    # its status should be the default one
+    assert issue.status.is_default
+    
+    # its start date should not have been set
+    assert issue.start_date.nil?
+    
+    AutocloseIssuePatch::AutocloseIssueHook.set_date_start(issue)
+    
+    # the date should not be set
+    assert issue.start_date.nil?
     
   end
   

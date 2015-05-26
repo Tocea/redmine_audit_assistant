@@ -27,7 +27,20 @@ module AutocloseIssuePatch extend ActiveSupport::Concern
         version = Version.find(issue.fixed_version_id)
         close_version(version)
       end           
+      
+      set_date_start(issue)
 
+    end
+    
+    # automatically set the start date of an issue
+    # when its status is no longer the defaut status
+    def self.set_date_start(issue)
+     
+      if !issue.status.is_default && issue.start_date.nil?      
+        issue.start_date = Date.today
+        issue.save
+      end
+      
     end
     
     # check if we can automatically close an issue

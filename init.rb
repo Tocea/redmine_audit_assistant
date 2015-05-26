@@ -9,7 +9,10 @@ Redmine::Plugin.register :redmine_audit_assistant do
   permission :progress_report, { :progress_report => [:index, :generate] }, :public => true
   menu :project_menu, :import, { :controller => 'import', :action => 'index' }, :caption => 'Import', :after => :activity, :param => :project_id
   menu :project_menu, :progress_report, { :controller => 'progress_report', :action => 'index' }, :caption => :progress_report_title, :after => :activity, :param => :project_id
+  menu :admin_menu, :issues_custom_actions, { :controller => 'issues_custom_actions', :action => 'settings', :caption => :issue_custom_actions_settings_title }
 end
 
 
 require 'autoclose_issue_patch'
+require 'workflow_buttons_hook'
+require 'admin_menu_hooks'

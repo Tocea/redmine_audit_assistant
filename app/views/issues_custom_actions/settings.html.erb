@@ -1,0 +1,40 @@
+<h2><%= l(:issue_custom_actions_settings_title) %></h2>
+
+<table class="list" style="margin-top: 30px; margin-bottom: 30px;">
+	<thead>
+		<th><%= l(:field_name)%></th>
+		<th><%= l(:status_from)%></th>			
+		<th><%= l(:status_to)%></th>	
+		<th></th>
+	</thead>
+	<tbody>
+		<% for @action in @status_actions %>
+			<tr>
+				<td><%= @action.lib %></td>
+				<td><%= @action.status_from.name %></td>
+				<td><%= @action.status_to.name %></td>
+				<td><%= link_to l(:button_delete), 'issues-status-actions-delete?action_id='+@action.id.to_s, :class => 'icon icon-del' %></td>
+			</tr>
+		<% end %>
+	</tbody>
+</table>
+
+<%= form_for @status_action, url: {action: "insert"}, html: {class: "nifty_form"} do |f| %>
+
+<div class="box tabular">
+	<p>
+		<label><%= l(:field_name)%></label>
+		<%= text_field_tag "action_lib", "", :size => 30 %>
+	</p>
+	<p>
+		<label><%= l(:status_from)%></label>
+		<%= select_tag(:status_from, options_for_select(@statuses))%>
+	</p>
+	<p>
+		<label><%= l(:status_to)%></label>
+		<%= select_tag(:status_to, options_for_select(@statuses))%>
+	</p>
+</div>
+<%= submit_tag l(:button_save) %>
+
+<% end %>

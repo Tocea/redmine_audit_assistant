@@ -1,0 +1,17 @@
+
+<div id="tocea-custom-buttons">
+	<% for @action in IssueStatusActions.available_actions(@issue) %>
+		<%= link_to @action.lib, '/issues-status-actions-run?action_id='+@action.id.to_s+'&issue_id='+@issue.id.to_s, :class => 'icon icon-time-add' if User.current.allowed_to?(:log_time, @project) %>
+	<% end %>
+</div>
+
+<script type="text/javascript">
+	
+	var elt_selector = '#tocea-custom-buttons';
+	var menu_selector = '#content .contextual';
+	
+	$(menu_selector).first().prepend($(elt_selector).html());
+	
+	$(elt_selector).remove();
+	
+</script>
