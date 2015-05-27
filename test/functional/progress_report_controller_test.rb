@@ -11,6 +11,13 @@ class ProgressReportControllerTest < ActionController::TestCase
   fixtures :trackers
   fixtures :users
   fixtures :enumerations
+  fixtures :roles
+  fixtures :members
+  fixtures :member_roles
+  
+  setup do
+    @request.session[:user_id] = 1    # admin user
+  end
   
   test "it should load the index page" do
     

@@ -1,9 +1,9 @@
 class ProgressReportController < ApplicationController
   unloadable
   
+  before_filter :find_project, :authorize
+  
   def index
-    
-    @project = Project.find(params[:project_id])
       
     @date_from = params[:date_from] ? params[:date_from].to_date : nil
         
@@ -33,10 +33,7 @@ class ProgressReportController < ApplicationController
     
   end
 
-  def generate
-    
-    # retrieve the project
-    @project = Project.find(params[:project_id])
+  def generate   
     
     # retrieve the dates
     @date_from = params[:period].to_date
@@ -71,12 +68,16 @@ class ProgressReportController < ApplicationController
   
   def empty
     
+  end
+  
+  private # ---------------------------------------------------------------------------
+  
+  def find_project
+    
     # retrieve the project
     @project = Project.find(params[:project_id])
     
   end
-  
-  private # ---------------------------------------------------------------------------
   
   def create_report(project, version, date_from, date_to, occupation_persons)
     
