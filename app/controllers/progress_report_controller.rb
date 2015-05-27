@@ -29,11 +29,7 @@ class ProgressReportController < ApplicationController
         
     @date_beggining_project = report.date_beginning
 
-    @select_versions = [['root', 0]]
-    @versions = @project.shared_versions.open
-    @versions.each do |v|
-      @select_versions.push([v.name, v.id])
-    end
+    @select_versions = get_versions_list(@project)
     
   end
 
@@ -105,6 +101,18 @@ class ProgressReportController < ApplicationController
     
     version
     
+  end
+  
+  # retrieve the list of all open (or locked) versions of a project
+  def get_versions_list(project)
+    
+    select_versions = [['root', 0]]
+    versions = Version.where(project_id: project.id)
+    versions.each do |v|
+      select_versions.push([v.name, v.id]) unless v.closed?
+    end
+    
+    select_versions
   end
   
 end
