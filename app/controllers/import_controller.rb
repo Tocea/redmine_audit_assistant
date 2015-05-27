@@ -69,6 +69,9 @@ class ImportController < ApplicationController
       r.toIssue(@version ? @version : @project)  
     end
     
+    # lock the version
+    lock_version(@version) unless @version.nil?
+    
     if requirements.count == 1
       # redirect to the page that display the root issue
       redirect_to :controller => 'issues', :action => 'show', :id => requirements[0].issue.id
@@ -78,6 +81,8 @@ class ImportController < ApplicationController
     end
     
   end
+  
+  private # -----------------------------------------------------------------------------------
   
   # create a new version of a project
   # or retrieve it from the db if it already exists
@@ -96,12 +101,18 @@ class ImportController < ApplicationController
     else
       # create a new version
       version.project_id = project.id
-      if !version.valid?
-        Rails.logger.test version.errors.full_messages
-      end
       version.save
     end
     version
+  end
+  
+  
+  # lock a version
+  def lock_version(version)
+    
+    version.status = 'locked'
+    version.save
+    
   end
   
 end

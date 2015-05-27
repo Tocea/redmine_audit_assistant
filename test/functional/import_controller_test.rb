@@ -118,6 +118,21 @@ class ImportControllerTest < ActionController::TestCase
     
   end
   
+  test "should locked the version after creating the issues" do
+    
+    file = create_attachment('meth_dgac.yml')
+    
+    version = Version.new(:project_id => 1, :name => 'Audit DGAC')
+    version.save
+    
+    # make the request
+    get :import, {'project_id' => 1, 'version_id' => version.id, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
+    
+    # the version should now be locked
+    assert_equal 'locked', Version.find(version.id).status
+    
+  end
+  
   test "should redirect to index if the file cannot be parsed" do
     
     file = create_attachment('file_not_found.yml')
