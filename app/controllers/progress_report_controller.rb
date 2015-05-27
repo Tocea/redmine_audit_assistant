@@ -1,9 +1,6 @@
 class ProgressReportController < ApplicationController
   unloadable
   
-  helper :progress_report
-  include ProgressReportHelper
-  
   def index
     
     @project = Project.find(params[:project_id])
