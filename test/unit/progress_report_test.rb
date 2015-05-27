@@ -2,9 +2,43 @@ require File.expand_path('../../test_helper', __FILE__)
 
 class ProgressReportTest < ActiveSupport::TestCase
   
+  self.use_instantiated_fixtures = true
+  self.fixture_path = File.dirname(__FILE__) + '/../fixtures'
+  fixtures :projects
+  fixtures :issue_statuses
+  fixtures :issues
+  fixtures :users
+  fixtures :enumerations
+  
   setup do
     @date_from = "2005-01-01".to_date
     @date_to = 10.year.from_now.to_date
+  end
+  
+  test "it should return the list of issues that are leafs" do
+    
+    issues = [
+      Issue.find(1),    # leaf 
+      Issue.find(2),
+      Issue.find(3),
+      Issue.find(4),
+      Issue.find(5),    # leaf
+      Issue.find(6)     # leaf
+    ]
+    
+    project = mock()
+    
+    report = ProgressReport.new(project, @date_from, @date_to)
+    
+    report.stubs(:issues).returns(issues)
+    
+    leafs = report.leaf_issues
+    
+    assert_equal 3, leafs.count
+    assert leafs.include? issues[0]
+    assert leafs.include? issues[4]
+    assert leafs.include? issues[5]
+    
   end
   
   test "it should calculate the effective charge" do
@@ -19,7 +53,7 @@ class ProgressReportTest < ActiveSupport::TestCase
       Issue.new(:estimated_hours => 5)
     ]
     
-    report.stubs(:issues).returns(issues)
+    report.stubs(:leaf_issues).returns(issues)
     
     assert_equal 30, report.charge_effective
     
@@ -39,7 +73,7 @@ class ProgressReportTest < ActiveSupport::TestCase
       Issue.new(:assigned_to_id => 3, :estimated_hours => 5)    # => 5
     ]
     
-    report.stubs(:issues).returns(issues)
+    report.stubs(:leaf_issues).returns(issues)
     
     assert_equal 135.0, report.charge_estimated
     
@@ -63,7 +97,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     status.expects(:is_closed?).at_least_once.returns(false)
     Issue.any_instance.stubs(:status).returns(status)
     
-    report.stubs(:issues).returns(issues)
+    report.stubs(:leaf_issues).returns(issues)
     
     assert_equal 121.0, report.charge_left
     
@@ -85,7 +119,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     status.expects(:is_closed?).at_least_once.returns(false)
     Issue.any_instance.stubs(:status).returns(status)
     
-    report.stubs(:issues).returns(issues)  
+    report.stubs(:leaf_issues).returns(issues)  
     
     assert_equal 31, report.charge_left
     
@@ -112,7 +146,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     issues[1].stubs(:status).returns(open)
     issues[2].stubs(:status).returns(closed)
     
-    report.stubs(:issues).returns(issues)  
+    report.stubs(:leaf_issues).returns(issues)  
     
     assert_equal 26, report.charge_left
     
@@ -134,7 +168,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     status.expects(:is_closed?).at_least_once.returns(false)
     Issue.any_instance.stubs(:status).returns(status)
     
-    report.stubs(:issues).returns(issues)  
+    report.stubs(:leaf_issues).returns(issues)  
     
     assert_equal "2015-06-01".to_date, report.date_estimated
     

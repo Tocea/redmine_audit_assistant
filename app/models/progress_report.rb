@@ -72,10 +72,10 @@ class ProgressReport
   
   # total estimated_hours of every issue
   def charge_effective(format='h')
-    
-     total = issues.map { |issue| issue.estimated_hours ? issue.estimated_hours : 0 }.reduce(:+) 
      
-     format_hours(total, format)
+    total = leaf_issues.map { |issue| issue.estimated_hours ? issue.estimated_hours : 0 }.reduce(:+) 
+     
+    format_hours(total, format)
      
   end
   
@@ -84,7 +84,7 @@ class ProgressReport
   def charge_estimated(format='h')
     
     total = 0
-    issues.each do |issue|
+    leaf_issues.each do |issue|
       if issue.estimated_hours
         tx = 1
         if @occupation_persons[issue.assigned_to_id]
@@ -102,7 +102,7 @@ class ProgressReport
   def charge_left(format='h')
     
     total = 0
-    issues.each do |issue|
+    leaf_issues.each do |issue|
       if issue.estimated_hours && !issue.status.is_closed?
         tx = 1
         if @occupation_persons[issue.assigned_to_id]
@@ -142,6 +142,11 @@ class ProgressReport
     periods   
   end
   
+  # return the list of issues which don't have child issues
+  def leaf_issues
+    issues.select { |issue| leaf? issue }   
+  end
+  
   private # ----------------------------------------------------------------
   
   def format_occupation_persons_map(occupation_persons)
@@ -158,6 +163,13 @@ class ProgressReport
        hours = hours.ceil
     end
     hours   
+  end
+  
+  def leaf?(issue)
+    
+    childs = Issue.where(parent_id: issue.id)  
+    childs.blank?
+
   end
   
 end
