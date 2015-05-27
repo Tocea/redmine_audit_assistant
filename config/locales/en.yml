@@ -26,3 +26,4 @@ en:
   status_to: "To status"
   issue_custom_actions_settings_title: "Issue Action Status Settings"
   issue_custom_actions_settings_error: "Cannot create an action with these parameters"
+  no_data_progress_report: "The project hasn't started yet!"

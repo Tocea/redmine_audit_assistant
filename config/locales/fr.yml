@@ -26,3 +26,4 @@ fr:
   status_to: "Statut d'arrivée"
   issue_custom_actions_settings_title: "Configuration des boutons de changement de statut"
   issue_custom_actions_settings_error: "Impossible de créer une action avec ces paramétres"
+  no_data_progress_report: "Ce projet n'a pas encore commencé !"

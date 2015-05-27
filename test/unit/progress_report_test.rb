@@ -188,5 +188,38 @@ class ProgressReportTest < ActiveSupport::TestCase
     assert_equal "2015-05-15".to_date, periods[0][1].to_date
     
   end
+  
+  test "it should returns all the users concerned by the report" do
+    
+    project = mock()
+    
+    report = ProgressReport.new(project, Date.today, nil)
+    
+    user1 = mock()
+    user2 = mock()
+    
+    issue1 = mock()
+    issue1.expects(:assigned_to).returns(user1)
+    
+    issue2 = mock()
+    issue2.expects(:assigned_to).returns(user1)
+
+    issue3 = mock()
+    issue3.expects(:assigned_to).returns(user2)
+    
+    issue4 = mock()
+    issue4.expects(:assigned_to).returns(nil)
+    
+    ProgressReport.any_instance.stubs(:issues).returns([issue1, issue2, issue3, issue4])
+    
+    users_found = report.users
+    
+    # it should not return the same user multiple times
+    # it should not return a nil value
+    assert_equal 2, users_found.count
+    assert users_found.include? user1
+    assert users_found.include? user2
+    
+  end
 
 end

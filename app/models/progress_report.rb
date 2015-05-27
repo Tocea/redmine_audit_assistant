@@ -28,6 +28,10 @@ class ProgressReport
     raise NotImplementedError
   end
   
+  def users
+    issues.map { |issue| issue.assigned_to }.uniq.compact
+  end
+  
   def date_beginning
     issues.map {|issue| issue.created_on }.min
   end

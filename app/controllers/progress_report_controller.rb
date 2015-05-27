@@ -14,6 +14,11 @@ class ProgressReportController < ApplicationController
 
     report = create_report(@project, @version, @date_from, @date_to, nil)
     
+    if report.date_beginning.nil?
+      redirect_to :controller => 'progress_report', :action => 'empty', :project_id => @project.id
+      return
+    end
+    
     @periods = Array.new
     
     report.get_week_periods.each do |p|
@@ -23,7 +28,7 @@ class ProgressReportController < ApplicationController
     
     @issues = report.issues.reject { |issue| issue.status.is_closed? }
     
-    @users = @issues.map { |issue| issue.assigned_to }.uniq
+    @users = report.users
         
     @date_beggining_project = report.date_beginning
 
@@ -69,6 +74,13 @@ class ProgressReportController < ApplicationController
     # get the comment
     @what_went_wrong = params[:what_went_wrong] ? params[:what_went_wrong] : ''
 
+  end
+  
+  def empty
+    
+    # retrieve the project
+    @project = Project.find(params[:project_id])
+    
   end
   
   private # ---------------------------------------------------------------------------
