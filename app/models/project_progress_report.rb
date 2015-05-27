@@ -14,7 +14,7 @@ class ProjectProgressReport < ProgressReport
     if vArr.blank?
       return super
     end   
-    vArr.map { |v| v.effective_date }.max
+    vArr.compact.map { |v| v.effective_date }.max
   end
   
 end
