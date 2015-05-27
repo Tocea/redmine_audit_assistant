@@ -17,6 +17,7 @@ class ProgressReportControllerTest < ActionController::TestCase
   
   setup do
     @request.session[:user_id] = 1    # admin user
+    Project.find(1).enabled_module_names = [:progress_report]
   end
   
   test "it should load the index page" do
