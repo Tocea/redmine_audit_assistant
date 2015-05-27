@@ -24,7 +24,7 @@
 			</tr>
 			<tr>
 				<td><%= l(:date_effective_project) %></td>
-				<td><%= @date_effective.strftime("%d/%m/%y") %></td>
+				<td><%= @date_effective.strftime("%d/%m/%y") unless @date_effective.nil? %></td>
 			</tr>
 			<tr>
 				<td><%= l(:date_estimated_project) %></td>
