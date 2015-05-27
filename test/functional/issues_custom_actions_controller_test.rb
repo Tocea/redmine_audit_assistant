@@ -12,6 +12,10 @@ class IssuesCustomActionsControllerTest < ActionController::TestCase
   fixtures :users
   fixtures :enumerations
   
+  setup do
+    @request.session[:user_id] = 1    # admin user
+  end
+  
   test "it should create a new status action" do
     
     assert_difference 'IssueStatusActions.count' do
