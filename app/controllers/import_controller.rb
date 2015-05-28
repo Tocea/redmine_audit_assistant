@@ -3,12 +3,13 @@ require 'yaml'
 class ImportController < ApplicationController
   unloadable
 
+  before_filter :find_project, :authorize
+
   helper :import
   include ImportHelper
 
   def index
     
-    @project = Project.find(params[:project_id])
     @requirement = Requirement.new
     
     @versions = @project.shared_versions.open
@@ -26,10 +27,7 @@ class ImportController < ApplicationController
   end
 
   def import
-    
-    # retrieve the project
-    @project = Project.find(params[:project_id])
-    
+   
     # retrieve the version
     version_id = params[:version_id]
     if (version_id && version_id != '0')
@@ -83,6 +81,13 @@ class ImportController < ApplicationController
   end
   
   private # -----------------------------------------------------------------------------------
+  
+  def find_project
+    
+    # retrieve the project
+    @project = Project.find(params[:project_id])
+    
+  end
   
   # create a new version of a project
   # or retrieve it from the db if it already exists

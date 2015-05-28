@@ -12,6 +12,12 @@ class ImportControllerTest < ActionController::TestCase
   fixtures :users
   fixtures :enumerations
   
+  setup do
+    @project = Project.find(1)
+    @request.session[:user_id] = 1    # admin user
+    @project.enabled_module_names = [:import]
+  end
+  
   def create_attachment(location, token='X')
     
     diskfile = self.fixture_path+'/files/'+location
@@ -25,17 +31,35 @@ class ImportControllerTest < ActionController::TestCase
     
   end
   
-  test "should get index" do   
+  test "should not get index if the user does not have the permission to access it" do
+    
+    @request.session[:user_id] = 2
     
     get :index, {'project_id' => 1}
+    assert_response 302
+    
+  end
+  
+  test "should not get index if the project module is not enabled" do
+    
+    @project.enabled_module_names = []
+    
+    get :index, { 'project_id' => @project.id }
+    assert_response 403
+    
+  end
+  
+  test "should get index" do   
+    
+    get :index, { 'project_id' => @project.id }
     assert_response :success
     
   end
   
   test "should redirect to index if no attachment has been uploaded" do   
     
-    get :import, {'project_id' => 1}
-    assert_redirected_to :controller => 'import', :action => 'index', :project_id => 1
+    get :import, { 'project_id' => @project.id }
+    assert_redirected_to :controller => 'import', :action => 'index', :project_id => @project.id
     
   end
   
@@ -47,7 +71,7 @@ class ImportControllerTest < ActionController::TestCase
     max_id = Issue.maximum(:id)
    
     # make the request
-    get :import, {'project_id' => 1, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
+    get :import, {'project_id' => @project.id, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
     
     # requirements should have been created
     assert Requirement.count > 0  
@@ -68,7 +92,7 @@ class ImportControllerTest < ActionController::TestCase
     # a new version should have been created
     assert_difference 'Version.count' do
       # make the request
-      get :import, {'project_id' => 1, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
+      get :import, {'project_id' => @project.id, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
     end
     
   end
@@ -77,11 +101,11 @@ class ImportControllerTest < ActionController::TestCase
     
     file = create_attachment('meth_dgac_with_version.yml')
     
-    version = Version.new(:project_id => 1, :name => 'Audit DGAC')
+    version = Version.new(:project_id => @project.id, :name => 'Audit DGAC')
     version.save
     
     assert_no_difference 'Version.count', 'a version should not be created' do
-      get :import, {'project_id' => 1, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
+      get :import, {'project_id' => @project.id, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
     end
     
   end
@@ -92,10 +116,10 @@ class ImportControllerTest < ActionController::TestCase
     
     original_date = Date.new(2010,1,1)
     
-    version = Version.new(:project_id => 1, :name => 'Audit DGAC', :effective_date => original_date)
+    version = Version.new(:project_id => @project.id, :name => 'Audit DGAC', :effective_date => original_date)
     version.save
     
-    get :import, {'project_id' => 1, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
+    get :import, {'project_id' => @project.id, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
     
     version_db = Version.where(name: version.name).first
     
@@ -107,13 +131,13 @@ class ImportControllerTest < ActionController::TestCase
     
     file = create_attachment('meth_dgac.yml')
     
-    version = Version.new(:project_id => 1, :name => 'Audit DGAC')
+    version = Version.new(:project_id => @project.id, :name => 'Audit DGAC')
     version.save
     
     # there should be more issues attach to this version
     assert_difference 'Issue.where(fixed_version_id: version.id).count', 4 do
       # make the request
-      get :import, {'project_id' => 1, 'version_id' => version.id, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
+      get :import, {'project_id' => @project.id, 'version_id' => version.id, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
     end
     
   end
@@ -122,11 +146,11 @@ class ImportControllerTest < ActionController::TestCase
     
     file = create_attachment('meth_dgac.yml')
     
-    version = Version.new(:project_id => 1, :name => 'Audit DGAC')
+    version = Version.new(:project_id => @project.id, :name => 'Audit DGAC')
     version.save
     
     # make the request
-    get :import, {'project_id' => 1, 'version_id' => version.id, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
+    get :import, {'project_id' => @project.id, 'version_id' => version.id, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
     
     # the version should now be locked
     assert_equal 'locked', Version.find(version.id).status
@@ -138,10 +162,10 @@ class ImportControllerTest < ActionController::TestCase
     file = create_attachment('file_not_found.yml')
     
     # make the request
-    get :import, {'project_id' => 1, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
+    get :import, {'project_id' => @project.id, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
     
     # we should have been redirected to the index page
-    assert_redirected_to :controller => 'import', :action => 'index', :project_id => 1, :error_parsing_file => true
+    assert_redirected_to :controller => 'import', :action => 'index', :project_id => @project.id, :error_parsing_file => true
     
   end
   

@@ -5,7 +5,6 @@ Redmine::Plugin.register :redmine_audit_assistant do
   version '1.0'
   url 'https://github.com/Tocea/redmine_audit_assistant'
   author_url 'http://www.tocea.com'
-  permission :import, { :import => [:index, :import] }
   
   menu :project_menu, :import, { :controller => 'import', :action => 'index' }, :caption => 'Import', :after => :activity, :param => :project_id
   menu :project_menu, :progress_report, { :controller => 'progress_report', :action => 'index' }, :caption => :progress_report_title, :after => :activity, :param => :project_id
@@ -13,6 +12,10 @@ Redmine::Plugin.register :redmine_audit_assistant do
   
   project_module :progress_report do
     permission :progress_report, { :progress_report => [:index, :generate, :empty] }
+  end
+  
+  project_module :import do
+    permission :import, { :import => [:index, :import] }
   end
   
 end
