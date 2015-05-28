@@ -18,7 +18,7 @@
 	<table class="list issues">
 		<thead>
 			<th class="checkbox hide-when-print">
-				<img alt="Toggle_check" src="/images/toggle_check.png?1426532353">
+				<img class="toggle-check" alt="Toggle_check" src="/images/toggle_check.png?1426532353">
 			</th>
 			<th>#</th>
 			<th><%= l(:field_tracker)%></th>
@@ -100,6 +100,10 @@
 			if ($(e).attr('value') == version_id && version_id != '') {
 				$(e).attr('selected', 'selected');
 			}
+		});
+		
+		$('.toggle-check').click(function() {
+			$(issues_selector+' input[type=checkbox]').attr('checked', 'checked');
 		});
 		
 	});
