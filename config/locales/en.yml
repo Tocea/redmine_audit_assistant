@@ -2,3 +2,28 @@
 en:
   error_parsing_file: "Cannot import data from this file."
   import_page_title: "Import tasks"
+  progress_report_title: "Progress Report"
+  what_went_wrong: "What is blocking the project progress?"
+  current_issues_to_work_on: List of issues to work on in the current week
+  members_occupations: "% occupation / person"
+  weekly_report: "Weekly report"
+  project_identity: "Project's identity"
+  project_name: "Project's name:"
+  etape: Step
+  date_start_project: Project start date
+  date_effective_project: Project effective date
+  date_estimated_project: Project estimated date
+  total_effective_charge: Total Effective
+  total_estimated_charge: Total Estimated
+  total_left_charge: Total Left
+  charge: charge
+  project_progress: Project Progression
+  what_has_been_done_since_last_time: "What has been done since last time?"
+  what_will_be_done_this_week: "What will be done this week?"
+  button_generate_report: "Generate report"
+  button_start_issue: Start
+  status_from: "From status"
+  status_to: "To status"
+  issue_custom_actions_settings_title: "Issue Action Status Settings"
+  issue_custom_actions_settings_error: "Cannot create an action with these parameters"
+  no_data_progress_report: "The project hasn't started yet!"

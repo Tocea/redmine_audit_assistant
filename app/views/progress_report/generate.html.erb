@@ -1,0 +1,122 @@
+
+<%= stylesheet_link_tag('audit_assistant.css', :plugin => 'redmine_audit_assistant') %>
+
+<h2> <%= l(:weekly_report)+' - '+l(:label_date_from)+' '+@date_from.strftime("%d/%m/%y")+' '+l(:label_date_to)+' '+@date_to.strftime("%d/%m/%y") %> </h2>
+
+<div class="progress-report-block">
+	
+	<h3><%= l(:project_identity) %></h3>
+	
+	<p>
+		<label><%= l(:project_name) %></label>
+		<span><b><%= @project.name %></b></span>
+	</p>
+	
+	<table class="list">
+		<thead>
+			<th><%= l(:etape)%></th>
+			<th>Date</th>					
+		</thead>
+		<tbody>
+			<tr>
+				<td><%= l(:date_start_project) %></td>
+				<td><%= @date_beggining.strftime("%d/%m/%y") %></td>
+			</tr>
+			<tr>
+				<td><%= l(:date_effective_project) %></td>
+				<td><%= @date_effective.strftime("%d/%m/%y") unless @date_effective.nil? %></td>
+			</tr>
+			<tr>
+				<td><%= l(:date_estimated_project) %></td>
+				<td><%= @date_estimated.strftime("%d/%m/%y") %></td>
+			</tr>
+		</tbody>
+	</table>
+	
+	<table class="list charge-table">
+		<thead>
+			<th></th>
+			<th><%= l(:total_effective_charge)%></th>
+			<th><%= l(:total_estimated_charge)%></th>
+			<th><%= l(:total_left_charge)%></th>				
+		</thead>
+		<tbody>
+			<tr>
+				<td><%= l(:charge) %></td>
+				<td><%= @effective_charge.to_s %></td>
+				<td><%= @estimated_charge.to_s %></td>
+				<td><%= @left_charge.to_s %></td>
+			</tr>
+		</tbody>
+	</table>
+
+</div>	
+
+<div class="progress-report-block">
+	
+	<h3><%= l(:project_progress) %></h3>
+	
+	<h4><%= l(:what_has_been_done_since_last_time)%></h4>
+	
+	<table class="list issues">
+		<thead>
+			<th>#</th>
+			<th><%= l(:field_tracker)%></th>
+			<th><%= l(:field_status)%></th>			
+			<th><%= l(:field_priority)%></th>
+			<th><%= l(:field_subject)%></th>
+			<th><%= l(:field_assigned_to)%></th>
+			<th><%= l(:field_estimated_hours)%></th>	
+			<th><%= l(:field_done_ratio)%></th>	
+		</thead>
+		<tbody>
+			<% for @issue in @issues_updated %>
+				<tr>
+					<td><%= @issue.id %></td>
+					<td><%= @issue.tracker.name %></td>
+					<td><%= @issue.status.name %></td>
+					<td><%= @issue.priority.name %></td>
+					<td style="text-align: left;"><%= @issue.subject %></td>
+					<td><%= @issue.assigned_to.to_s %></td>
+					<td><%= @issue.estimated_hours %></td>
+					<td><%= @issue.done_ratio %></td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>	
+
+	<h4><%= l(:what_will_be_done_this_week)%></h4>
+	
+	<table class="list issues">
+		<thead>
+			<th>#</th>
+			<th><%= l(:field_tracker)%></th>
+			<th><%= l(:field_status)%></th>			
+			<th><%= l(:field_priority)%></th>
+			<th><%= l(:field_subject)%></th>
+			<th><%= l(:field_assigned_to)%></th>
+			<th><%= l(:field_estimated_hours)%></th>	
+			<th><%= l(:field_done_ratio)%></th>	
+		</thead>
+		<tbody>
+			<% for @issue in @issues_next %>
+				<tr>
+					<td><%= @issue.id %></td>
+					<td><%= @issue.tracker.name %></td>
+					<td><%= @issue.status.name %></td>
+					<td><%= @issue.priority.name %></td>
+					<td style="text-align: left;"><%= @issue.subject %></td>
+					<td><%= @issue.assigned_to.to_s %></td>
+					<td><%= @issue.estimated_hours %></td>
+					<td><%= @issue.done_ratio %></td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+	
+	<h4><%= l(:what_went_wrong) %></h4>
+	
+	<p><%= @what_went_wrong %></p>
+	
+</div>
+

@@ -3,12 +3,13 @@ require 'yaml'
 class ImportController < ApplicationController
   unloadable
 
+  before_filter :find_project, :authorize
+
   helper :import
   include ImportHelper
 
   def index
     
-    @project = Project.find(params[:project_id])
     @requirement = Requirement.new
     
     @versions = @project.shared_versions.open
@@ -26,10 +27,7 @@ class ImportController < ApplicationController
   end
 
   def import
-    
-    # retrieve the project
-    @project = Project.find(params[:project_id])
-    
+   
     # retrieve the version
     version_id = params[:version_id]
     if (version_id && version_id != '0')
@@ -69,6 +67,9 @@ class ImportController < ApplicationController
       r.toIssue(@version ? @version : @project)  
     end
     
+    # lock the version
+    lock_version(@version) unless @version.nil?
+    
     if requirements.count == 1
       # redirect to the page that display the root issue
       redirect_to :controller => 'issues', :action => 'show', :id => requirements[0].issue.id
@@ -79,23 +80,44 @@ class ImportController < ApplicationController
     
   end
   
+  private # -----------------------------------------------------------------------------------
+  
+  def find_project
+    
+    # retrieve the project
+    @project = Project.find(params[:project_id])
+    
+  end
+  
   # create a new version of a project
   # or retrieve it from the db if it already exists
   def get_or_create_version(version, project)  
     # look in the db if the version already exists     
     version_db = Version.where(project_id: project.id, name: version.name).first
-    if version_db
+    if version_db     
+      # check if the effective date have changed
+      if version.effective_date && version.effective_date != version_db.effective_date
+        # update the effective date
+        version_db.effective_date = version.effective_date
+        version_db.save
+      end
       # use the version that already exists
       version = version_db
     else
       # create a new version
       version.project_id = project.id
-      if !version.valid?
-        Rails.logger.test version.errors.full_messages
-      end
       version.save
     end
     version
+  end
+  
+  
+  # lock a version
+  def lock_version(version)
+    
+    version.status = 'locked'
+    version.save
+    
   end
   
 end

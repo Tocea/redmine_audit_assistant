@@ -5,7 +5,7 @@ module AutocloseIssuePatch extend ActiveSupport::Concern
     def controller_issues_edit_after_save(context={})
       
       Rails.logger.info "running AutoCloseIssueHook..."
-      AutocloseIssueHook.close_parent_issue(context[:issue])
+      AutocloseIssueHook.run(context[:issue])
      
     end
     
@@ -14,7 +14,32 @@ module AutocloseIssuePatch extend ActiveSupport::Concern
       Rails.logger.info "running AutoCloseIssueHook from contextual menu..."
       issue = context[:issue]
       issue.save
-      AutocloseIssueHook.close_parent_issue(issue)
+      AutocloseIssueHook.run(issue)
+      
+    end
+    
+    # run the hook
+    def self.run(issue)
+      
+      close_parent_issue(issue)
+      
+      if issue.fixed_version_id
+        version = Version.find(issue.fixed_version_id)
+        close_version(version)
+      end           
+      
+      set_date_start(issue)
+
+    end
+    
+    # automatically set the start date of an issue
+    # when its status is no longer the defaut status
+    def self.set_date_start(issue)
+     
+      if !issue.status.is_default && issue.start_date.nil?      
+        issue.start_date = Date.today
+        issue.save
+      end
       
     end
     
@@ -52,6 +77,29 @@ module AutocloseIssuePatch extend ActiveSupport::Concern
         
       end
       
+    end
+    
+    # close a version if all its child issues are closed
+    def self.close_version(version)
+      
+      required = false
+      
+      if version
+        children = Issue.where(fixed_version_id: version.id)
+        if children.count == 0
+          # if the version has no issue, then no need to close it yet!
+          required = false
+        else
+          # check if the issues are all closed
+          required = children.select {|c| c.status.is_closed == false }.empty?
+        end
+      end
+      
+      if required       
+        version.status = 'closed'
+        version.save    
+      end
+            
     end 
     
   end

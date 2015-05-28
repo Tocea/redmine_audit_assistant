@@ -24,12 +24,24 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     Issue.any_instance.stubs(:custom_value_for).with(1).returns('1')
   end
   
+  def close_issue(issue)
+    issue.status_id = 5
+    issue.priority = priority    
+    if !issue.valid?
+      puts issue.errors.full_messages
+    end
+    issue.save
+    assert issue.status.is_closed
+  end
+  
     
   test "it should react to hook controller_issues_edit_after_save" do
     
     issue = stub()
+    issue.expects(:fixed_version_id).returns(nil)
     
     AutocloseIssuePatch::AutocloseIssueHook.stubs(:close_parent_issue).returns(nil)
+    AutocloseIssuePatch::AutocloseIssueHook.stubs(:set_date_start).returns(nil)
     
     Redmine::Hook.call_hook(:controller_issues_edit_after_save, { :issue => issue })
     
@@ -38,9 +50,11 @@ class AutocloseIssueTest < ActiveSupport::TestCase
   test "it should react to hook controller_issues_bulk_edit_before_save" do
     
     issue = stub()
+    issue.expects(:fixed_version_id).returns(nil)
     issue.expects(:save).returns(true)
     
     AutocloseIssuePatch::AutocloseIssueHook.stubs(:close_parent_issue).returns(nil)
+    AutocloseIssuePatch::AutocloseIssueHook.stubs(:set_date_start).returns(nil)
     
     Redmine::Hook.call_hook(:controller_issues_bulk_edit_before_save, { :issue => issue })
     
@@ -52,10 +66,7 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     
     # close an issue
     issue = Issue.find(3)
-    issue.status_id = 5
-    issue.priority = priority 
-    issue.save
-    assert issue.status.is_closed
+    close_issue issue
     
     # the parent issue must not be closed
     assert !issue.parent.status.is_closed
@@ -73,10 +84,7 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     
     # close an issue
     issue = Issue.find(3)
-    issue.status_id = 5
-    issue.priority = priority 
-    issue.save  
-    assert issue.status.is_closed
+    close_issue issue
     
     # the parent issue must not be closed
     assert !issue.parent.status.is_closed
@@ -96,10 +104,7 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     
     # close an issue
     issue = Issue.find(4)
-    issue.status_id = 5
-    issue.priority = priority
-    issue.save  
-    assert issue.status.is_closed 
+    close_issue issue
     
     # the parent issue and its parent must not be closed    
     assert !issue.parent.status.is_closed
@@ -122,10 +127,7 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     
     # close an issue
     issue = Issue.find(5)
-    issue.status_id = 5
-    issue.priority = priority
-    issue.save  
-    assert issue.status.is_closed 
+    close_issue issue
     
     # the parent issue must not be closed
     assert !issue.parent.status.is_closed
@@ -195,6 +197,178 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     
     # the tracker should be included in the custom field trackers list
     assert field.trackers.include? tracker
+    
+  end
+  
+  test "it should close the version if all child issues are closed" do
+    
+    # get an issue
+    issue = Issue.find(1) 
+    
+    # create a version
+    version = Version.new(
+      :name => 'version1',
+      :description => 'description',
+      :project_id => issue.project_id
+    )
+    version.save
+    
+    # close the issue
+    close_issue issue
+    
+    # the issue should not have a parent
+    assert_nil issue.parent
+    
+    # assign the version to the issue
+    issue.fixed_version_id = version.id
+    issue.save
+    
+    # the version should be attached to only one issue
+    assert_equal 1, Issue.where(fixed_version_id: version.id).count
+    
+    # the version should not be closed yet
+    assert_equal 'open', version.status
+    
+    # run the function
+    AutocloseIssuePatch::AutocloseIssueHook.close_version(version)
+    
+    # the version should now be closed
+    assert_equal 'closed', version.status
+    
+  end
+  
+  test "it should not close the version if a child issue is still open" do
+    
+    # get an issue
+    issue = Issue.find(1) 
+    issue.priority = priority  
+    issue.save
+    
+    # create a version
+    version = Version.new(
+      :name => 'version1',
+      :description => 'description',
+      :project_id => issue.project_id
+    )
+    version.save
+    
+    # the issue should not be closed
+    assert !issue.status.is_closed
+    
+    # the issue should not have a parent
+    assert_nil issue.parent
+    
+    # assign the version to the issue
+    issue.fixed_version_id = version.id
+    issue.save
+    
+    # the version should be attached to only one issue
+    assert_equal 1, Issue.where(fixed_version_id: version.id).count
+    
+    # the version should not be closed yet
+    assert_equal 'open', version.status
+    
+    # run the function
+    AutocloseIssuePatch::AutocloseIssueHook.close_version(version)
+    
+    # the version should not have been closed
+    assert_equal 'open', version.status
+    
+  end
+  
+  test "it should not close the version if there is no child issue" do
+    
+    project = Project.find(1)
+   
+    # create a version
+    version = Version.new(
+      :name => 'version1',
+      :description => 'description',
+      :project_id => project.id
+    )
+    version.save
+    
+    # the version should not be attached to issues
+    assert_equal 0, Issue.where(fixed_version_id: version.id).count
+    
+    # the version should not be closed yet
+    assert_equal 'open', version.status
+    
+    # run the function
+    AutocloseIssuePatch::AutocloseIssueHook.close_version(version)
+    
+    # the version should not have been closed
+    assert_equal 'open', version.status
+    
+  end
+  
+  test "it should automatically set the start date of an issue when its status is no longer the default status" do
+    
+    # get an issue
+    issue = Issue.find(1) 
+    issue.start_date = nil
+    issue.priority = priority
+    issue.save
+    
+    # its status should be the default one
+    assert issue.status.is_default
+    
+    # its start date should not have been set
+    assert issue.start_date.nil?
+    
+    # let's change the status
+    issue.status = IssueStatus.find(2)
+    issue.save
+    
+    AutocloseIssuePatch::AutocloseIssueHook.set_date_start(issue)
+    
+    # the date should now be set
+    assert_not_nil issue.start_date
+    
+  end
+  
+  test "it should not automatically set the start date of an issue if the start date is already defined" do
+    
+    start_date = 3.day.ago.to_date
+    
+    # get an issue
+    issue = Issue.find(1) 
+    issue.priority = priority
+    issue.save
+    
+    # its status should be the default one
+    assert issue.status.is_default
+    
+    # let's change the status and set a start date
+    issue.status = IssueStatus.find(2)
+    issue.start_date = start_date
+    issue.save
+    
+    AutocloseIssuePatch::AutocloseIssueHook.set_date_start(issue)
+    
+    # the date should not have changed
+    assert_equal start_date, issue.start_date
+    
+  end
+  
+  test "it should not automatically set the start date of an issue which is still on the default status" do
+    
+    # get an issue
+    issue = Issue.find(1) 
+    issue.start_date = nil
+    issue.priority = priority
+    issue.save
+    
+    # its status should be the default one
+    assert issue.status.is_default
+    
+    # its start date should not have been set
+    assert issue.start_date.nil?
+    
+    AutocloseIssuePatch::AutocloseIssueHook.set_date_start(issue)
+    
+    # the date should not be set
+    assert issue.start_date.nil?
     
   end
   

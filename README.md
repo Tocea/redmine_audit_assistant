@@ -9,6 +9,8 @@
 
 Redmine plugin to assist consultants to perform (code) audits.
 
+Take a look at the [wiki](https://github.com/Tocea/redmine_audit_assistant/wiki) for a full list of the plugin's features.
+
 ## Installation
 
 1. Clone this repository in your plugin directory
