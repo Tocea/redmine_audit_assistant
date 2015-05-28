@@ -2,7 +2,7 @@ Redmine::Plugin.register :redmine_audit_assistant do
   name 'Audit Assistant plugin'
   author 'Tocea'
   description 'Redmine plugin to assist consultants to perform (code) audits.'
-  version '1.0'
+  version '1.1'
   url 'https://github.com/Tocea/redmine_audit_assistant'
   author_url 'http://www.tocea.com'
   
