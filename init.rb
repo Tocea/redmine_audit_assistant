@@ -12,7 +12,7 @@ Redmine::Plugin.register :redmine_audit_assistant do
   menu :admin_menu, :issues_custom_actions, { :controller => 'issues_custom_actions', :action => 'settings', :caption => :issue_custom_actions_settings_title }
   
   project_module :progress_report do
-    permission :progress_report, { :progress_report => [:index, :generate] }
+    permission :progress_report, { :progress_report => [:index, :generate, :empty] }
   end
   
 end
