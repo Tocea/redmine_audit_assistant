@@ -83,7 +83,8 @@ class IssueStatusActionsTest < ActiveSupport::TestCase
     issue.expects(:status=).with(target_status)
     issue.expects(:save)
     
-    Redmine::Hook.stubs(:call_hook).returns(nil)
+    AutocloseIssuePatch::AutocloseIssueHook.stubs(:run).with(issue).returns(nil)
+    #Redmine::Hook.stubs(:call_hook).returns(nil)
     
     action.run issue
     

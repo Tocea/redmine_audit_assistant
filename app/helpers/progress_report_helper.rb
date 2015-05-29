@@ -10,7 +10,7 @@ module ProgressReportHelper
     journals = Journal.where("journalized_type = 'Issue' AND journalized_id IN (:issues_ids) AND created_on >= :date_from AND created_on <= :date_to", {
         issues_ids: issues.map { |issue| issue.id },
         date_from: date_from,
-        date_to: date_to
+        date_to: date_to + 1.day
     })
     
   end

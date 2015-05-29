@@ -29,7 +29,8 @@ class IssueStatusActions < ActiveRecord::Base
       issue.status = status_to
       issue.save
       
-      Redmine::Hook.call_hook(:controller_issues_edit_after_save, { :issue => issue })
+      AutocloseIssuePatch::AutocloseIssueHook.run(issue)
+      #Redmine::Hook.call_hook(:controller_issues_edit_after_save, { :issue => issue })
       
     end
     

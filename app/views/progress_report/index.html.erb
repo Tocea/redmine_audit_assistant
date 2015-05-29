@@ -18,7 +18,7 @@
 	<table class="list issues">
 		<thead>
 			<th class="checkbox hide-when-print">
-				<img class="toggle-check" alt="Toggle_check" src="/images/toggle_check.png?1426532353">
+				<%= image_tag "toggle_check.png", :class => 'toggle-check', :alt => "Toggle_check" %>
 			</th>
 			<th>#</th>
 			<th><%= l(:field_tracker)%></th>
@@ -103,7 +103,13 @@
 		});
 		
 		$('.toggle-check').click(function() {
-			$(issues_selector+' input[type=checkbox]').attr('checked', 'checked');
+			var selector = issues_selector+' input[type=checkbox]'
+			var checked = $(selector).prop('checked');
+			if (!checked) {
+				$(selector).prop('checked', true);
+			}else{
+				$(selector).prop('checked', false);
+			}
 		});
 		
 	});
