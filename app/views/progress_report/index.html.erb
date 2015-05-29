@@ -103,7 +103,13 @@
 		});
 		
 		$('.toggle-check').click(function() {
-			$(issues_selector+' input[type=checkbox]').attr('checked', 'checked');
+			var selector = issues_selector+' input[type=checkbox]'
+			var checked = $(selector).prop('checked');
+			if (!checked) {
+				$(selector).prop('checked', true);
+			}else{
+				$(selector).prop('checked', false);
+			}
 		});
 		
 	});
