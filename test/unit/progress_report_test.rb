@@ -48,14 +48,32 @@ class ProgressReportTest < ActiveSupport::TestCase
     report = ProgressReport.new(project, @date_from, @date_to)
     
     issues = [
-      Issue.new(:estimated_hours => 10),
-      Issue.new(:estimated_hours => 15),
-      Issue.new(:estimated_hours => 5)
+      Issue.new(:estimated_hours => 10.00),
+      Issue.new(:estimated_hours => 15.00),
+      Issue.new(:estimated_hours => 5.00)
     ]
     
     report.stubs(:leaf_issues).returns(issues)
     
     assert_equal 30, report.charge_effective
+    
+  end
+  
+  test "it should return the effective charge in days" do
+    
+    project = mock()
+    
+    report = ProgressReport.new(project, @date_from, @date_to)
+    
+    issues = [
+      Issue.new(:estimated_hours => 10.00),
+      Issue.new(:estimated_hours => 15.00),
+      Issue.new(:estimated_hours => 5.00)
+    ]
+    
+    report.stubs(:leaf_issues).returns(issues)
+    
+    assert_equal 4, report.charge_effective('d')
     
   end
   

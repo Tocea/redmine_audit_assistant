@@ -1,6 +1,6 @@
 <h2><%= l(:progress_report_title) %></h2>
 
-<%= form_tag '/progress-report?project_id='+@project.id.to_s, :id => 'progress_report_form' do |f| %>
+<%= form_tag 'progress-report?project_id='+@project.id.to_s, :id => 'progress_report_form' do |f| %>
 
 <div class="box tabular">
 	<p>
