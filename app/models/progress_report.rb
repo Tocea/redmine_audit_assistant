@@ -158,6 +158,7 @@ class ProgressReport
   end
   
   def format_hours(hours, format)   
+    hours = 0 if hours.nil?
     if format == 'd'
        hours = hours / @@nb_hours_per_day
        hours = hours.ceil

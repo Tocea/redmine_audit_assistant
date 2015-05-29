@@ -110,7 +110,7 @@ class ProgressReportController < ApplicationController
     select_versions = [['root', 0]]
     versions = Version.where(project_id: project.id)
     versions.each do |v|
-      select_versions.push([v.name, v.id]) unless v.closed?
+      select_versions.push([v.name, v.id])
     end
     
     select_versions
