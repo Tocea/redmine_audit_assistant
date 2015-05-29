@@ -1,8 +1,8 @@
 class IssuesCustomActionsController < ApplicationController
   unloadable
   
-  before_filter :authorize_global
-  
+  before_filter :authorize_global, :only => [:settings, :insert, :delete] 
+    
   def settings
     
     @status_action = IssueStatusActions.new
