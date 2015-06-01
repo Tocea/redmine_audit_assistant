@@ -3,6 +3,8 @@ class ProgressReportController < ApplicationController
   
   before_filter :find_project, :authorize
   
+  include ToceaCustomFieldsHelper
+  
   def index
       
     @date_from = params[:date_from] ? params[:date_from].to_date : nil
@@ -54,6 +56,9 @@ class ProgressReportController < ApplicationController
     @estimated_charge = report.charge_estimated 'd'
     @left_charge = report.charge_left 'd'
     @is_late = report.late?
+    
+    # get project or version code
+    @code_project = @version.nil? ? code_project(@project) : code_version(@version)
     
     # get the list of the issues that has been updated during the period
     @issues_updated = report.issues_updated

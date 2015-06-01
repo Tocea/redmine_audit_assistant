@@ -8,8 +8,8 @@
 	<h3><%= l(:project_identity) %></h3>
 	
 	<p>
-		<label><%= l(:project_name) %></label>
-		<span><b><%= @project.name %></b></span>
+		<label><%= l(:project_code) %></label>
+		<span><b><%= @code_project ? @code_project : @project.name %></b></span>
 	</p>
 	
 	<table class="list">

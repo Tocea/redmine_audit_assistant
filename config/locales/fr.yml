@@ -9,6 +9,7 @@ fr:
   weekly_report: Compte rendu de la semaine
   project_identity: Identité du projet
   project_name: "Nom du projet :"
+  project_code: "Code projet :"
   etape: Etape
   date_start_project: Date de début de projet
   date_effective_project: Date de fin prévue

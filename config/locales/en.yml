@@ -9,6 +9,7 @@ en:
   weekly_report: "Weekly report"
   project_identity: "Project's identity"
   project_name: "Project's name:"
+  project_code: "Project's code:"
   etape: Step
   date_start_project: Project start date
   date_effective_project: Project effective date
