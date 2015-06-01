@@ -126,6 +126,19 @@ class ProgressReport
     
   end
   
+  # total charge that is not affected to anybody
+  def charge_unassigned(format='h')
+    
+    total = 0
+    leaf_issues.each do |issue|
+      if issue.assigned_to_id.nil? && !issue.estimated_hours.nil?
+        total += issue.estimated_hours
+      end
+    end
+    format_hours(total, format)
+    
+  end
+  
   # total charge left at the end of period
   def charge_left(format='h')
     

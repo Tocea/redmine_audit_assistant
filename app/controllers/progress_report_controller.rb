@@ -57,6 +57,7 @@ class ProgressReportController < ApplicationController
     @left_charge = report.charge_left 'd'
     @is_late = report.late?
     @initial_charge = report.charge_initial 'd'
+    @unassigned_charge = report.charge_unassigned 'd'
     
     # get project or version code    
     @code_project = @version.nil? ? code_project(@project) : code_version(@version)

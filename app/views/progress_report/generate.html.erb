@@ -38,10 +38,11 @@
 	<table class="list charge-table">
 		<thead>
 			<th></th>
-			<th><%= l(:total_initial_charge)%></th>	
-			<th><%= l(:total_effective_charge)%></th>
-			<th><%= l(:total_estimated_charge)%></th>
-			<th><%= l(:total_left_charge)%></th>			
+			<th><%= l(:total_initial_charge) %></th>	
+			<th><%= l(:total_effective_charge) %></th>
+			<th><%= l(:total_estimated_charge) %></th>
+			<th><%= l(:total_left_charge) %></th>		
+			<th><%= l(:total_unassigned_charge) %></th>	
 		</thead>
 		<tbody>
 			<tr>
@@ -50,6 +51,7 @@
 				<td><%= @effective_charge.to_s %></td>
 				<td><%= @estimated_charge.to_s %></td>
 				<td><%= @left_charge.to_s %></td>
+				<td><%= @unassigned_charge.to_s %></td>
 			</tr>
 		</tbody>
 	</table>

@@ -170,6 +170,25 @@ class ProgressReportTest < ActiveSupport::TestCase
     
   end
   
+  test "it should return the total charge that is not affected to anybody" do
+    
+    project = mock()
+    
+    report = ProgressReport.new(project, @date_from, @date_to)
+    
+    issues = [
+      Issue.new(:assigned_to_id => nil, :estimated_hours => 10),  
+      Issue.new(:assigned_to_id => 2, :estimated_hours => 30), 
+      Issue.new(:assigned_to_id => nil, :estimated_hours => 15),   
+      Issue.new(:assigned_to_id => 3, :estimated_hours => 5)  
+    ]
+    
+    report.stubs(:leaf_issues).returns(issues)  
+    
+    assert_equal 25, report.charge_unassigned
+    
+  end
+  
   test "it should calculate an estimated date for the end of the project/version" do
     
     project = mock()
