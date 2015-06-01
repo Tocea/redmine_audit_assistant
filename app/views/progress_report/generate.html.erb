@@ -37,21 +37,29 @@
 	
 	<table class="list charge-table">
 		<thead>
-			<th></th>
-			<th><%= l(:total_initial_charge) %></th>	
-			<th><%= l(:total_effective_charge) %></th>
-			<th><%= l(:total_estimated_charge) %></th>
-			<th><%= l(:total_left_charge) %></th>		
-			<th><%= l(:total_unassigned_charge) %></th>	
+			<th><%= l(:charge) %></th>
+			<th><%= l(:field_value) %></th>					
 		</thead>
 		<tbody>
 			<tr>
-				<td><%= l(:charge) %></td>
-				<td><%= @initial_charge.to_s %></td>
-				<td><%= @effective_charge.to_s %></td>
-				<td><%= @estimated_charge.to_s %></td>
-				<td><%= @left_charge.to_s %></td>
-				<td><%= @unassigned_charge.to_s %></td>
+				<td><%= l(:total_initial_charge) %></td>
+				<td><%= l('datetime.distance_in_words.x_days', :count => @initial_charge.to_s) %></td>
+			</tr>
+			<tr>
+				<td><%= l(:total_effective_charge) %></td>
+				<td><%= l('datetime.distance_in_words.x_days', :count => @effective_charge.to_s) %></td>
+			</tr>
+			<tr>
+				<td><%= l(:total_estimated_charge) %></td>
+				<td><%= l('datetime.distance_in_words.x_days', :count => @estimated_charge.to_s) %></td>
+			</tr>
+			<tr>
+				<td><%= l(:total_left_charge) %></td>
+				<td><%= l('datetime.distance_in_words.x_days', :count => @left_charge.to_s) %></td>
+			</tr>
+			<tr>
+				<td><%= l(:total_unassigned_charge) %></td>
+				<td><%= l('datetime.distance_in_words.x_days', :count => @unassigned_charge.to_s) %></td>
 			</tr>
 		</tbody>
 	</table>
