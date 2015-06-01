@@ -9,7 +9,7 @@
 	
 	<p>
 		<label><%= l(:project_code) %></label>
-		<span><b><%= @code_project ? @code_project : @project.name %></b></span>
+		<span><b><%= !@code_project.blank? ? @code_project : @project.name %></b></span>
 	</p>
 	
 	<table class="list">
@@ -38,13 +38,15 @@
 	<table class="list charge-table">
 		<thead>
 			<th></th>
+			<th><%= l(:total_initial_charge)%></th>	
 			<th><%= l(:total_effective_charge)%></th>
 			<th><%= l(:total_estimated_charge)%></th>
-			<th><%= l(:total_left_charge)%></th>				
+			<th><%= l(:total_left_charge)%></th>			
 		</thead>
 		<tbody>
 			<tr>
 				<td><%= l(:charge) %></td>
+				<td><%= @initial_charge.to_s %></td>
 				<td><%= @effective_charge.to_s %></td>
 				<td><%= @estimated_charge.to_s %></td>
 				<td><%= @left_charge.to_s %></td>

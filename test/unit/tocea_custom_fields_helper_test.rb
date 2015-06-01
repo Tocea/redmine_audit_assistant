@@ -61,4 +61,47 @@ class ToceaCustomFieldsHelperTest < ActiveSupport::TestCase
     
   end
   
+  test "it should try to retrieve the custom field value of an initial workload of a version" do
+    
+    field_id = 1
+    field_value = 16
+    
+    field = mock()
+    field.expects(:id).returns(field_id)
+    
+    version = mock()
+    version.expects(:custom_value_for).with(field_id).returns(field_value)
+    
+    VersionCustomField.stubs(:find_by_name).returns(field)
+    
+    assert_equal field_value, @helper.version_initial_workload(version)
+    
+  end
+  
+  test "it should not fail when the custom field of an initial workload of a version does not exist" do
+    
+    version = mock()
+    
+    VersionCustomField.stubs(:find_by_name).returns(nil)
+
+    assert_equal 0.00, @helper.version_initial_workload(version)
+    
+  end
+  
+  test "it should not fail when the custom field value of an initial workload of a version does not exist" do
+    
+    field_id = 1
+    
+    field = mock()
+    field.expects(:id).returns(field_id)
+    
+    version = mock()
+    version.expects(:custom_value_for).with(field_id).returns(nil)
+    
+    VersionCustomField.stubs(:find_by_name).returns(field)
+    
+    assert_equal 0.00, @helper.version_initial_workload(version)
+    
+  end
+  
 end

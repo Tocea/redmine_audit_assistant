@@ -21,7 +21,9 @@ class ProgressReport
   
   @@nb_hours_per_day = 8
   
+  # Helpers
   include ProgressReportHelper
+  include ToceaCustomFieldsHelper
   
   # abstract method
   def issues
@@ -86,6 +88,13 @@ class ProgressReport
     issues_ids_changed = journals.map { |j| j.journalized_id }
     
     issues_list.select { |issue| issues_ids_changed.include?(issue.id) }
+    
+  end
+  
+  #total initial charge
+  def charge_initial(format='h')
+    
+    format_hours(0.00, format)
     
   end
   

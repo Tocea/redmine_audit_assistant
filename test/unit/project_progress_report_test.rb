@@ -98,5 +98,13 @@ class ProjectProgressReportTest < ActiveSupport::TestCase
     assert_equal 1, report.issues_updated.count
     
   end
+  
+  test "it should not failed when trying to access the initial charge of a project" do
+    
+    report = ProjectProgressReport.new(mock(), @date_from, @date_to)
+    
+    assert_equal 0.00, report.charge_initial('d')
+    
+  end
 
 end

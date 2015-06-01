@@ -16,4 +16,12 @@ module ToceaCustomFieldsHelper
     
   end
   
+  def version_initial_workload(version)
+    
+    field = VersionCustomField.find_by_name('Charge initiale')
+    
+    field.nil? ? 0.00 : version.custom_value_for(field.id).to_s.to_f
+    
+  end
+  
 end

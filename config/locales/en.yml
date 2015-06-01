@@ -17,6 +17,7 @@ en:
   total_effective_charge: Total Effective
   total_estimated_charge: Total Estimated
   total_left_charge: Total Left
+  total_initial_charge: Total Initial
   charge: charge
   project_progress: Project Progression
   what_has_been_done_since_last_time: "What has been done since last time?"

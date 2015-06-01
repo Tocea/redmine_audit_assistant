@@ -16,4 +16,12 @@ class ProjectVersionProgressReport < ProgressReport
     @root.effective_date
   end
   
+  def charge_initial(format='h')
+    
+    total = version_initial_workload(@root)
+    
+    format_hours(total, format)
+    
+  end
+  
 end

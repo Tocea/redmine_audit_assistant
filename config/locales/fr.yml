@@ -12,11 +12,12 @@ fr:
   project_code: "Code projet :"
   etape: Etape
   date_start_project: Date de début de projet
-  date_effective_project: Date de fin prévue
+  date_effective_project: Date de fin
   date_estimated_project: Date de fin estimée
-  total_effective_charge: Totale prévue
-  total_estimated_charge: Totale estimée
+  total_effective_charge: Totale estimée
+  total_estimated_charge: Totale prévisionnelle
   total_left_charge: Totale restante
+  total_initial_charge: Totale initiale
   charge: charge
   project_progress: Avancement Projet
   what_has_been_done_since_last_time: "Qu’est ce que l’équipe a réalisé depuis la dernière fois ?"

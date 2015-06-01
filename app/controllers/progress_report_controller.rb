@@ -56,8 +56,9 @@ class ProgressReportController < ApplicationController
     @estimated_charge = report.charge_estimated 'd'
     @left_charge = report.charge_left 'd'
     @is_late = report.late?
+    @initial_charge = report.charge_initial 'd'
     
-    # get project or version code
+    # get project or version code    
     @code_project = @version.nil? ? code_project(@project) : code_version(@version)
     
     # get the list of the issues that has been updated during the period
