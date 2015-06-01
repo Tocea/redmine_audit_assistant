@@ -19,7 +19,7 @@ class ProgressReport
     @date_to = Chronic.parse('next friday', :now => @date_from)
   end
   
-  @@nb_hours_per_day = 8
+  @@nb_hours_per_day = 8.00
   
   # Helpers
   include ProgressReportHelper
@@ -142,22 +142,40 @@ class ProgressReport
   # total charge left at the end of period
   def charge_left(format='h')
     
-    total = 0
+    # total = 0
+    # leaf_issues.each do |issue|
+      # if issue.estimated_hours && !issue.status.is_closed?
+        # tx = 1
+        # if @occupation_persons[issue.assigned_to_id]
+          # tx = @occupation_persons[issue.assigned_to_id] / 100.00        
+        # end
+        # done_ratio = issue.done_ratio ? issue.done_ratio : 0
+        # todo_ratio = 1 - (done_ratio / 100.00)
+        # total += todo_ratio * issue.estimated_hours / tx
+      # end
+    # end
+    
+    total = charge_initial
+    total = charge_effective if total.nil? || total == 0
+    
     leaf_issues.each do |issue|
-      if issue.estimated_hours && !issue.status.is_closed?
-        tx = 1
-        if @occupation_persons[issue.assigned_to_id]
-          tx = @occupation_persons[issue.assigned_to_id] / 100.00        
+      if issue.estimated_hours
+        
+        if issue.status.is_closed?
+          done_ratio = 100      
+        else
+          done_ratio = issue.done_ratio ? issue.done_ratio : 0
         end
-        done_ratio = issue.done_ratio ? issue.done_ratio : 0
-        todo_ratio = 1 - (done_ratio / 100.00)
-        total += todo_ratio * issue.estimated_hours / tx
+        
+        total -= issue.estimated_hours * ( done_ratio / 100.00 )
+        
       end
     end
     
     format_hours(total, format)
     
   end
+  
   
   def get_week_periods
     
@@ -202,7 +220,7 @@ class ProgressReport
     hours = 0 if hours.nil?
     if format == 'd'
        hours = hours / @@nb_hours_per_day
-       hours = hours.ceil
+       hours = hours >= 0 ? hours.ceil : hours.floor
     end
     hours   
   end

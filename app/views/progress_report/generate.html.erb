@@ -55,11 +55,15 @@
 			</tr>
 			<tr>
 				<td><%= l(:total_left_charge) %></td>
-				<td><%= l('datetime.distance_in_words.x_days', :count => @left_charge.to_s) %></td>
+				<td class="<%= 'warning' if @left_charge < 0 %>">
+					<%= l('datetime.distance_in_words.x_days', :count => @left_charge.to_s) %>
+				</td>
 			</tr>
 			<tr>
 				<td><%= l(:total_unassigned_charge) %></td>
-				<td><%= l('datetime.distance_in_words.x_days', :count => @unassigned_charge.to_s) %></td>
+				<td class="<%= 'warning' if @unassigned_charge > 0 %>">
+					<%= l('datetime.distance_in_words.x_days', :count => @unassigned_charge.to_s) %>
+				</td>
 			</tr>
 		</tbody>
 	</table>

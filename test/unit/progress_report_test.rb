@@ -97,63 +97,88 @@ class ProgressReportTest < ActiveSupport::TestCase
     
   end
   
-  test "it should calculated the total charge left with a percentage occupation per person" do
-    
-    project = mock()
-    
-    occupation_persons = {'1' => '10', '2' => '50' }
-    
-    report = ProgressReport.new(project, @date_from, @date_to, occupation_persons)
-    
-    issues = [
-      Issue.new(:assigned_to_id => 1, :estimated_hours => 10, :done_ratio => 20),  # => 8 left   => 80
-      Issue.new(:assigned_to_id => 2, :estimated_hours => 30, :done_ratio => 40),  # => 18 left  => 36
-      Issue.new(:assigned_to_id => 3, :estimated_hours => 5,  :done_ratio => 0)    # => 5 left   => 5
-    ]
-    
-    status = mock()
-    status.expects(:is_closed?).at_least_once.returns(false)
-    Issue.any_instance.stubs(:status).returns(status)
-    
-    report.stubs(:leaf_issues).returns(issues)
-    
-    assert_equal 121.0, report.charge_left
-    
-  end
-  
-  test "it should calculated the total charge left" do
+  test "it should calculate the total charge left from the total initial charge" do
     
     project = mock()
     
     report = ProgressReport.new(project, @date_from, @date_to)
     
     issues = [
-      Issue.new(:assigned_to_id => 1, :estimated_hours => 10, :done_ratio => 20),  # => 8 left
-      Issue.new(:assigned_to_id => 2, :estimated_hours => 30, :done_ratio => 40),  # => 18 left
-      Issue.new(:assigned_to_id => 3, :estimated_hours => 5,  :done_ratio => 0)    # => 5 left
-    ]
+      Issue.new(:assigned_to_id => 1, :estimated_hours => 10, :done_ratio => 20),  # => 2 burnt
+      Issue.new(:assigned_to_id => 2, :estimated_hours => 30, :done_ratio => 40),  # => 12 burnt
+      Issue.new(:assigned_to_id => 3, :estimated_hours => 5,  :done_ratio => 0)    # => 0 burnt
+    ]                                                                              # total burnt: 14
     
     status = mock()
     status.expects(:is_closed?).at_least_once.returns(false)
     Issue.any_instance.stubs(:status).returns(status)
+    
+    report.stubs(:charge_initial).returns(50)   
+    report.stubs(:leaf_issues).returns(issues)  
+    
+    assert_equal 36, report.charge_left
+    
+  end
+  
+  test "it should calculate the total charge left from the total effective charge" do
+    
+    project = mock()
+    
+    report = ProgressReport.new(project, @date_from, @date_to)
+    
+    issues = [
+      Issue.new(:assigned_to_id => 1, :estimated_hours => 10, :done_ratio => 20),  # => 2 burnt
+      Issue.new(:assigned_to_id => 2, :estimated_hours => 30, :done_ratio => 40),  # => 12 burnt
+      Issue.new(:assigned_to_id => 3, :estimated_hours => 5,  :done_ratio => 0)    # => 0 burnt
+    ]                                                                              # total burnt: 14
+    
+    status = mock()
+    status.expects(:is_closed?).at_least_once.returns(false)
+    Issue.any_instance.stubs(:status).returns(status)
+    
+    report.stubs(:charge_initial).returns(0)
+    report.stubs(:charge_effective).returns(20)
     
     report.stubs(:leaf_issues).returns(issues)  
     
-    assert_equal 31, report.charge_left
+    assert_equal 6, report.charge_left
     
   end
   
-  test "it should ignore the closed issues when calculating the total charge left" do
+  test "it should return a negative value if the total charge left is superior to the initial charge" do
     
     project = mock()
     
     report = ProgressReport.new(project, @date_from, @date_to)
     
     issues = [
-      Issue.new(:assigned_to_id => 1, :estimated_hours => 10, :done_ratio => 20),  # => 8 left
-      Issue.new(:assigned_to_id => 2, :estimated_hours => 30, :done_ratio => 40),  # => 18 left
-      Issue.new(:assigned_to_id => 3, :estimated_hours => 5,  :done_ratio => 0)    # => 5 left
-    ]
+      Issue.new(:assigned_to_id => 1, :estimated_hours => 10, :done_ratio => 20),  # => 2 burnt
+      Issue.new(:assigned_to_id => 2, :estimated_hours => 30, :done_ratio => 40),  # => 12 burnt
+      Issue.new(:assigned_to_id => 3, :estimated_hours => 5,  :done_ratio => 0)    # => 0 burnt
+    ]                                                                              # total burnt: 14
+    
+    status = mock()
+    status.expects(:is_closed?).at_least_once.returns(false)
+    Issue.any_instance.stubs(:status).returns(status)
+    
+    report.stubs(:charge_initial).returns(10)   
+    report.stubs(:leaf_issues).returns(issues)  
+    
+    assert_equal -4, report.charge_left
+    
+  end
+  
+  test "it should not ignore the closed issues when calculating the total charge left" do
+    
+    project = mock()
+    
+    report = ProgressReport.new(project, @date_from, @date_to)
+    
+    issues = [
+      Issue.new(:assigned_to_id => 1, :estimated_hours => 10, :done_ratio => 20),  # => 2 burnt
+      Issue.new(:assigned_to_id => 2, :estimated_hours => 30, :done_ratio => 40),  # => 12 burnt
+      Issue.new(:assigned_to_id => 3, :estimated_hours => 5,  :done_ratio => 10)   # => 5 burnt
+    ]                                                                              # total: 19 burnt   
     
     open = mock()
     open.expects(:is_closed?).at_least_once.returns(false)
@@ -164,9 +189,10 @@ class ProgressReportTest < ActiveSupport::TestCase
     issues[1].stubs(:status).returns(open)
     issues[2].stubs(:status).returns(closed)
     
+    report.stubs(:charge_initial).returns(25) 
     report.stubs(:leaf_issues).returns(issues)  
     
-    assert_equal 26, report.charge_left
+    assert_equal 6, report.charge_left
     
   end
   
