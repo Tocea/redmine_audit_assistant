@@ -57,6 +57,25 @@ class ProgressReport
     
   end
   
+  # check if the project will be late
+  def late?
+    
+    estimated = date_estimated
+    effective = date_effective  
+    
+    # the project cannot be late if we don't know the effective date
+    return false if effective.nil?
+    
+    if !estimated
+      # if we don't have an estimated date
+      # the project is not late only if the effective date hasn't been reached yet
+      return Date.today > effective.to_date
+    end
+    
+    return estimated.to_date > effective.to_date
+    
+  end
+  
   # return the list of issues that has been updated during a given period
   def issues_updated
     

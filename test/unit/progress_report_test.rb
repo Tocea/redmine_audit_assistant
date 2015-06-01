@@ -266,12 +266,71 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     users_found = report.users
     
-    # it should not return the same user multiple times
-    # it should not return a nil value
+    # it should not return the same user multiple times or a nil value
     assert_equal 2, users_found.count
     assert users_found.include? user1
     assert users_found.include? user2
     
   end
-
+  
+  test "it should indicate if a project will be late" do
+    
+    project = mock()
+    date_estimated = Date.today
+    date_effective = 2.day.ago
+    
+    report = ProgressReport.new(project, @date_from, @date_to)
+    
+    report.stubs(:date_estimated).returns(date_estimated)
+    report.stubs(:date_effective).returns(date_effective)
+    
+    assert report.late?
+    
+  end
+  
+  test "it should indicate if a project will not be late" do
+    
+    project = mock()
+    date_effective = Date.today
+    date_estimated = 2.day.ago
+    
+    report = ProgressReport.new(project, @date_from, @date_to)
+    
+    report.stubs(:date_estimated).returns(date_estimated)
+    report.stubs(:date_effective).returns(date_effective)
+    
+    assert !report.late?
+    
+  end
+  
+  test "it should indicate that the project will not be late if the effective date is not defined" do
+    
+    project = mock()
+    date_effective = nil
+    date_estimated = 2.day.ago
+    
+    report = ProgressReport.new(project, @date_from, @date_to)
+    
+    report.stubs(:date_estimated).returns(date_estimated)
+    report.stubs(:date_effective).returns(date_effective)
+    
+    assert !report.late?
+    
+  end
+  
+  test "it should indicate that the project will be late or not by using the current date if the estimated date does not exist" do
+    
+    project = mock()
+    date_effective = 1.day.ago
+    date_estimated = nil
+    
+    report = ProgressReport.new(project, @date_from, @date_to)
+    
+    report.stubs(:date_estimated).returns(date_estimated)
+    report.stubs(:date_effective).returns(date_effective)
+    
+    assert report.late?
+    
+  end
+  
 end

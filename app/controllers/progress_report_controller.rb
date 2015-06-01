@@ -53,6 +53,7 @@ class ProgressReportController < ApplicationController
     @effective_charge = report.charge_effective 'd'
     @estimated_charge = report.charge_estimated 'd'
     @left_charge = report.charge_left 'd'
+    @is_late = report.late?
     
     # get the list of the issues that has been updated during the period
     @issues_updated = report.issues_updated

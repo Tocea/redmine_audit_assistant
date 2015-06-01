@@ -24,3 +24,8 @@
 .progress-report-block table th {
 	-webkit-print-color-adjust: exact; 
 }
+
+.progress-report-block .warning {
+	font-weight: bold;
+	color: #F93E3E;
+}
