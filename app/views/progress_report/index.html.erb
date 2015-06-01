@@ -50,7 +50,7 @@
 	<% for @user in @users %>
 		<p>
 			<label><%= @user.to_s %></label>
-			<%= text_field_tag "member_occupation["+@user.id.to_s+"]", "100", :size => 3 %> %
+			<%= text_field_tag "member_occupation["+@user.id.to_s+"]", "80", :size => 3 %> %
 		</p>
 	<% end %>
 </div>
