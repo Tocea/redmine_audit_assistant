@@ -30,3 +30,5 @@ fr:
   issue_custom_actions_settings_title: "Configuration des boutons de changement de statut"
   issue_custom_actions_settings_error: "Impossible de créer une action avec ces paramétres"
   no_data_progress_report: "Ce projet n'a pas encore commencé !"
+  time_switching_issues: "Temps nécessaire avant de commencer une tâche"
+  time_switching_issues_unit: "% du temps de la tâche précédente"

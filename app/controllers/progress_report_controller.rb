@@ -11,7 +11,7 @@ class ProgressReportController < ApplicationController
         
     @version = get_version(params[:version_id])
 
-    report = create_report(@project, @version, @date_from, @date_to, nil)
+    report = create_report(@project, @version, @date_from, @date_to)
     
     if report.date_beginning.nil?
       redirect_to :controller => 'progress_report', :action => 'empty', :project_id => @project.id
@@ -42,10 +42,11 @@ class ProgressReportController < ApplicationController
     @date_to = Chronic.parse('next friday', :now => @date_from)   
     
     @version = get_version(params[:version_id])
-    
-    @occupation_persons = params[:member_occupation] ? params[:member_occupation] : nil
        
-    report = create_report(@project, @version, @date_from, @date_to, @occupation_persons)
+    report = create_report(@project, @version, @date_from, @date_to, {
+      :occupation_persons => params[:member_occupation],
+      :time_switching_issues => params[:time_switching_issues]
+    })
     
     # get report's data
     @issues = report.issues
@@ -87,14 +88,14 @@ class ProgressReportController < ApplicationController
     
   end
   
-  def create_report(project, version, date_from, date_to, occupation_persons)
+  def create_report(project, version, date_from, date_to, params={})
     
     report = nil
     
     if version
-      report = ProjectVersionProgressReport.new(version, date_from, date_to, occupation_persons)
+      report = ProjectVersionProgressReport.new(version, date_from, date_to, params)
     else
-      report = ProjectProgressReport.new(project, date_from, date_to, occupation_persons)
+      report = ProjectProgressReport.new(project, date_from, date_to, params)
     end
     
     report

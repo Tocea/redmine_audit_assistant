@@ -80,10 +80,11 @@ class ProgressReportTest < ActiveSupport::TestCase
   test "it should calculate an estimated charge with a percentage occupation per person" do
     
     project = mock()
-    
     occupation_persons = {'1' => '10', '2' => '50' }
     
-    report = ProgressReport.new(project, @date_from, @date_to, occupation_persons)
+    report = ProgressReport.new(project, @date_from, @date_to, {
+      :occupation_persons => occupation_persons
+    })
     
     issues = [
       Issue.new(:assigned_to_id => 1, :estimated_hours => 10),  # => 100
@@ -94,6 +95,26 @@ class ProgressReportTest < ActiveSupport::TestCase
     report.stubs(:leaf_issues).returns(issues)
     
     assert_equal 135.0, report.charge_estimated
+    
+  end
+  
+  test "it should calculate an estimated charge with a percentage of time for switching between issues" do
+    
+    project = mock()
+    
+    report = ProgressReport.new(project, @date_from, @date_to, {
+      :time_switching_issues => 20
+    })
+    
+    issues = [
+      Issue.new(:assigned_to_id => 1, :estimated_hours => 10),  # => 12
+      Issue.new(:assigned_to_id => 2, :estimated_hours => 15),  # => 18
+      Issue.new(:assigned_to_id => 3, :estimated_hours => 5)    # => 5
+    ]
+    
+    report.stubs(:leaf_issues).returns(issues)
+    
+    assert_equal 35.0, report.charge_estimated
     
   end
   
@@ -399,7 +420,9 @@ class ProgressReportTest < ActiveSupport::TestCase
     date_from = "2015-05-18".to_date
     date_to = "2015-05-22".to_date
     
-    report = ProgressReport.new(project, date_from, date_to, occupation_persons)
+    report = ProgressReport.new(project, date_from, date_to, {
+      :occupation_persons => occupation_persons
+    })
     
     users_id = [
       1,   # => 11.11 days  => 2015-06-09
@@ -428,6 +451,36 @@ class ProgressReportTest < ActiveSupport::TestCase
     report.stubs(:users).returns(users)
     
     assert_equal "2015-06-09".to_date, report.date_estimated
+    
+  end
+  
+  test "it shoud use the time for switching between two issues to calculate the estimated date" do
+    
+    project = mock()
+    
+    report = ProgressReport.new(project, "2015-05-18".to_date, "2015-05-22".to_date, {
+      :time_switching_issues => 20
+    })
+    
+    id = 1
+    user = mock()
+    user.expects(:id).at_least_once.returns(id)  
+    users = [user]
+    
+    issues = [
+      Issue.new(:assigned_to_id => id, :estimated_hours => 10 * 8),   # => 12 days
+      Issue.new(:assigned_to_id => id, :estimated_hours => 8 * 8),    # => 9.6 days
+      Issue.new(:assigned_to_id => id, :estimated_hours => 5 * 8)     # => 5 days
+    ]             # => 26.6 days => 2015-06-30
+    
+    status = mock()
+    status.expects(:is_closed?).at_least_once.returns(false)
+    Issue.any_instance.stubs(:status).returns(status)
+    
+    report.stubs(:leaf_issues).returns(issues)  
+    report.stubs(:users).returns(users)
+    
+    assert_equal "2015-06-30".to_date, report.date_estimated
     
   end
   
@@ -567,6 +620,14 @@ class ProgressReportTest < ActiveSupport::TestCase
     report.stubs(:date_effective).returns(date_effective)
     
     assert report.late?
+    
+  end
+  
+  test "it should not fail when trying to get the initial charge" do
+    
+    report = ProgressReport.new(mock(), @date_from, @date_to)
+    
+    assert_equal 0.00, report.charge_initial
     
   end
   
