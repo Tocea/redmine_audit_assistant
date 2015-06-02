@@ -51,6 +51,8 @@
 		<p>
 			<label><%= @user.to_s %></label>
 			<%= text_field_tag "member_occupation["+@user.id.to_s+"]", "80", :size => 3 %> %
+			<%= text_field_tag "days_off["+@user.id.to_s+"]", "0", :size => 3, :class => 'input_days_off' %> 
+			<%= l(:nb_days_off) %>
 		</p>
 	<% end %>
 </div>

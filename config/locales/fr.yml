@@ -19,7 +19,7 @@ fr:
   total_left_charge: Totale restante
   total_initial_charge: Totale initiale
   total_unassigned_charge: Totale non affectée
-  charge: charge
+  charge: Charge
   project_progress: Avancement Projet
   what_has_been_done_since_last_time: "Qu’est ce que l’équipe a réalisé depuis la dernière fois ?"
   what_will_be_done_this_week: "Que fera l'équipe cette semaine ?"
@@ -32,3 +32,4 @@ fr:
   no_data_progress_report: "Ce projet n'a pas encore commencé !"
   time_switching_issues: "Temps nécessaire avant de commencer une tâche"
   time_switching_issues_unit: "% du temps de la tâche précédente"
+  nb_days_off: "jour(s) de congés sur la période restante"

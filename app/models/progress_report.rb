@@ -7,6 +7,7 @@ class ProgressReport
     @root = root    
     @occupation_persons = params[:occupation_persons] ? params[:occupation_persons] : {}
     @time_switching_issues = params[:time_switching_issues].to_f / 100
+    @days_off = params[:days_off] ? params[:days_off] : {} 
     @period = PeriodProgressReport.new(date_from ? date_from : date_beginning, date_to) 
     if !date_to
       @period.to_end_of_week
@@ -194,7 +195,18 @@ class ProgressReport
     
     total = 0.00
     
-    person_id = person ? person.id : nil
+    if person
+      
+      person_id = person.id
+      
+      # add the number of hours that this person cannot work
+      total += person_total_time_off(person.id)
+      
+    else
+      
+      person_id = nil
+      
+    end
     
     list_issues = leaf_issues
     
@@ -206,6 +218,7 @@ class ProgressReport
       end
     end
     
+    # add the time necessary to switch between issues
     total += total_time_switching_issues(list_issues)
     
     format_hours(total, format)
@@ -221,6 +234,14 @@ class ProgressReport
     end
     
     tx
+  end
+  
+  def person_total_time_off(person_id, format='h')
+    
+    nb = @days_off[person_id] ? @days_off[person_id] : 0
+    
+    format_hours(nb * @@nb_hours_per_day, format)
+    
   end
   
   def issue_todo_ratio(issue)

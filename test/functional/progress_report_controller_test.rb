@@ -116,4 +116,11 @@ class ProgressReportControllerTest < ActionController::TestCase
     
   end
   
+  test "it should generate a report with days_off parameter" do
+    
+    get :generate, { 'project_id' => 1, 'period' => Date.today, 'days_off' =>  { '1' => '5' } }
+    assert_response :success
+    
+  end
+  
 end

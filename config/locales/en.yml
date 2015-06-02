@@ -32,3 +32,4 @@ en:
   no_data_progress_report: "The project hasn't started yet!"
   time_switching_issues: "Time that is necessary before starting an issue"
   time_switching_issues_unit: "% of the previous issue's time"
+  nb_days_off: "day(s) off in the following weeks"

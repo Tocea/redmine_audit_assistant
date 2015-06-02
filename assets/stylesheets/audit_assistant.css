@@ -29,3 +29,7 @@
 	font-weight: bold;
 	color: #F93E3E;
 }
+
+#progress_report_form .input_days_off {
+	margin-left: 40px;
+}

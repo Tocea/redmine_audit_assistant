@@ -37,8 +37,9 @@ class ProgressReportController < ApplicationController
     @version = get_version(params[:version_id])
        
     report = create_report(@project, @version, @date_from, @date_to, {
-      :occupation_persons => format_occupation_persons_map(params[:member_occupation]),
-      :time_switching_issues => params[:time_switching_issues]
+      :occupation_persons => format_integer_map(params[:member_occupation]),
+      :time_switching_issues => params[:time_switching_issues],
+      :days_off => format_integer_map(params[:days_off])
     })
     
     # get report's data
@@ -83,7 +84,7 @@ class ProgressReportController < ApplicationController
   
   # format the hashmap that represent the percentage of occupation per person
   # it should not contains string and each value should be strictly greater than 0
-  def format_occupation_persons_map(occupation_persons)
+  def format_integer_map(occupation_persons)
     res = Hash.new
     if occupation_persons
       res = Hash[occupation_persons.keys.map(&:to_i).zip(occupation_persons.values.map(&:to_i))]

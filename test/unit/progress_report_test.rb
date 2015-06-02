@@ -341,7 +341,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     id = 1
     user = mock()
-    user.expects(:id).at_most_once.returns(id)  
+    user.expects(:id).at_most(3).returns(id)  
     users = [user]
     
     issues = [
@@ -481,6 +481,44 @@ class ProgressReportTest < ActiveSupport::TestCase
     report.stubs(:users).returns(users)
     
     assert_equal "2015-06-30".to_date, report.date_estimated
+    
+  end
+  
+  test "it should use the time off a person to calculate the estimated date if it is defined" do
+    
+    project = mock()
+    
+    report = ProgressReport.new(project, "2015-05-18".to_date, "2015-05-22".to_date, {
+      :days_off => { 2 => 5, 3 => 4 }
+    })
+    
+    users_id = [
+      1,   # => 10 days  => 2015-06-05  => 2015-06-05
+      2,   # => 8 days   => 2015-06-03  => 2015-06-10
+      3    # => 5 days   => 2015-05-29  => 2015-06-04
+    ]
+    
+    users = []
+    users_id.each do |id|
+      user = mock()
+      user.expects(:id).at_least_once.returns(id)  
+      users.push(user)
+    end
+    
+    issues = [
+      Issue.new(:assigned_to_id => 1, :estimated_hours => 10 * 8),  
+      Issue.new(:assigned_to_id => 2, :estimated_hours => 8 * 8),  
+      Issue.new(:assigned_to_id => 3, :estimated_hours => 5 * 8)    
+    ]
+    
+    status = mock()
+    status.expects(:is_closed?).at_least_once.returns(false)
+    Issue.any_instance.stubs(:status).returns(status)
+    
+    report.stubs(:leaf_issues).returns(issues)  
+    report.stubs(:users).returns(users)
+    
+    assert_equal "2015-06-10".to_date, report.date_estimated
     
   end
   
