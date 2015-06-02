@@ -80,7 +80,7 @@ class ProgressReportTest < ActiveSupport::TestCase
   test "it should calculate an estimated charge with a percentage occupation per person" do
     
     project = mock()
-    occupation_persons = {'1' => '10', '2' => '50' }
+    occupation_persons = { 1 => 10, 2 => 50 }
     
     report = ProgressReport.new(project, @date_from, @date_to, {
       :occupation_persons => occupation_persons
@@ -416,7 +416,7 @@ class ProgressReportTest < ActiveSupport::TestCase
   test "it should use the percentage of occupation per person to calculate the estimated date" do
     
     project = mock()
-    occupation_persons = { '1' => '90', '2' => '70' }
+    occupation_persons = { 1 => 90, 2 => 70 }
     date_from = "2015-05-18".to_date
     date_to = "2015-05-22".to_date
     

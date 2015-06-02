@@ -13,28 +13,18 @@ class ProgressReportController < ApplicationController
 
     report = create_report(@project, @version, @date_from, @date_to)
     
-    min_date = report.date_beginning
+    @date_beggining_project = report.date_beginning
     
-    if min_date.nil?
+    if @date_beggining_project.nil?
       redirect_to :controller => 'progress_report', :action => 'empty', :project_id => @project.id
       return
     end
-    
-    @periods = Array.new
-    week_periods = PeriodProgressReport.week_periods(min_date)
-    
-    week_periods.each do |p|
-      date_lib = p.date_from.strftime("%d/%m/%y") + ' - ' + p.date_to.strftime("%d/%m/%y")
-      @periods.push([date_lib, p.date_from.strftime('%F')])
-    end
-    
-    @issues = report.issues.reject { |issue| issue.status.is_closed? }
-    
+
+    @issues = report.issues.reject { |issue| issue.status.is_closed? }   
     @users = report.users
-        
-    @date_beggining_project = report.date_beginning
 
     @select_versions = get_versions_list(@project)
+    @periods = get_week_periods(@date_beggining_project)
     
   end
 
@@ -47,7 +37,7 @@ class ProgressReportController < ApplicationController
     @version = get_version(params[:version_id])
        
     report = create_report(@project, @version, @date_from, @date_to, {
-      :occupation_persons => params[:member_occupation],
+      :occupation_persons => format_occupation_persons_map(params[:member_occupation]),
       :time_switching_issues => params[:time_switching_issues]
     })
     
@@ -82,7 +72,7 @@ class ProgressReportController < ApplicationController
     
   end
   
-  private # ---------------------------------------------------------------------------
+  private # ------------------------------------------------------------------------------------
   
   def find_project
     
@@ -91,6 +81,17 @@ class ProgressReportController < ApplicationController
     
   end
   
+  # format the hashmap that represent the percentage of occupation per person
+  # it should not contains string and each value should be strictly greater than 0
+  def format_occupation_persons_map(occupation_persons)
+    res = Hash.new
+    if occupation_persons
+      res = Hash[occupation_persons.keys.map(&:to_i).zip(occupation_persons.values.map(&:to_i))]
+    end
+    res.select { |k,v| v.is_a?(Numeric) && v > 0 }
+  end
+  
+  # create a ProgressReport instance
   def create_report(project, version, date_from, date_to, params={})
     
     report = nil
@@ -113,7 +114,6 @@ class ProgressReportController < ApplicationController
     end
     
     version
-    
   end
   
   # retrieve the list of all open (or locked) versions of a project
@@ -126,6 +126,20 @@ class ProgressReportController < ApplicationController
     end
     
     select_versions
+  end
+  
+  # retrieve the list of weeks since the beggining of the project
+  def get_week_periods(min_date)
+    
+    periods = Array.new
+    week_periods = PeriodProgressReport.week_periods(min_date)
+    
+    week_periods.each do |p|
+      date_lib = p.date_from.strftime("%d/%m/%y") + ' - ' + p.date_to.strftime("%d/%m/%y")
+      periods.push([date_lib, p.date_from.strftime('%F')])
+    end
+    
+    periods
   end
   
 end

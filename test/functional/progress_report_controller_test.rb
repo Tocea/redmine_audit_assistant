@@ -93,11 +93,25 @@ class ProgressReportControllerTest < ActionController::TestCase
     
   end
   
+  test "it should generate a report even if there is an incorrect value in the member occupation parameter" do
+    
+    get :generate, { 'project_id' => 1, 'period' => Date.today, 'member_occupation' =>  { '1' => 'H'} }
+    assert_response :success
+    
+  end
+  
   test "it should generate a report with a selection of issues" do
     
     issue = Issue.where(project_id: 1).first
         
     get :generate, { 'project_id' => 1, 'period' => Date.today, 'issues_ids' =>  [issue.id] }
+    assert_response :success
+    
+  end
+  
+  test "it should generate a report with time_switching_issues parameter" do
+    
+    get :generate, { 'project_id' => 1, 'period' => Date.today, 'time_switching_issues' =>  '50' }
     assert_response :success
     
   end

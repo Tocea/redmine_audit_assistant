@@ -5,7 +5,7 @@ class ProgressReport
   def initialize(root, date_from, date_to, params={})
     
     @root = root    
-    @occupation_persons = format_occupation_persons_map(params[:occupation_persons])
+    @occupation_persons = params[:occupation_persons] ? params[:occupation_persons] : {}
     @time_switching_issues = params[:time_switching_issues].to_f / 100
     @period = PeriodProgressReport.new(date_from ? date_from : date_beginning, date_to) 
     if !date_to
@@ -156,14 +156,6 @@ class ProgressReport
   end
   
   private # ----------------------------------------------------------------
-  
-  def format_occupation_persons_map(occupation_persons)
-    if occupation_persons
-      return Hash[occupation_persons.keys.map(&:to_i).zip(occupation_persons.values.map(&:to_i))]
-    else
-      return Hash.new
-    end
-  end
   
   def format_hours(hours, format)  
     hours = 0 if hours.nil?
