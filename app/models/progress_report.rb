@@ -6,7 +6,7 @@ class ProgressReport
     
     @root = root    
     @occupation_persons = format_occupation_persons_map(params[:occupation_persons])
-    @time_switching_issues = params[:time_switching_issues].to_f
+    @time_switching_issues = params[:time_switching_issues].to_f / 100
     @period = PeriodProgressReport.new(date_from ? date_from : date_beginning, date_to) 
     if !date_to
       @period.to_end_of_week
@@ -25,14 +25,17 @@ class ProgressReport
     raise NotImplementedError
   end
   
+  # retrieve the list of users that are assigned to issues
   def users
     issues.map { |issue| issue.assigned_to }.uniq.compact
   end
   
+  # retrieve the date when the project started
   def date_beginning
     issues.map {|issue| issue.created_on }.min
   end
   
+  # retrieve the date where the project is supposed to end
   def date_effective
     issues.map { |issue| issue.due_date }.max
   end
@@ -108,11 +111,7 @@ class ProgressReport
     
     list_issues.each do |issue|
       if issue.estimated_hours
-        tx = 1
-        if @occupation_persons[issue.assigned_to_id]
-          tx = @occupation_persons[issue.assigned_to_id] / 100.00
-        end
-        total += issue.estimated_hours / tx
+        total += issue.estimated_hours / person_occupation_rate(issue.assigned_to_id)
       end
     end
     
@@ -142,16 +141,8 @@ class ProgressReport
     total = charge_effective if total.nil? || total == 0
     
     leaf_issues.each do |issue|
-      if issue.estimated_hours
-        
-        if issue.status.is_closed?
-          done_ratio = 100      
-        else
-          done_ratio = issue.done_ratio ? issue.done_ratio : 0
-        end
-        
-        total -= issue.estimated_hours * ( done_ratio / 100.00 )
-        
+      if issue.estimated_hours    
+        total -= issue.estimated_hours * issue_done_ratio(issue)
       end
     end
     
@@ -216,17 +207,9 @@ class ProgressReport
     list_issues = leaf_issues
     
     list_issues.each do |issue|
-      if issue.estimated_hours && issue.assigned_to_id == person_id && !issue.status.is_closed?
+      if issue.estimated_hours && issue.assigned_to_id == person_id
           
-        done_ratio = issue.done_ratio ? issue.done_ratio : 0
-        
-        if @occupation_persons[issue.assigned_to_id]
-          tx = @occupation_persons[issue.assigned_to_id] / 100.00
-        else
-          tx = 1
-        end
-
-        total += issue.estimated_hours * ( 100 - done_ratio ) / 100.00 / tx       
+        total += issue.estimated_hours * issue_todo_ratio(issue) / person_occupation_rate(issue.assigned_to_id)       
         
       end
     end
@@ -237,21 +220,46 @@ class ProgressReport
     
   end
   
+  def person_occupation_rate(person_id)
+    
+    if @occupation_persons[person_id]
+      tx = @occupation_persons[person_id] / 100.00
+    else
+      tx = 1
+    end
+    
+    tx
+  end
+  
+  def issue_todo_ratio(issue)
+    
+    1 - issue_done_ratio(issue)
+    
+  end
+  
+  def issue_done_ratio(issue)
+    
+    return 1 if issue.closed?
+    
+    done_ratio = issue.done_ratio ? issue.done_ratio : 0.00
+    
+    done_ratio / 100.00
+    
+  end
+  
   def total_time_switching_issues(list_issues=nil)
     
     total = 0.00
     
     if @time_switching_issues
          
-      tx = @time_switching_issues / 100.00
-      
       # remove the last element
       list = list_issues ? list_issues : leaf_issues
       list.slice!(-1)
       
       list.each do |issue|
         if issue.estimated_hours
-          total += issue.estimated_hours * tx
+          total += issue.estimated_hours * @time_switching_issues
         end
       end
       
