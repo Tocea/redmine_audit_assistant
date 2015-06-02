@@ -492,7 +492,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     report = ProgressReport.new(project, nil, nil)
     
-    assert_equal date_from, report.date_from
+    assert_equal date_from, report.period.date_from
     
   end
   
@@ -505,29 +505,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     report = ProgressReport.new(project, date_from, nil)
     
-    assert_equal date_to, report.date_to.to_date
-    
-  end
-  
-  test "it should return all the weeks in the project/version" do
-    
-    project = mock()
-    
-    date_from = "2015-05-01".to_date
-    date_to = "2015-05-13".to_date
-
-    Time.stubs(:now).returns(Time.parse(date_to.to_s))
-    
-    ProgressReport.any_instance.stubs(:date_beginning).returns(date_from)
-    
-    report = ProgressReport.new(project, date_from, nil)
-
-    periods = report.get_week_periods
-    puts periods.to_s
-    
-    assert_equal 3, periods.count
-    assert_equal "2015-05-11".to_date, periods[0][0].to_date
-    assert_equal "2015-05-15".to_date, periods[0][1].to_date
+    assert_equal date_to, report.period.date_to.to_date
     
   end
   

@@ -1,23 +1,17 @@
 class ProgressReport
   
-  attr_reader :root, :date_from, :date_to, :occupation_persons, :time_switching_issues
+  attr_reader :root, :period, :occupation_persons, :time_switching_issues
   
   def initialize(root, date_from, date_to, params={})
-    @root = root
-    @date_from = date_from
-    @date_to = date_to
+    
+    @root = root    
     @occupation_persons = format_occupation_persons_map(params[:occupation_persons])
     @time_switching_issues = params[:time_switching_issues].to_f
-    if !@date_from
-      @date_from = date_beginning
+    @period = PeriodProgressReport.new(date_from ? date_from : date_beginning, date_to) 
+    if !date_to
+      @period.to_end_of_week
     end
-    if !@date_to
-      to_end_of_week
-    end
-  end
-  
-  def to_end_of_week
-    @date_to = Chronic.parse('next friday', :now => @date_from)
+    
   end
   
   @@nb_hours_per_day = 8.00
@@ -81,7 +75,7 @@ class ProgressReport
     
     issues_list = issues
     
-    journals = get_issues_journals(issues_list, @date_from, @date_to)
+    journals = get_issues_journals(issues_list, @period.date_from, @period.date_to)
     
     issues_ids_changed = journals.map { |j| j.journalized_id }
     
@@ -165,31 +159,6 @@ class ProgressReport
     
   end
   
-  
-  def get_week_periods
-    
-    date_beggining_project = date_beginning
-    periods = Array.new
-    
-    date_from = Chronic.parse('monday', :context => :past)
-    date_to = Chronic.parse('friday', :now => date_from)
-    
-    if date_beggining_project.nil?
-      date_beggining_project = @date_from
-    end
-    
-    while date_to >= date_beggining_project do
-          
-      periods.push([date_from, date_to])
-      
-      date_from = Chronic.parse('last monday', :now => date_from)
-      date_to = Chronic.parse('last friday', :now => date_to)
-      
-    end
-    
-    periods   
-  end
-  
   # return the list of issues which don't have child issues
   def leaf_issues
     issues.select { |issue| leaf? issue }   
@@ -225,7 +194,7 @@ class ProgressReport
     
     days_left = time_left_for(person, 'd')
     
-    current = @date_to
+    current = @period.date_to
     
     while days_left > 0 do
       current = current + 1.days

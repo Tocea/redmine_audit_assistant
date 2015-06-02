@@ -13,16 +13,19 @@ class ProgressReportController < ApplicationController
 
     report = create_report(@project, @version, @date_from, @date_to)
     
-    if report.date_beginning.nil?
+    min_date = report.date_beginning
+    
+    if min_date.nil?
       redirect_to :controller => 'progress_report', :action => 'empty', :project_id => @project.id
       return
     end
     
     @periods = Array.new
+    week_periods = PeriodProgressReport.week_periods(min_date)
     
-    report.get_week_periods.each do |p|
-      date_lib = p[0].strftime("%d/%m/%y") + ' - ' + p[1].strftime("%d/%m/%y")
-      @periods.push([date_lib, p[0].strftime('%F')])
+    week_periods.each do |p|
+      date_lib = p.date_from.strftime("%d/%m/%y") + ' - ' + p.date_to.strftime("%d/%m/%y")
+      @periods.push([date_lib, p.date_from.strftime('%F')])
     end
     
     @issues = report.issues.reject { |issue| issue.status.is_closed? }
