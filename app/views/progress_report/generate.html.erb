@@ -29,7 +29,7 @@
 			<tr>
 				<td><%= l(:date_estimated_project) %></td>
 				<td class="<%= 'warning' if @is_late %>">
-					<%= @date_estimated.strftime("%d/%m/%y") %>
+					<%= @date_estimated.strftime("%d/%m/%y") unless @date_estimated.nil? %>
 				</td>
 			</tr>
 		</tbody>

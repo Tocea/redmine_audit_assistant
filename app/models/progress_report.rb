@@ -42,20 +42,17 @@ class ProgressReport
     issues.map { |issue| issue.due_date }.max
   end
   
-  def date_estimated
+  # get an estimation of the date when the project will be completed
+  def date_estimated   
     
-    days_left = charge_left 'd'
+    # get the estimated date of the end of every person's work
+    dates = users.map { |user| date_estimated_for(user) }
     
-    current = @date_to
+    # add the estimated date of the work not assigned to anybody
+    dates.push(date_estimated_for(nil))
     
-    while days_left > 0 do
-      current = current + 1.days
-      if !current.saturday? && !current.sunday?
-        days_left -= 1
-      end
-    end
-    
-    current
+    # take the maximum date
+    dates.max
     
   end
   
@@ -141,20 +138,7 @@ class ProgressReport
   
   # total charge left at the end of period
   def charge_left(format='h')
-    
-    # total = 0
-    # leaf_issues.each do |issue|
-      # if issue.estimated_hours && !issue.status.is_closed?
-        # tx = 1
-        # if @occupation_persons[issue.assigned_to_id]
-          # tx = @occupation_persons[issue.assigned_to_id] / 100.00        
-        # end
-        # done_ratio = issue.done_ratio ? issue.done_ratio : 0
-        # todo_ratio = 1 - (done_ratio / 100.00)
-        # total += todo_ratio * issue.estimated_hours / tx
-      # end
-    # end
-    
+        
     total = charge_initial
     total = charge_effective if total.nil? || total == 0
     
@@ -216,7 +200,7 @@ class ProgressReport
     end
   end
   
-  def format_hours(hours, format)   
+  def format_hours(hours, format)  
     hours = 0 if hours.nil?
     if format == 'd'
        hours = hours / @@nb_hours_per_day
@@ -230,6 +214,49 @@ class ProgressReport
     childs = Issue.where(parent_id: issue.id)  
     childs.blank?
 
+  end
+  
+  def date_estimated_for(person)
+    
+    days_left = time_left_for(person, 'd')
+    
+    current = @date_to
+    
+    while days_left > 0 do
+      current = current + 1.days
+      if !current.saturday? && !current.sunday?
+        days_left -= 1
+      end
+    end
+    
+    current
+    
+  end
+  
+  def time_left_for(person, format='h')
+    
+    total = 0.00
+    
+    person_id = person ? person.id : nil
+    
+    leaf_issues.each do |issue|
+      if issue.estimated_hours && issue.assigned_to_id == person_id && !issue.status.is_closed?
+          
+        done_ratio = issue.done_ratio ? issue.done_ratio : 0
+        
+        if @occupation_persons[issue.assigned_to_id]
+          tx = @occupation_persons[issue.assigned_to_id] / 100.00
+        else
+          tx = 1
+        end
+
+        total += issue.estimated_hours * ( 100 - done_ratio ) / 100.00 / tx
+        
+      end
+    end
+    
+    format_hours(total, format)
+    
   end
   
 end

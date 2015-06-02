@@ -221,10 +221,23 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     report = ProgressReport.new(project, "2015-05-18".to_date, "2015-05-22".to_date)
     
+    users_id = [
+      1,   # => 10 days  => 2015-06-06
+      2,   # => 8 days   => 2015-06-02
+      3    # => 5 days   => 2015-05-29
+    ]
+    
+    users = []
+    users_id.each do |id|
+      user = mock()
+      user.expects(:id).at_least_once.returns(id)  
+      users.push(user)
+    end
+    
     issues = [
-      Issue.new(:assigned_to_id => 1, :estimated_hours => 10),  # => 8 left
-      Issue.new(:assigned_to_id => 2, :estimated_hours => 30),  # => 18 left
-      Issue.new(:assigned_to_id => 3, :estimated_hours => 5)    # => 5 left
+      Issue.new(:assigned_to_id => 1, :estimated_hours => 10 * 8),  
+      Issue.new(:assigned_to_id => 2, :estimated_hours => 8 * 8),  
+      Issue.new(:assigned_to_id => 3, :estimated_hours => 5 * 8)    
     ]
     
     status = mock()
@@ -232,17 +245,196 @@ class ProgressReportTest < ActiveSupport::TestCase
     Issue.any_instance.stubs(:status).returns(status)
     
     report.stubs(:leaf_issues).returns(issues)  
+    report.stubs(:users).returns(users)
     
-    assert_equal "2015-06-01".to_date, report.date_estimated
+    assert_equal "2015-06-05".to_date, report.date_estimated
+    
+  end
+  
+  test "it should calculate an estimated date for the end of the project with multiple issues to the same person" do
+    
+    project = mock()
+    
+    report = ProgressReport.new(project, "2015-05-18".to_date, "2015-05-22".to_date)
+    
+    id = 1
+    user = mock()
+    user.expects(:id).at_least_once.returns(id)  
+    users = [user]
+    
+    issues = [
+      Issue.new(:assigned_to_id => id, :estimated_hours => 10 * 8),  
+      Issue.new(:assigned_to_id => id, :estimated_hours => 8 * 8),  
+      Issue.new(:assigned_to_id => id, :estimated_hours => 5 * 8)    
+    ]             # => 23 days => 2015-06-24
+    
+    status = mock()
+    status.expects(:is_closed?).at_least_once.returns(false)
+    Issue.any_instance.stubs(:status).returns(status)
+    
+    report.stubs(:leaf_issues).returns(issues)  
+    report.stubs(:users).returns(users)
+    
+    assert_equal "2015-06-24".to_date, report.date_estimated
+    
+  end
+  
+  test "it should ignore the closed issues when calculating an estimated date" do
+    
+    project = mock()
+    
+    report = ProgressReport.new(project, "2015-05-18".to_date, "2015-05-22".to_date)
+    
+    id = 1
+    user = mock()
+    user.expects(:id).at_least_once.returns(id)  
+    users = [user]
+    
+    issues = [
+      Issue.new(:assigned_to_id => id, :estimated_hours => 10 * 8),  
+      Issue.new(:assigned_to_id => id, :estimated_hours => 8 * 8),  
+      Issue.new(:assigned_to_id => id, :estimated_hours => 5 * 8)    
+    ]             # => 15 days => 2015-06-12
+    
+    open = mock()
+    open.expects(:is_closed?).at_least_once.returns(false)
+    issues[0].stubs(:status).returns(open)
+    issues[2].stubs(:status).returns(open)
+    
+    closed = mock()
+    closed.expects(:is_closed?).at_least_once.returns(true)
+    issues[1].stubs(:status).returns(closed)
+    
+    report.stubs(:leaf_issues).returns(issues)  
+    report.stubs(:users).returns(users)
+    
+    assert_equal "2015-06-12".to_date, report.date_estimated
+    
+  end
+  
+  test "it should not fail to calculate the estimated date if the issues do not have estimated hours" do
+    
+    project = mock()
+    
+    report = ProgressReport.new(project, "2015-05-18".to_date, "2015-05-22".to_date)
+    
+    id = 1
+    user = mock()
+    user.expects(:id).at_most_once.returns(id)  
+    users = [user]
+    
+    issues = [
+      Issue.new(:assigned_to_id => id, :estimated_hours => nil),  
+      Issue.new(:assigned_to_id => id, :estimated_hours => nil),  
+      Issue.new(:assigned_to_id => id, :estimated_hours => nil)    
+    ]             # => 15 days => 2015-06-12
+    
+    status = mock()
+    status.expects(:is_closed?).at_most(3).returns(false)
+    Issue.any_instance.stubs(:status).returns(status)
+    
+    report.stubs(:leaf_issues).returns(issues)  
+    report.stubs(:users).returns(users)
+    
+    assert_equal "2015-05-22".to_date, report.date_estimated
+    
+  end
+  
+  test "it should not fail to calculate the estimated date if the issues are not assigned to anybody" do
+    
+    project = mock()
+    
+    report = ProgressReport.new(project, "2015-05-18".to_date, "2015-05-22".to_date)
+    
+    issues = [
+      Issue.new(:assigned_to_id => nil, :estimated_hours => 10 * 8),  
+      Issue.new(:assigned_to_id => nil, :estimated_hours => 8 * 8),  
+      Issue.new(:assigned_to_id => nil, :estimated_hours => 5 * 8)    
+    ]             # => 23 days => 2015-06-24
+    
+    status = mock()
+    status.expects(:is_closed?).at_least_once.returns(false)
+    Issue.any_instance.stubs(:status).returns(status)
+    
+    report.stubs(:leaf_issues).returns(issues)  
+    report.stubs(:users).returns([])
+    
+    assert_equal "2015-06-24".to_date, report.date_estimated
+    
+  end
+  
+  test "it should use issues done ratios to calculate the estimated date" do
+    
+    project = mock()
+    
+    report = ProgressReport.new(project, "2015-05-18".to_date, "2015-05-22".to_date)
+    
+    id = 1
+    user = mock()
+    user.expects(:id).at_least_once.returns(id)  
+    users = [user]
+    
+    issues = [
+      Issue.new(:assigned_to_id => id, :estimated_hours => 10 * 8, :done_ratio => 10),  # => 9 days
+      Issue.new(:assigned_to_id => id, :estimated_hours => 8 * 8, :done_ratio => 50),   # => 4 days
+      Issue.new(:assigned_to_id => id, :estimated_hours => 5 * 8, :done_ratio => 0),    # => 5 days
+      Issue.new(:assigned_to_id => id, :estimated_hours => 35 * 8, :done_ratio => 100)  # => 0 days
+    ]             # => 18 days => 2015-06-24
+    
+    status = mock()
+    status.expects(:is_closed?).at_least_once.returns(false)
+    Issue.any_instance.stubs(:status).returns(status)
+    
+    report.stubs(:leaf_issues).returns(issues)  
+    report.stubs(:users).returns(users)
+    
+    assert_equal "2015-06-17".to_date, report.date_estimated
+    
+  end
+  
+  test "it should use the percentage of occupation per person to calculate the estimated date" do
+    
+    project = mock()
+    occupation_persons = { '1' => '90', '2' => '70' }
+    date_from = "2015-05-18".to_date
+    date_to = "2015-05-22".to_date
+    
+    report = ProgressReport.new(project, date_from, date_to, occupation_persons)
+    
+    users_id = [
+      1,   # => 11.11 days  => 2015-06-09
+      2,   # => 11.42 days   => 2015-06-09
+      3    # => 5 days   => 2015-05-29
+    ]
+    
+    users = []
+    users_id.each do |id|
+      user = mock()
+      user.expects(:id).at_least_once.returns(id)  
+      users.push(user)
+    end
+    
+    issues = [
+      Issue.new(:assigned_to_id => 1, :estimated_hours => 10 * 8),
+      Issue.new(:assigned_to_id => 2, :estimated_hours => 8 * 8),  
+      Issue.new(:assigned_to_id => 3, :estimated_hours => 5 * 8)    
+    ]
+    
+    status = mock()
+    status.expects(:is_closed?).at_least_once.returns(false)
+    Issue.any_instance.stubs(:status).returns(status)
+    
+    report.stubs(:leaf_issues).returns(issues)  
+    report.stubs(:users).returns(users)
+    
+    assert_equal "2015-06-09".to_date, report.date_estimated
     
   end
   
   test "it should be possible to create a ProgressReport instance without specifying the date_from" do
     
     project = mock()
-    
     date_from = 3.day.ago
-    
     ProgressReport.any_instance.stubs(:date_beginning).returns(date_from)
     
     report = ProgressReport.new(project, nil, nil)
