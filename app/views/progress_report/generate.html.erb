@@ -74,6 +74,19 @@
 	
 	<h3><%= l(:project_progress) %></h3>
 	
+	<div class="progress-bar">
+		<h4><%= l(:label_spent_time) %></h4>
+		<%= progress_bar([@time_progression, 100],
+	                     :width => '80%', :legend => ('%0.0f%' % @time_progression)) %>
+    </div>
+    <div class="progress-bar">
+	    <h4><%= l(:charge) %></h4>
+		<%= progress_bar([30, 100],
+	                     :width => '80%', :legend => ('%0.0f%' % 100)) %>
+    </div>
+    
+    <br style="clear: both;">
+	
 	<h4><%= l(:what_has_been_done_since_last_time)%></h4>
 	
 	<table class="list issues">
@@ -144,4 +157,3 @@
 	<p><%= @what_went_wrong %></p>
 	
 </div>
-

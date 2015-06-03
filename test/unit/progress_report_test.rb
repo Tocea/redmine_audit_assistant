@@ -669,4 +669,52 @@ class ProgressReportTest < ActiveSupport::TestCase
     
   end
   
+  test "it should calculate a percentage of the time progression" do
+    
+    date_to = "2015-05-01".to_date
+    date_effective = "2015-05-08".to_date
+    date_start = "2015-04-27".to_date
+      
+    report = ProgressReport.new(mock(), @date_from, date_to)
+    
+    report.stubs(:date_effective).returns(date_effective)
+    report.stubs(:date_beginning).returns(date_start)
+    
+    assert_equal 36, report.time_progression
+    
+  end
+  
+  test "it should use the current date for calculating the time progression if it is not greater than the end of the period" do
+    
+    date_to = "2015-05-01".to_date
+    date_effective = "2015-05-08".to_date
+    date_start = "2015-04-27".to_date
+    today = "2015-04-30".to_date
+      
+    report = ProgressReport.new(mock(), @date_from, date_to)
+    
+    report.stubs(:date_effective).returns(date_effective)
+    report.stubs(:date_beginning).returns(date_start)
+    Date.stubs(:today).returns(today)
+    
+    assert_equal 27, report.time_progression
+    
+  end
+  
+  test "it should use the estimated date for calculating the time progression if the effective date is not defined" do
+    
+    date_to = "2015-05-01".to_date
+    date_estimated = "2015-05-10".to_date
+    date_start = "2015-04-27".to_date
+      
+    report = ProgressReport.new(mock(), @date_from, date_to)
+    
+    report.stubs(:date_effective).returns(nil)
+    report.stubs(:date_estimated).returns(date_estimated)
+    report.stubs(:date_beginning).returns(date_start)
+    
+    assert_equal 30, report.time_progression
+    
+  end
+  
 end

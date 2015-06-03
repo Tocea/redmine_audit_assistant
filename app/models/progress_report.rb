@@ -157,6 +157,33 @@ class ProgressReport
     
   end
   
+  # return the time progression in percentage
+  def time_progression
+    
+    if Date.today > @period.date_to.to_date
+      actual_date = @period.date_to
+    else  
+      actual_date = Date.today
+    end
+    
+    date_end = date_effective
+    date_end = date_estimated if date_end.nil?
+    
+    date_start = date_beginning.to_date
+    
+    puts date_start.to_s
+    puts date_end.to_s
+    puts actual_date.to_s
+    
+    burnt = actual_date.to_date - date_start.to_date
+    total = date_end.to_date - date_start.to_date
+    
+    ratio = total > 0 ? (burnt / total) * 100 : 0
+
+    ratio.to_i
+    
+  end
+  
   # return the list of issues which don't have child issues
   def leaf_issues
     issues.select { |issue| leaf? issue }   
