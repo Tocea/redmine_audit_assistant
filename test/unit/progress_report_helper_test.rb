@@ -116,4 +116,14 @@ class ProgressReportHelperTest < ActiveSupport::TestCase
     
   end
   
+  test "it should return the journal details associated to Journal objects" do
+    
+    journals = [Journal.find(1), Journal.find(2), Journal.find(3)]
+    
+    changelog = @helper.get_journal_details(journals)
+    
+    assert_equal 5, changelog.count
+    
+  end
+  
 end

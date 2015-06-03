@@ -94,7 +94,14 @@
 					<td><%= @issue.tracker.name %></td>
 					<td><%= @issue.status.name %></td>
 					<td><%= @issue.priority.name %></td>
-					<td style="text-align: left;"><%= @issue.subject %></td>
+					<td style="text-align: left;">
+						<%= @issue.subject %>
+						<ul>
+							<% for @change in @report.issue_changelog(@issue) %>
+								<li><%= show_detail(@change) %></li>
+							<% end %>	
+						</ul>
+					</td>
 					<td><%= @issue.assigned_to.to_s %></td>
 					<td><%= @issue.estimated_hours %></td>
 					<td><%= @issue.done_ratio %></td>

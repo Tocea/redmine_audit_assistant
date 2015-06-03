@@ -87,6 +87,18 @@ class ProgressReport
     
   end
   
+  # return the changes of the issues during the report's period
+  def issue_changelog(issue)
+     
+    if !@changelog
+      journals = get_issues_journals(issues, @period.date_from, @period.date_to)
+      @changelog = get_journal_details(journals)
+    end
+    
+    @changelog.select { |change| change.journal.journalized_id == issue.id } 
+    
+  end
+  
   # total initial charge (abstract method)
   def charge_initial(format='h')
     
@@ -195,16 +207,14 @@ class ProgressReport
     
     total = 0.00
     
+    person_id = nil
+    
     if person
       
       person_id = person.id
       
       # add the number of hours that this person cannot work
       total += person_total_time_off(person.id)
-      
-    else
-      
-      person_id = nil
       
     end
     

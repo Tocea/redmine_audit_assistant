@@ -647,4 +647,26 @@ class ProgressReportTest < ActiveSupport::TestCase
     
   end
   
+  test "it should return the changelog specific to a given issue" do
+    
+    issues = [mock(), mock()]
+    issues[0].expects(:id).at_least_once.returns(1)
+    
+    journals = [mock(), mock()]
+    journals[0].expects(:journalized_id).returns(1)
+    journals[1].expects(:journalized_id).returns(2)
+    
+    journal_details = [mock(), mock()]
+    journal_details[0].expects(:journal).returns(journals[0])
+    journal_details[1].expects(:journal).returns(journals[1])
+    
+    report = ProgressReport.new(mock(), @date_from, @date_to)
+    report.stubs(:issues).returns(issues)
+    report.stubs(:get_issues_journals).with(issues, @date_from, @date_to).returns(journals)
+    report.stubs(:get_journal_details).with(journals).returns(journal_details)
+    
+    assert_equal [journal_details[0]], report.issue_changelog(issues[0])
+    
+  end
+  
 end

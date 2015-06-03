@@ -5,6 +5,12 @@ class ProgressReportController < ApplicationController
   
   include ToceaCustomFieldsHelper
   
+  require File.dirname(__FILE__) + '/../../../../app/helpers/issues_helper'
+  ProgressReportController.send :include, IssuesHelper
+  helper_method :show_detail
+  include ERB::Util
+  include ActionView::Helpers::TagHelper
+  
   def index
       
     @date_from = params[:date_from] ? params[:date_from].to_date : nil
@@ -36,29 +42,29 @@ class ProgressReportController < ApplicationController
     
     @version = get_version(params[:version_id])
        
-    report = create_report(@project, @version, @date_from, @date_to, {
+    @report = create_report(@project, @version, @date_from, @date_to, {
       :occupation_persons => format_integer_map(params[:member_occupation]),
       :time_switching_issues => params[:time_switching_issues],
       :days_off => format_integer_map(params[:days_off])
     })
     
     # get report's data
-    @issues = report.issues
-    @date_beggining = report.date_beginning
-    @date_effective = report.date_effective    
-    @date_estimated = report.date_estimated   
-    @effective_charge = report.charge_effective 'd'
-    @estimated_charge = report.charge_estimated 'd'
-    @left_charge = report.charge_left 'd'
-    @is_late = report.late?
-    @initial_charge = report.charge_initial 'd'
-    @unassigned_charge = report.charge_unassigned 'd'
+    @issues = @report.issues
+    @date_beggining = @report.date_beginning
+    @date_effective = @report.date_effective    
+    @date_estimated = @report.date_estimated   
+    @effective_charge = @report.charge_effective 'd'
+    @estimated_charge = @report.charge_estimated 'd'
+    @left_charge = @report.charge_left 'd'
+    @is_late = @report.late?
+    @initial_charge = @report.charge_initial 'd'
+    @unassigned_charge = @report.charge_unassigned 'd'
     
     # get project or version code    
     @code_project = @version.nil? ? code_project(@project) : code_version(@version)
     
     # get the list of the issues that has been updated during the period
-    @issues_updated = report.issues_updated
+    @issues_updated = @report.issues_updated
     
     # get the list of the issues that will be done this week
     issues_ids = params[:issues_ids] ? params[:issues_ids] : []

@@ -15,6 +15,15 @@ module ProgressReportHelper
     
   end
   
+  # return the journal details associated to journals objects
+  def get_journal_details(journals)
+    
+    JournalDetail.where("journal_id IN (:journals_ids)", {
+      journals_ids: journals.map { |j| j.id }
+    })
+    
+  end
+  
   # get the last know value of an issue's property before a given date 
   def get_property_value_at_period_end(issue, prop_key, date_to)
     
