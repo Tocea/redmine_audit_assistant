@@ -81,8 +81,8 @@
     </div>
     <div class="progress-bar">
 	    <h4><%= l(:charge) %></h4>
-		<%= progress_bar([30, 100],
-	                     :width => '80%', :legend => ('%0.0f%' % 100)) %>
+		<%= progress_bar([@charge_progression, 100],
+	                     :width => '80%', :legend => ('%0.0f%' % @charge_progression)) %>
     </div>
     
     <br style="clear: both;">

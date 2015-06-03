@@ -171,15 +171,25 @@ class ProgressReport
     
     date_start = date_beginning.to_date
     
-    puts date_start.to_s
-    puts date_end.to_s
-    puts actual_date.to_s
-    
     burnt = actual_date.to_date - date_start.to_date
     total = date_end.to_date - date_start.to_date
     
     ratio = total > 0 ? (burnt / total) * 100 : 0
 
+    ratio.to_i
+    
+  end
+  
+  # return the percentage value of the charge progression
+  def charge_progression
+    
+    total = charge_initial
+    total = charge_effective if total == 0
+    
+    done = total - charge_left  
+    
+    ratio = total > 0 ? (done.to_f / total.to_f) * 100 : 0
+    
     ratio.to_i
     
   end

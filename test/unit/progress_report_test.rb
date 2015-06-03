@@ -717,4 +717,33 @@ class ProgressReportTest < ActiveSupport::TestCase
     
   end
   
+  test "it should calculate a percentage of the charge progression" do
+    
+    charge_initial = 10
+    charge_left = 3
+    
+    report = ProgressReport.new(mock(), @date_from, @date_to)
+    
+    report.stubs(:charge_initial).returns(charge_initial)
+    report.stubs(:charge_left).returns(charge_left)
+    
+    assert_equal 70, report.charge_progression
+    
+  end
+  
+  test "it should use the effective charge to calculate the charge progression if the initial charge is not defined" do
+    
+    charge_effective = 10
+    charge_left = 3
+    
+    report = ProgressReport.new(mock(), @date_from, @date_to)
+    
+    report.stubs(:charge_initial).returns(0)
+    report.stubs(:charge_effective).returns(charge_effective)
+    report.stubs(:charge_left).returns(charge_left)
+    
+    assert_equal 70, report.charge_progression
+    
+  end
+  
 end

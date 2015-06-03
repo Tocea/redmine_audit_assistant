@@ -5,12 +5,12 @@ class TimeFormatter
   end
 
   def format_hours(hours, to='h')
-    hours = 0 if hours.nil?
+    days = hours ? hours : 0
     if to == 'd'
-       hours = hours / @nb_hours_per_day
-       hours = hours >= 0 ? hours.ceil : hours.floor
+       days = days / @nb_hours_per_day
+       days = days >= 0 ? days.ceil : days.floor
     end
-    hours 
+    days 
   end
   
   def format_days(days, to='h')
