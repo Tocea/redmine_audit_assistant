@@ -20,7 +20,7 @@ class ProjectVersionProgressReport < ProgressReport
     
     total = version_initial_workload(@root)
     
-    format_hours(total * @@nb_hours_per_day, format)
+    @time_formatter.format_days(total.to_i, format)
     
   end
   

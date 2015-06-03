@@ -12,6 +12,7 @@ class ProgressReport
     if !date_to
       @period.to_end_of_week
     end
+    @time_formatter = TimeFormatter.new(@@nb_hours_per_day)
     
   end
   
@@ -102,7 +103,7 @@ class ProgressReport
   # total initial charge (abstract method)
   def charge_initial(format='h')
     
-    format_hours(0.00, format)
+    @time_formatter.format_hours(0.00, format)
     
   end
   
@@ -111,7 +112,7 @@ class ProgressReport
      
     total = leaf_issues.map { |issue| issue.estimated_hours ? issue.estimated_hours : 0 }.reduce(:+) 
      
-    format_hours(total, format)
+    @time_formatter.format_hours(total, format)
      
   end
   
@@ -130,7 +131,7 @@ class ProgressReport
     
     total += total_time_switching_issues(list_issues)
     
-    format_hours(total, format)
+    @time_formatter.format_hours(total, format)
     
   end
   
@@ -143,7 +144,7 @@ class ProgressReport
         total += issue.estimated_hours
       end
     end
-    format_hours(total, format)
+    @time_formatter.format_hours(total, format)
     
   end
   
@@ -159,7 +160,7 @@ class ProgressReport
       end
     end
     
-    format_hours(total, format)
+    @time_formatter.format_hours(total, format)
     
   end
   
@@ -169,15 +170,6 @@ class ProgressReport
   end
   
   private # ----------------------------------------------------------------
-  
-  def format_hours(hours, format)  
-    hours = 0 if hours.nil?
-    if format == 'd'
-       hours = hours / @@nb_hours_per_day
-       hours = hours >= 0 ? hours.ceil : hours.floor
-    end
-    hours   
-  end
   
   def leaf?(issue)
     
@@ -231,7 +223,7 @@ class ProgressReport
     # add the time necessary to switch between issues
     total += total_time_switching_issues(list_issues)
     
-    format_hours(total, format)
+    @time_formatter.format_hours(total, format)
     
   end
   
@@ -250,8 +242,8 @@ class ProgressReport
     
     nb = @days_off[person_id] ? @days_off[person_id] : 0
     
-    format_hours(nb * @@nb_hours_per_day, format)
-    
+    @time_formatter.format_days(nb, format)
+
   end
   
   def issue_todo_ratio(issue)
