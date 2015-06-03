@@ -45,14 +45,7 @@ class ProgressReport
   # get an estimation of the date when the project will be completed
   def date_estimated   
     
-    # get the estimated date of the end of every person's work
-    dates = users.map { |user| date_estimated_for(user) }
-    
-    # add the estimated date of the work not assigned to anybody
-    dates.push(date_estimated_for(nil))
-    
-    # take the maximum date
-    dates.max
+    DateEstimationStrategy.new(self, @time_formatter).calculate
     
   end
   
@@ -169,62 +162,11 @@ class ProgressReport
     issues.select { |issue| leaf? issue }   
   end
   
-  private # ----------------------------------------------------------------
-  
   def leaf?(issue)
     
     childs = Issue.where(parent_id: issue.id)  
     childs.blank?
 
-  end
-  
-  def date_estimated_for(person)
-    
-    days_left = time_left_for(person, 'd')
-    
-    current = @period.date_to
-    
-    while days_left > 0 do
-      current = current + 1.days
-      if !current.saturday? && !current.sunday?
-        days_left -= 1
-      end
-    end
-    
-    current
-    
-  end
-  
-  def time_left_for(person, format='h')
-    
-    total = 0.00
-    
-    person_id = nil
-    
-    if person
-      
-      person_id = person.id
-      
-      # add the number of hours that this person cannot work
-      total += person_total_time_off(person.id)
-      
-    end
-    
-    list_issues = leaf_issues
-    
-    list_issues.each do |issue|
-      if issue.estimated_hours && issue.assigned_to_id == person_id
-          
-        total += issue.estimated_hours * issue_todo_ratio(issue) / person_occupation_rate(issue.assigned_to_id)       
-        
-      end
-    end
-    
-    # add the time necessary to switch between issues
-    total += total_time_switching_issues(list_issues)
-    
-    @time_formatter.format_hours(total, format)
-    
   end
   
   def person_occupation_rate(person_id)
