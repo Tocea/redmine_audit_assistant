@@ -131,4 +131,51 @@ class ProgressReportControllerTest < ActionController::TestCase
     
   end
   
+  test "it should retrieve the last generated report" do
+    
+    # generate a report
+    get :generate, { 'project_id' => 1, 'period' => Date.today }
+    
+    # access the generated report
+    get :last_report, { 'project_id' => 1 }
+
+    attachment = Attachment.all[0]
+
+    assert_redirected_to :controller => 'attachments', :action => 'download', :id => attachment.id
+    
+  end
+  
+  test "it should redirect to the index page if there is no generated report" do
+    
+    get :last_report, { 'project_id' => 1 }
+    assert_redirected_to :controller => 'progress_report', :action => 'index', :project_id => 1
+    
+  end
+  
+  test "it should retrieve the last generated report of a version" do
+    
+    version = Version.new(
+      :project_id => 1, 
+      :name => 'Version 1.0 (with bugs)',
+      :effective_date => Date.today
+    )
+    version.save
+    
+    issue = Issue.find(1)
+    issue.fixed_version_id = version.id
+    issue.start_date = Date.today
+    issue.save
+    
+    # generate a report
+    get :generate, { 'project_id' => 1, 'period' => Date.today, 'version_id' => version.id }
+    
+    # access the generated report
+    get :last_report, { 'project_id' => 1, 'version_id' => version.name }
+    
+    attachment = Attachment.all[0]
+
+    assert_redirected_to :controller => 'attachments', :action => 'download', :id => attachment.id
+    
+  end
+  
 end

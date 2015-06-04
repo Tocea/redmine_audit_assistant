@@ -84,6 +84,25 @@ class ProgressReportController < ApplicationController
     
   end
   
+  def last_report
+    
+    @version = params[:version_id] ? Version.where(name: params[:version_id]).first : nil
+    
+    attachments = Attachment.where(
+          container_type: 'Project', 
+          container_id: @project.id, 
+          filename: report_filename
+    ).order('created_on DESC')
+    
+    if attachments.blank?
+      redirect_to :controller => 'progress_report', :action => 'index', :project_id => @project.id
+      return
+    end
+    
+    redirect_to :controller => 'attachments', :action => 'download', :id => attachments[0].id
+    
+  end
+  
   private # ------------------------------------------------------------------------------------
   
   def find_project
@@ -154,12 +173,18 @@ class ProgressReportController < ApplicationController
     periods
   end
   
-  # save the generated progress report
-  def save_report
+  # get the name of the generated file that contains the report
+  def report_filename
     
     filename = 'Report'
     filename += ' - '+@version.name if @version
-    filename += '.html'  
+    filename += '.html' 
+    
+    filename
+  end
+  
+  # get the content of the report as an HTML string
+  def report_content
     
     html = '<html>'
     html += '<head>'
@@ -169,7 +194,16 @@ class ProgressReportController < ApplicationController
     html += render_to_string "progress_report/generate", :layout => false
     html += '</html>'
     
-    html = html.gsub("/plugin_assets/", request.base_url+"/plugin_assets/")
+    html.gsub("/plugin_assets/", request.base_url+"/plugin_assets/")
+    
+  end
+  
+  # save the generated progress report
+  def save_report
+    
+    filename = report_filename 
+    
+    html = report_content
     
     File.open(filename, 'w:UTF-8') do |f|
       f.puts html.encode('utf-8')
