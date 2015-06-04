@@ -123,4 +123,12 @@ class ProgressReportControllerTest < ActionController::TestCase
     
   end
   
+  test "it should save the generated report" do
+    
+    assert_difference "Attachment.count" do
+      get :generate, { 'project_id' => 1, 'period' => Date.today }
+    end
+    
+  end
+  
 end

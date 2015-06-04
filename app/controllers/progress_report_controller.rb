@@ -75,6 +75,9 @@ class ProgressReportController < ApplicationController
     # get the comment
     @what_went_wrong = params[:what_went_wrong] ? params[:what_went_wrong] : ''
 
+    # save the progress report
+    save_report
+    
   end
   
   def empty
@@ -149,6 +152,35 @@ class ProgressReportController < ApplicationController
     end
     
     periods
+  end
+  
+  # save the generated progress report
+  def save_report
+    
+    filename = 'Report'
+    filename += ' - '+@version.name if @version
+    filename += '.html'  
+    
+    html = '<html>'
+    html += '<head>'
+    html += '<meta charset="utf-8" />'
+    html += '<link href="'+request.base_url+'/themes/gitmike/stylesheets/application.css" media="all" rel="stylesheet" type="text/css" />'
+    html += '</head>'
+    html += render_to_string "progress_report/generate", :layout => false
+    html += '</html>'
+    
+    html = html.gsub("/plugin_assets/", request.base_url+"/plugin_assets/")
+    
+    File.open(filename, 'w:UTF-8') do |f|
+      f.puts html.encode('utf-8')
+    end
+    
+    attachment = Attachment.new(:file => File.open(filename, 'r:UTF-8'))
+    attachment.author = User.current
+    attachment.filename = filename
+    attachment.container = @project
+    attachment.save
+    
   end
   
 end
