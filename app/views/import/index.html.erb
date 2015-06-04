@@ -10,6 +10,9 @@
 		<label><%= l(:label_attachment_plural) %></label>
 		<%= render :partial => 'attachments/form' %>
 	</p>
+	<p>
+		<%= link_to 'Documentation', 'https://github.com/Tocea/redmine_audit_assistant/wiki/Import-issues-from-YAML-file', :target => '_blank' %>
+	</p>
 </div>
 <%= submit_tag l(:button_save) %>
 <% end %>
