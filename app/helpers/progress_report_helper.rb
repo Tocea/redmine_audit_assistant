@@ -18,7 +18,7 @@ module ProgressReportHelper
   # return the journal details associated to journals objects
   def get_journal_details(journals)
     
-    JournalDetail.where("journal_id IN (:journals_ids)", {
+    JournalDetail.where("journal_id IN (:journals_ids) AND property = 'attr'", {
       journals_ids: journals.map { |j| j.id }
     })
     

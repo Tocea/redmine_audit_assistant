@@ -122,7 +122,7 @@ class ProgressReportHelperTest < ActiveSupport::TestCase
     
     changelog = @helper.get_journal_details(journals)
     
-    assert_equal 5, changelog.count
+    assert_equal 3, changelog.count
     
   end
   

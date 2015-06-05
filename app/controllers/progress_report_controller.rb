@@ -10,7 +10,7 @@ class ProgressReportController < ApplicationController
   helper_method :show_detail
   include ERB::Util
   include ActionView::Helpers::TagHelper
-  
+
   def index
       
     @date_from = params[:date_from] ? params[:date_from].to_date : nil
