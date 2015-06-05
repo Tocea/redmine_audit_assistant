@@ -66,7 +66,7 @@ class ProgressReportController < ApplicationController
     @unassigned_charge = @report.charge_unassigned 'd'
     @time_progression = @report.time_progression
     @charge_progression = @report.charge_progression
-    
+
     # get project or version code    
     @code_project = @version.nil? ? code_project(@project) : code_version(@version)
     
@@ -165,18 +165,28 @@ class ProgressReportController < ApplicationController
     filename
   end
   
+  def server_path
+    
+    if Setting.protocol && Setting.host_name
+      path = Setting.protocol+'://'+Setting.host_name
+    else
+      path = request.base_url
+    end
+    
+    path
+  end
+  
   # get the content of the report as an HTML string
   def report_content
     
     html = '<html>'
     html += '<head>'
     html += '<meta charset="utf-8" />'
-    html += '<link href="'+request.base_url+'/themes/gitmike/stylesheets/application.css" media="all" rel="stylesheet" type="text/css" />'
+    html += '<link href="'+server_path+'/themes/gitmike/stylesheets/application.css" media="all" rel="stylesheet" type="text/css" />'
+    html += '<link href="'+server_path+'/plugin_assets/redmine_audit_assistant/stylesheets/audit_assistant.css" media="screen" rel="stylesheet" type="text/css" />'
     html += '</head>'
     html += render_to_string "progress_report/generate", :layout => false
     html += '</html>'
-    
-    html.gsub("/plugin_assets/", request.base_url+"/plugin_assets/")
     
   end
   
