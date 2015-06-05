@@ -33,3 +33,5 @@ fr:
   time_switching_issues: "Temps nécessaire avant de commencer une tâche"
   time_switching_issues_unit: "% du temps de la tâche précédente"
   nb_days_off: "jour(s) de congés sur la période restante"
+  label_start_time: "Temps nécessaire avant de commancer le projet"
+  start_time_unit: "% de la charge estimée totale du projet"

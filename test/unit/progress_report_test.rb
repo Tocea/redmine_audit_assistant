@@ -119,6 +119,26 @@ class ProgressReportTest < ActiveSupport::TestCase
     
   end
   
+  test "it should calculate an estimated charge with a percentage of time needed before starting a project" do
+    
+    project = mock()
+    
+    report = ProgressReport.new(project, @period, {
+      :start_time => 10
+    })
+    
+    issues = [
+      Issue.new(:assigned_to_id => 1, :estimated_hours => 10),  
+      Issue.new(:assigned_to_id => 2, :estimated_hours => 15), 
+      Issue.new(:assigned_to_id => 3, :estimated_hours => 5)    
+    ]           # total: 30 => 33
+    
+    report.stubs(:leaf_issues).returns(issues)
+    
+    assert_equal 33, report.charge_estimated
+    
+  end
+  
   test "it should calculate the total charge left from the total initial charge" do
     
     project = mock()

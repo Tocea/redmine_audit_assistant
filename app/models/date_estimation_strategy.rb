@@ -3,11 +3,11 @@ class DateEstimationStrategy
   def initialize(progress_report, time_formatter=nil)
     
     @report = progress_report
-    @time_formatter = time_formatter ? time_formatter : TimeFormatter.new
+    @time_formatter = time_formatter ? time_formatter : @report.time_formatter
     
   end
   
-  def calculate()
+  def calculate
     
     # get the estimated date of the end of every person's work
     dates = @report.users.map { |user| date_estimated_for(user) }

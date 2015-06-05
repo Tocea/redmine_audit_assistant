@@ -49,7 +49,8 @@ class ProgressReportController < ApplicationController
                 .with({
                   :occupation_persons => params[:member_occupation],
                   :time_switching_issues => params[:time_switching_issues],
-                  :days_off => params[:days_off]
+                  :days_off => params[:days_off],
+                  :start_time => params[:start_time]
                 }).build
     
     # get report's data

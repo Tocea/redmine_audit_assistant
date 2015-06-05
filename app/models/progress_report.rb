@@ -1,6 +1,6 @@
 class ProgressReport
   
-  attr_reader :root, :period, :data
+  attr_reader :root, :period, :data, :time_formatter
   
   def initialize(root, period, params={})
     
@@ -10,7 +10,7 @@ class ProgressReport
     @period.date_to = @period.to_end_of_week if @period.date_to.nil?
     @time_formatter = TimeFormatter.new(@@nb_hours_per_day)
     params[:time_formatter] = @time_formatter
-    @data = ProgressReportData.new(params)
+    @data = ProgressReportData.new(self, params)
     
   end
   
@@ -43,7 +43,7 @@ class ProgressReport
   # get an estimation of the date when the project will be completed
   def date_estimated   
     
-    DateEstimationStrategy.new(self, @time_formatter).calculate
+    DateEstimationStrategy.new(self).calculate
     
   end
   
@@ -102,7 +102,7 @@ class ProgressReport
   def charge_effective(format='h')
      
     total = leaf_issues.map { |issue| issue.estimated_hours ? issue.estimated_hours : 0 }.reduce(:+) 
-     
+
     @time_formatter.format_hours(total, format)
      
   end
@@ -120,8 +120,9 @@ class ProgressReport
       end
     end
     
+    total += data.total_time_before_starting
     total += data.total_time_switching_issues(list_issues)
-    
+ 
     @time_formatter.format_hours(total, format)
     
   end
