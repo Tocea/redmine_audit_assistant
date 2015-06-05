@@ -167,8 +167,8 @@ class ProgressReportController < ApplicationController
   
   def server_path
     
-    if Setting.protocol && Setting.host_name
-      path = Setting.protocol+'://'+Setting.host_name
+    if Setting.host_name
+      path = 'http://'+Setting.host_name
     else
       path = request.base_url
     end
