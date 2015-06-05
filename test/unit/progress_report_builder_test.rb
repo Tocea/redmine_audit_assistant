@@ -49,7 +49,7 @@ class ProgressReportBuilderTest < ActiveSupport::TestCase
                 .with(:days_off => days_off)
                 .build
     
-    assert_equal days_off, report.days_off
+    assert_equal days_off, report.data.days_off
     
   end
   
@@ -75,8 +75,8 @@ class ProgressReportBuilderTest < ActiveSupport::TestCase
                       :occupation_persons => member_occupation)
                 .build
     
-    assert_equal days_off_int, report.days_off
-    assert_equal member_occupation_int, report.occupation_persons
+    assert_equal days_off_int, report.data.days_off
+    assert_equal member_occupation_int, report.data.occupation_persons
     
   end
   

@@ -1,17 +1,16 @@
 class ProgressReport
   
-  attr_reader :root, :period, :occupation_persons, :time_switching_issuesn, :days_off
+  attr_reader :root, :period, :data
   
   def initialize(root, period, params={})
     
     @root = root    
-    @occupation_persons = params[:occupation_persons] ? params[:occupation_persons] : {}
-    @time_switching_issues = params[:time_switching_issues].to_f / 100
-    @days_off = params[:days_off] ? params[:days_off] : {} 
     @period = period
     @period.date_from = date_beginning if @period.date_from.nil?
     @period.date_to = @period.to_end_of_week if @period.date_to.nil?
     @time_formatter = TimeFormatter.new(@@nb_hours_per_day)
+    params[:time_formatter] = @time_formatter
+    @data = ProgressReportData.new(params)
     
   end
   
@@ -117,11 +116,11 @@ class ProgressReport
     
     list_issues.each do |issue|
       if issue.estimated_hours
-        total += issue.estimated_hours / person_occupation_rate(issue.assigned_to_id)
+        total += issue.estimated_hours / data.person_occupation_rate(issue.assigned_to_id)
       end
     end
     
-    total += total_time_switching_issues(list_issues)
+    total += data.total_time_switching_issues(list_issues)
     
     @time_formatter.format_hours(total, format)
     
@@ -205,25 +204,6 @@ class ProgressReport
 
   end
   
-  def person_occupation_rate(person_id)
-    
-    if @occupation_persons[person_id]
-      tx = @occupation_persons[person_id] / 100.00
-    else
-      tx = 1
-    end
-    
-    tx
-  end
-  
-  def person_total_time_off(person_id, format='h')
-    
-    nb = @days_off[person_id] ? @days_off[person_id] : 0
-    
-    @time_formatter.format_days(nb, format)
-
-  end
-  
   def issue_todo_ratio(issue)
     
     1 - issue_done_ratio(issue)
@@ -238,27 +218,6 @@ class ProgressReport
     
     done_ratio / 100.00
     
-  end
-  
-  def total_time_switching_issues(list_issues=nil)
-    
-    total = 0.00
-    
-    if @time_switching_issues
-         
-      # remove the last element
-      list = list_issues ? list_issues : leaf_issues
-      list.slice!(-1)
-      
-      list.each do |issue|
-        if issue.estimated_hours
-          total += issue.estimated_hours * @time_switching_issues
-        end
-      end
-      
-    end
-    
-    total
   end
   
 end

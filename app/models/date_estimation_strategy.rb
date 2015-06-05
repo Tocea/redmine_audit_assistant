@@ -50,7 +50,7 @@ class DateEstimationStrategy
       person_id = person.id
       
       # add the number of hours that this person cannot work
-      total += @report.person_total_time_off(person.id)
+      total += @report.data.person_total_time_off(person.id)
       
     end
     
@@ -59,7 +59,7 @@ class DateEstimationStrategy
     list_issues.each do |issue|
       if issue.estimated_hours && issue.assigned_to_id == person_id
           
-        occupation_rate = @report.person_occupation_rate(issue.assigned_to_id) 
+        occupation_rate = @report.data.person_occupation_rate(issue.assigned_to_id) 
           
         total += issue.estimated_hours * @report.issue_todo_ratio(issue) / occupation_rate
         
@@ -67,7 +67,7 @@ class DateEstimationStrategy
     end
     
     # add the time necessary to switch between issues
-    total += @report.total_time_switching_issues(list_issues)
+    total += @report.data.total_time_switching_issues(list_issues)
     
     @time_formatter.format_hours(total, format)
     
