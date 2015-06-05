@@ -201,11 +201,27 @@ class ProgressReportController < ApplicationController
       f.puts html.encode('utf-8')
     end
     
+    destroy_attachments_same_period(filename, @report.period.date_from, @report.period.date_to)
+    
     attachment = Attachment.new(:file => File.open(filename, 'r:UTF-8'))
     attachment.author = User.current
     attachment.filename = filename
     attachment.container = @project
     attachment.save
+    
+  end
+  
+  def destroy_attachments_same_period(filename, date_from, date_to)
+    
+    attachments = Attachment.where("filename = :filename AND created_on >= :date_from AND created_on <= :date_to", {
+      filename: filename,
+      date_from: date_from,
+      date_to: date_to + 1.day
+    })
+    
+    if !attachments.blank?
+      attachments.each { |attachment| attachment.destroy }
+    end
     
   end
   

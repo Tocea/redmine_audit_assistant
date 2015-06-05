@@ -131,6 +131,18 @@ class ProgressReportControllerTest < ActionController::TestCase
     
   end
   
+  test "it should save only one report per week" do
+    
+    assert_difference "Attachment.count" do
+      get :generate, { 'project_id' => 1, 'period' => Date.today }
+    end
+    
+    assert_no_difference "Attachment.count" do
+      get :generate, { 'project_id' => 1, 'period' => Date.today }
+    end
+    
+  end
+  
   test "it should retrieve the last generated report" do
     
     # generate a report
