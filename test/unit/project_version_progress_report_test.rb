@@ -16,6 +16,7 @@ class ProjectVersionProgressReportTest < ActiveSupport::TestCase
   setup do
     @date_from = "2005-01-01".to_date
     @date_to = 10.year.from_now.to_date
+    @period = PeriodProgressReport.new(@date_from, @date_to)
   end
   
   test "it should return the issues of the version" do
@@ -24,7 +25,7 @@ class ProjectVersionProgressReportTest < ActiveSupport::TestCase
     
     issues = Issue.where(fixed_version_id: version.id)
     
-    report = ProjectVersionProgressReport.new(version, @date_from, @date_to)
+    report = ProjectVersionProgressReport.new(version, @period)
     
     assert_equal issues.count, report.issues.count
     
@@ -34,7 +35,7 @@ class ProjectVersionProgressReportTest < ActiveSupport::TestCase
     
     version = Version.find(8)
     
-    report = ProjectVersionProgressReport.new(version, @date_from, @date_to)
+    report = ProjectVersionProgressReport.new(version, @period)
     
     assert_equal 3.day.ago.to_date, report.date_beginning.to_date
     
@@ -45,7 +46,7 @@ class ProjectVersionProgressReportTest < ActiveSupport::TestCase
     
     version = Version.find(8)
     
-    report = ProjectVersionProgressReport.new(version, @date_from, @date_to)
+    report = ProjectVersionProgressReport.new(version, @period)
     
     assert_equal version.effective_date, report.date_effective
     

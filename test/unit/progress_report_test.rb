@@ -13,6 +13,7 @@ class ProgressReportTest < ActiveSupport::TestCase
   setup do
     @date_from = "2005-01-01".to_date
     @date_to = 10.year.from_now.to_date
+    @period = PeriodProgressReport.new(@date_from, @date_to)
   end
   
   test "it should return the list of issues that are leafs" do
@@ -28,7 +29,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     project = mock()
     
-    report = ProgressReport.new(project, @date_from, @date_to)
+    report = ProgressReport.new(project, @period)
     
     report.stubs(:issues).returns(issues)
     
@@ -45,7 +46,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     project = mock()
     
-    report = ProgressReport.new(project, @date_from, @date_to)
+    report = ProgressReport.new(project, @period)
     
     issues = [
       Issue.new(:estimated_hours => 10.00),
@@ -63,7 +64,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     project = mock()
     
-    report = ProgressReport.new(project, @date_from, @date_to)
+    report = ProgressReport.new(project, @period)
     
     issues = [
       Issue.new(:estimated_hours => 10.00),
@@ -82,7 +83,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     project = mock()
     occupation_persons = { 1 => 10, 2 => 50 }
     
-    report = ProgressReport.new(project, @date_from, @date_to, {
+    report = ProgressReport.new(project, @period, {
       :occupation_persons => occupation_persons
     })
     
@@ -102,7 +103,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     project = mock()
     
-    report = ProgressReport.new(project, @date_from, @date_to, {
+    report = ProgressReport.new(project, @period, {
       :time_switching_issues => 20
     })
     
@@ -122,7 +123,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     project = mock()
     
-    report = ProgressReport.new(project, @date_from, @date_to)
+    report = ProgressReport.new(project, @period)
     
     issues = [
       Issue.new(:assigned_to_id => 1, :estimated_hours => 10, :done_ratio => 20),  # => 2 burnt
@@ -145,7 +146,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     project = mock()
     
-    report = ProgressReport.new(project, @date_from, @date_to)
+    report = ProgressReport.new(project, @period)
     
     issues = [
       Issue.new(:assigned_to_id => 1, :estimated_hours => 10, :done_ratio => 20),  # => 2 burnt
@@ -170,7 +171,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     project = mock()
     
-    report = ProgressReport.new(project, @date_from, @date_to)
+    report = ProgressReport.new(project, @period)
     
     issues = [
       Issue.new(:assigned_to_id => 1, :estimated_hours => 10, :done_ratio => 20),  # => 2 burnt
@@ -193,7 +194,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     project = mock()
     
-    report = ProgressReport.new(project, @date_from, @date_to)
+    report = ProgressReport.new(project, @period)
     
     issues = [
       Issue.new(:assigned_to_id => 1, :estimated_hours => 10, :done_ratio => 20),  # => 2 burnt
@@ -221,7 +222,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     project = mock()
     
-    report = ProgressReport.new(project, @date_from, @date_to)
+    report = ProgressReport.new(project, @period)
     
     issues = [
       Issue.new(:assigned_to_id => nil, :estimated_hours => 10),  
@@ -240,7 +241,9 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     project = mock()
     
-    report = ProgressReport.new(project, "2015-05-18".to_date, "2015-05-22".to_date)
+    @period = PeriodProgressReport.new("2015-05-18".to_date, "2015-05-22".to_date)
+    
+    report = ProgressReport.new(project, @period)
     
     users_id = [
       1,   # => 10 days  => 2015-06-06
@@ -276,7 +279,9 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     project = mock()
     
-    report = ProgressReport.new(project, "2015-05-18".to_date, "2015-05-22".to_date)
+    @period = PeriodProgressReport.new("2015-05-18".to_date, "2015-05-22".to_date)
+    
+    report = ProgressReport.new(project, @period)
     
     id = 1
     user = mock()
@@ -304,7 +309,9 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     project = mock()
     
-    report = ProgressReport.new(project, "2015-05-18".to_date, "2015-05-22".to_date)
+    @period = PeriodProgressReport.new("2015-05-18".to_date, "2015-05-22".to_date)
+    
+    report = ProgressReport.new(project, @period)
     
     id = 1
     user = mock()
@@ -337,7 +344,9 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     project = mock()
     
-    report = ProgressReport.new(project, "2015-05-18".to_date, "2015-05-22".to_date)
+    @period = PeriodProgressReport.new("2015-05-18".to_date, "2015-05-22".to_date)
+    
+    report = ProgressReport.new(project, @period)
     
     id = 1
     user = mock()
@@ -365,7 +374,9 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     project = mock()
     
-    report = ProgressReport.new(project, "2015-05-18".to_date, "2015-05-22".to_date)
+    @period = PeriodProgressReport.new("2015-05-18".to_date, "2015-05-22".to_date)
+    
+    report = ProgressReport.new(project, @period)
     
     issues = [
       Issue.new(:assigned_to_id => nil, :estimated_hours => 10 * 8),  
@@ -388,7 +399,9 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     project = mock()
     
-    report = ProgressReport.new(project, "2015-05-18".to_date, "2015-05-22".to_date)
+    @period = PeriodProgressReport.new("2015-05-18".to_date, "2015-05-22".to_date)
+    
+    report = ProgressReport.new(project, @period)
     
     id = 1
     user = mock()
@@ -420,7 +433,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     date_from = "2015-05-18".to_date
     date_to = "2015-05-22".to_date
     
-    report = ProgressReport.new(project, date_from, date_to, {
+    report = ProgressReport.new(project, PeriodProgressReport.new(date_from, date_to), {
       :occupation_persons => occupation_persons
     })
     
@@ -457,8 +470,9 @@ class ProgressReportTest < ActiveSupport::TestCase
   test "it shoud use the time for switching between two issues to calculate the estimated date" do
     
     project = mock()
+    @period = PeriodProgressReport.new("2015-05-18".to_date, "2015-05-22".to_date)
     
-    report = ProgressReport.new(project, "2015-05-18".to_date, "2015-05-22".to_date, {
+    report = ProgressReport.new(project, @period, {
       :time_switching_issues => 20
     })
     
@@ -486,9 +500,10 @@ class ProgressReportTest < ActiveSupport::TestCase
   
   test "it should use the time off a person to calculate the estimated date if it is defined" do
     
-    project = mock()
+    project = mock()  
+    @period = PeriodProgressReport.new("2015-05-18".to_date, "2015-05-22".to_date)
     
-    report = ProgressReport.new(project, "2015-05-18".to_date, "2015-05-22".to_date, {
+    report = ProgressReport.new(project, @period, {
       :days_off => { 2 => 5, 3 => 4 }
     })
     
@@ -528,7 +543,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     date_from = 3.day.ago
     ProgressReport.any_instance.stubs(:date_beginning).returns(date_from)
     
-    report = ProgressReport.new(project, nil, nil)
+    report = ProgressReport.new(project, PeriodProgressReport.new(nil, nil))
     
     assert_equal date_from, report.period.date_from
     
@@ -541,7 +556,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     date_from = "2015-05-18".to_date
     date_to = "2015-05-22".to_date
     
-    report = ProgressReport.new(project, date_from, nil)
+    report = ProgressReport.new(project, PeriodProgressReport.new(date_from, nil))
     
     assert_equal date_to, report.period.date_to.to_date
     
@@ -551,7 +566,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     
     project = mock()
     
-    report = ProgressReport.new(project, Date.today, nil)
+    report = ProgressReport.new(project, PeriodProgressReport.new(Date.today, nil))
     
     user1 = mock()
     user2 = mock()
@@ -585,7 +600,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     date_estimated = Date.today
     date_effective = 2.day.ago
     
-    report = ProgressReport.new(project, @date_from, @date_to)
+    report = ProgressReport.new(project, @period)
     
     report.stubs(:date_estimated).returns(date_estimated)
     report.stubs(:date_effective).returns(date_effective)
@@ -600,7 +615,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     date_effective = Date.today
     date_estimated = 2.day.ago
     
-    report = ProgressReport.new(project, @date_from, @date_to)
+    report = ProgressReport.new(project, @period)
     
     report.stubs(:date_estimated).returns(date_estimated)
     report.stubs(:date_effective).returns(date_effective)
@@ -615,7 +630,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     date_effective = nil
     date_estimated = 2.day.ago
     
-    report = ProgressReport.new(project, @date_from, @date_to)
+    report = ProgressReport.new(project, @period)
     
     report.stubs(:date_estimated).returns(date_estimated)
     report.stubs(:date_effective).returns(date_effective)
@@ -630,7 +645,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     date_effective = 1.day.ago
     date_estimated = nil
     
-    report = ProgressReport.new(project, @date_from, @date_to)
+    report = ProgressReport.new(project, @period)
     
     report.stubs(:date_estimated).returns(date_estimated)
     report.stubs(:date_effective).returns(date_effective)
@@ -641,7 +656,7 @@ class ProgressReportTest < ActiveSupport::TestCase
   
   test "it should not fail when trying to get the initial charge" do
     
-    report = ProgressReport.new(mock(), @date_from, @date_to)
+    report = ProgressReport.new(mock(), @period)
     
     assert_equal 0.00, report.charge_initial
     
@@ -660,7 +675,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     journal_details[0].expects(:journal).returns(journals[0])
     journal_details[1].expects(:journal).returns(journals[1])
     
-    report = ProgressReport.new(mock(), @date_from, @date_to)
+    report = ProgressReport.new(mock(), @period)
     report.stubs(:issues).returns(issues)
     report.stubs(:get_issues_journals).with(issues, @date_from, @date_to).returns(journals)
     report.stubs(:get_journal_details).with(journals).returns(journal_details)
@@ -675,7 +690,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     date_effective = "2015-05-08".to_date
     date_start = "2015-04-27".to_date
       
-    report = ProgressReport.new(mock(), @date_from, date_to)
+    report = ProgressReport.new(mock(), PeriodProgressReport.new(@date_from, date_to))
     
     report.stubs(:date_effective).returns(date_effective)
     report.stubs(:date_beginning).returns(date_start)
@@ -691,7 +706,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     date_start = "2015-04-27".to_date
     today = "2015-04-30".to_date
       
-    report = ProgressReport.new(mock(), @date_from, date_to)
+    report = ProgressReport.new(mock(), PeriodProgressReport.new(@date_from, date_to))
     
     report.stubs(:date_effective).returns(date_effective)
     report.stubs(:date_beginning).returns(date_start)
@@ -707,7 +722,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     date_estimated = "2015-05-10".to_date
     date_start = "2015-04-27".to_date
       
-    report = ProgressReport.new(mock(), @date_from, date_to)
+    report = ProgressReport.new(mock(), PeriodProgressReport.new(@date_from, date_to))
     
     report.stubs(:date_effective).returns(nil)
     report.stubs(:date_estimated).returns(date_estimated)
@@ -722,7 +737,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     charge_initial = 10
     charge_left = 3
     
-    report = ProgressReport.new(mock(), @date_from, @date_to)
+    report = ProgressReport.new(mock(), @period)
     
     report.stubs(:charge_initial).returns(charge_initial)
     report.stubs(:charge_left).returns(charge_left)
@@ -736,7 +751,7 @@ class ProgressReportTest < ActiveSupport::TestCase
     charge_effective = 10
     charge_left = 3
     
-    report = ProgressReport.new(mock(), @date_from, @date_to)
+    report = ProgressReport.new(mock(), @period)
     
     report.stubs(:charge_initial).returns(0)
     report.stubs(:charge_effective).returns(charge_effective)

@@ -1,17 +1,16 @@
 class ProgressReport
   
-  attr_reader :root, :period, :occupation_persons, :time_switching_issues
+  attr_reader :root, :period, :occupation_persons, :time_switching_issuesn, :days_off
   
-  def initialize(root, date_from, date_to, params={})
+  def initialize(root, period, params={})
     
     @root = root    
     @occupation_persons = params[:occupation_persons] ? params[:occupation_persons] : {}
     @time_switching_issues = params[:time_switching_issues].to_f / 100
     @days_off = params[:days_off] ? params[:days_off] : {} 
-    @period = PeriodProgressReport.new(date_from ? date_from : date_beginning, date_to) 
-    if !date_to
-      @period.to_end_of_week
-    end
+    @period = period
+    @period.date_from = date_beginning if @period.date_from.nil?
+    @period.date_to = @period.to_end_of_week if @period.date_to.nil?
     @time_formatter = TimeFormatter.new(@@nb_hours_per_day)
     
   end

@@ -1,6 +1,6 @@
 class PeriodProgressReport
   
-  attr_reader :date_from, :date_to
+  attr_accessor :date_from, :date_to
   
   def initialize(date_from, date_to)
     

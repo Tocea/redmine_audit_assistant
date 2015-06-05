@@ -17,7 +17,9 @@ class ProgressReportController < ApplicationController
         
     @version = get_version(params[:version_id])
 
-    report = create_report(@project, @version, @date_from, @date_to)
+    #report = create_report(@project, @version, @date_from, @date_to)
+    
+    report = ProgressReportBuilder.new(@version ? @version : @project).from(@date_from).to(@date_to).build
     
     @date_beggining_project = report.date_beginning
     
@@ -42,11 +44,21 @@ class ProgressReportController < ApplicationController
     
     @version = get_version(params[:version_id])
        
-    @report = create_report(@project, @version, @date_from, @date_to, {
-      :occupation_persons => format_integer_map(params[:member_occupation]),
-      :time_switching_issues => params[:time_switching_issues],
-      :days_off => format_integer_map(params[:days_off])
-    })
+    #@report = create_report(@project, @version, @date_from, @date_to, {
+    #  :occupation_persons => format_integer_map(params[:member_occupation]),
+    #  :time_switching_issues => params[:time_switching_issues],
+    #  :days_off => format_integer_map(params[:days_off])
+    #})
+    
+    @report = ProgressReportBuilder
+                .new(@version ? @version : @project)
+                .from(@date_from)
+                .to(@date_to)
+                .with({
+                  :occupation_persons => params[:member_occupation],
+                  :time_switching_issues => params[:time_switching_issues],
+                  :days_off => params[:days_off]
+                }).build
     
     # get report's data
     @issues = @report.issues
@@ -80,6 +92,7 @@ class ProgressReportController < ApplicationController
     
   end
   
+  # static html page
   def empty
     
   end
@@ -110,30 +123,6 @@ class ProgressReportController < ApplicationController
     # retrieve the project
     @project = Project.find(params[:project_id])
     
-  end
-  
-  # format the hashmap that represent the percentage of occupation per person
-  # it should not contains string and each value should be strictly greater than 0
-  def format_integer_map(occupation_persons)
-    res = Hash.new
-    if occupation_persons
-      res = Hash[occupation_persons.keys.map(&:to_i).zip(occupation_persons.values.map(&:to_i))]
-    end
-    res.select { |k,v| v.is_a?(Numeric) && v > 0 }
-  end
-  
-  # create a ProgressReport instance
-  def create_report(project, version, date_from, date_to, params={})
-    
-    report = nil
-    
-    if version
-      report = ProjectVersionProgressReport.new(version, date_from, date_to, params)
-    else
-      report = ProjectProgressReport.new(project, date_from, date_to, params)
-    end
-    
-    report
   end
   
   # retrieve the version
