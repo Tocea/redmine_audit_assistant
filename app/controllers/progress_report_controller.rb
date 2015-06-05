@@ -17,8 +17,6 @@ class ProgressReportController < ApplicationController
         
     @version = get_version(params[:version_id])
 
-    #report = create_report(@project, @version, @date_from, @date_to)
-    
     report = ProgressReportBuilder.new(@version ? @version : @project).from(@date_from).to(@date_to).build
     
     @date_beggining_project = report.date_beginning
@@ -43,13 +41,7 @@ class ProgressReportController < ApplicationController
     @date_to = Chronic.parse('next friday', :now => @date_from)   
     
     @version = get_version(params[:version_id])
-       
-    #@report = create_report(@project, @version, @date_from, @date_to, {
-    #  :occupation_persons => format_integer_map(params[:member_occupation]),
-    #  :time_switching_issues => params[:time_switching_issues],
-    #  :days_off => format_integer_map(params[:days_off])
-    #})
-    
+
     @report = ProgressReportBuilder
                 .new(@version ? @version : @project)
                 .from(@date_from)

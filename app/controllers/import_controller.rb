@@ -4,6 +4,8 @@ class ImportController < ApplicationController
   unloadable
 
   before_filter :find_project, :authorize
+  before_filter :find_version, :only => :import
+  before_filter :find_attachment, :only => :import
 
   helper :import
   include ImportHelper
@@ -20,40 +22,26 @@ class ImportController < ApplicationController
       @select_versions.push([v.name, v.id])
     end
     
-    if params[:error_parsing_file]
-      flash[:error] = l(:error_parsing_file)
-    end  
-    
   end
 
   def import
-   
-    # retrieve the version
-    version_id = params[:version_id]
-    if (version_id && version_id != '0')
-      @version = Version.find(version_id)
-    end
     
     # redirect to the index page if no attachment has been uploaded
-    attachments = params[:attachments]
-    token = attachments[attachments.keys[0]]["token"] if attachments
-    if !token
+    if !@attachment
       Rails.logger.info "No attachment found!"
       redirect_to :controller => 'import', :action => 'index', :project_id => @project.id
       return false
     end
     
-    # retrieve the attachment   
-    attach = Attachment.find_by_token(token)
-    
     begin     
       # extract data from the attachment file
-      data = import_from_yaml(attach.diskfile)
+      data = import_from_yaml(@attachment.diskfile)
       requirements = data[:requirements]
     rescue StandardError=>e  
       # redirect to the index page if the file cannot be parsed
       Rails.logger.info "Error parsing file: #{e}"
-      redirect_to :controller => 'import', :action => 'index', :project_id => @project.id, :error_parsing_file => true
+      flash[:error] = l(:error_parsing_file) + '<br/>' + e.message
+      redirect_to :controller => 'import', :action => 'index', :project_id => @project.id, :flash => flash
       return false
     end
     
@@ -82,11 +70,31 @@ class ImportController < ApplicationController
   
   private # -----------------------------------------------------------------------------------
   
+  # retrieve the project
   def find_project
-    
-    # retrieve the project
     @project = Project.find(params[:project_id])
+  end
+  
+  # retrieve the version
+  def find_version
+    version_id = params[:version_id]
+    if (version_id && version_id != '0')
+      @version = Version.find(version_id)
+    end
+  end
+  
+  # retrieve the uploaded file
+  def find_attachment
     
+    # redirect to the index page if no attachment has been uploaded
+    attachments = params[:attachments]
+    token = attachments[attachments.keys[0]]["token"] if attachments
+    
+    if token
+      # retrieve the attachment
+      @attachment = Attachment.find_by_token(token)
+    end
+
   end
   
   # create a new version of a project
