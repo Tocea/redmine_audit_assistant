@@ -8,8 +8,8 @@
 	<h3><%= l(:project_identity) %></h3>
 	
 	<p>
-		<label><%= l(:project_name) %></label>
-		<span><b><%= @project.name %></b></span>
+		<label><%= l(:project_code) %></label>
+		<span><b><%= !@code_project.blank? ? @code_project : @project.name %></b></span>
 	</p>
 	
 	<table class="list">
@@ -28,24 +28,42 @@
 			</tr>
 			<tr>
 				<td><%= l(:date_estimated_project) %></td>
-				<td><%= @date_estimated.strftime("%d/%m/%y") %></td>
+				<td class="<%= 'warning' if @is_late %>">
+					<%= @date_estimated.strftime("%d/%m/%y") unless @date_estimated.nil? %>
+				</td>
 			</tr>
 		</tbody>
 	</table>
 	
 	<table class="list charge-table">
 		<thead>
-			<th></th>
-			<th><%= l(:total_effective_charge)%></th>
-			<th><%= l(:total_estimated_charge)%></th>
-			<th><%= l(:total_left_charge)%></th>				
+			<th><%= l(:charge) %></th>
+			<th><%= l(:field_value) %></th>					
 		</thead>
 		<tbody>
 			<tr>
-				<td><%= l(:charge) %></td>
-				<td><%= @effective_charge.to_s %></td>
-				<td><%= @estimated_charge.to_s %></td>
-				<td><%= @left_charge.to_s %></td>
+				<td><%= l(:total_initial_charge) %></td>
+				<td><%= l('datetime.distance_in_words.x_days', :count => @initial_charge.to_s) %></td>
+			</tr>
+			<tr>
+				<td><%= l(:total_effective_charge) %></td>
+				<td><%= l('datetime.distance_in_words.x_days', :count => @effective_charge.to_s) %></td>
+			</tr>
+			<tr>
+				<td><%= l(:total_estimated_charge) %></td>
+				<td><%= l('datetime.distance_in_words.x_days', :count => @estimated_charge.to_s) %></td>
+			</tr>
+			<tr>
+				<td><%= l(:total_left_charge) %></td>
+				<td class="<%= 'warning' if @left_charge < 0 %>">
+					<%= l('datetime.distance_in_words.x_days', :count => @left_charge.to_s) %>
+				</td>
+			</tr>
+			<tr>
+				<td><%= l(:total_unassigned_charge) %></td>
+				<td class="<%= 'warning' if @unassigned_charge > 0 %>">
+					<%= l('datetime.distance_in_words.x_days', :count => @unassigned_charge.to_s) %>
+				</td>
 			</tr>
 		</tbody>
 	</table>
@@ -55,6 +73,19 @@
 <div class="progress-report-block">
 	
 	<h3><%= l(:project_progress) %></h3>
+	
+	<div class="progress-bar">
+		<h4><%= l(:label_spent_time) %></h4>
+		<%= progress_bar([@time_progression, 100],
+	                     :width => '80%', :legend => ('%0.0f%' % @time_progression)) %>
+    </div>
+    <div class="progress-bar">
+	    <h4><%= l(:charge) %></h4>
+		<%= progress_bar([@charge_progression, 100],
+	                     :width => '80%', :legend => ('%0.0f%' % @charge_progression)) %>
+    </div>
+    
+    <br style="clear: both;">
 	
 	<h4><%= l(:what_has_been_done_since_last_time)%></h4>
 	
@@ -76,7 +107,14 @@
 					<td><%= @issue.tracker.name %></td>
 					<td><%= @issue.status.name %></td>
 					<td><%= @issue.priority.name %></td>
-					<td style="text-align: left;"><%= @issue.subject %></td>
+					<td style="text-align: left;">
+						<%= @issue.subject %>
+						<ul>
+							<% for @change in @report.issue_changelog(@issue) %>
+								<li><%= show_detail(@change) %></li>
+							<% end %>	
+						</ul>
+					</td>
 					<td><%= @issue.assigned_to.to_s %></td>
 					<td><%= @issue.estimated_hours %></td>
 					<td><%= @issue.done_ratio %></td>
@@ -119,4 +157,3 @@
 	<p><%= @what_went_wrong %></p>
 	
 </div>
-

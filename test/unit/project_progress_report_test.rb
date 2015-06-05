@@ -15,6 +15,7 @@ class ProjectProgressReportTest < ActiveSupport::TestCase
   setup do
     @date_from = "2005-01-01".to_date
     @date_to = 10.year.from_now.to_date
+    @period = PeriodProgressReport.new(@date_from, @date_to)
   end
   
   test "it should return the issues of the project" do
@@ -23,7 +24,7 @@ class ProjectProgressReportTest < ActiveSupport::TestCase
     
     issues = Issue.where(project_id: project.id)
     
-    report = ProjectProgressReport.new(project, @date_from, @date_to)
+    report = ProjectProgressReport.new(project, @period)
     
     assert_equal issues.count, report.issues.count
     
@@ -33,7 +34,7 @@ class ProjectProgressReportTest < ActiveSupport::TestCase
     
     project = Project.find(1)
     
-    report = ProjectProgressReport.new(project, @date_from, @date_to)
+    report = ProjectProgressReport.new(project, @period)
     
     assert_equal 3.day.ago.to_date, report.date_beginning.to_date
     
@@ -64,7 +65,7 @@ class ProjectProgressReportTest < ActiveSupport::TestCase
     )
     version3.save
     
-    report = ProjectProgressReport.new(project, @date_from, @date_to)
+    report = ProjectProgressReport.new(project, @period)
     
     assert_equal version2.effective_date, report.date_effective
     
@@ -80,7 +81,7 @@ class ProjectProgressReportTest < ActiveSupport::TestCase
     
     max_due_date = issues.map { |issue| issue.due_date }.max
     
-    report = ProjectProgressReport.new(project, @date_from, @date_to)
+    report = ProjectProgressReport.new(project, @period)
     
     assert_equal max_due_date, report.date_effective
     
@@ -93,9 +94,17 @@ class ProjectProgressReportTest < ActiveSupport::TestCase
     date_from = "2015-04-01".to_date
     date_to = "2015-04-30".to_date
     
-    report = ProjectProgressReport.new(project, @date_from, @date_to)
+    report = ProjectProgressReport.new(project, @period)
     
     assert_equal 1, report.issues_updated.count
+    
+  end
+  
+  test "it should not failed when trying to access the initial charge of a project" do
+    
+    report = ProjectProgressReport.new(mock(), @period)
+    
+    assert_equal 0.00, report.charge_initial('d')
     
   end
 

@@ -9,6 +9,7 @@ en:
   weekly_report: "Weekly report"
   project_identity: "Project's identity"
   project_name: "Project's name:"
+  project_code: "Project's code:"
   etape: Step
   date_start_project: Project start date
   date_effective_project: Project effective date
@@ -16,6 +17,8 @@ en:
   total_effective_charge: Total Effective
   total_estimated_charge: Total Estimated
   total_left_charge: Total Left
+  total_initial_charge: Total Initial
+  total_unassigned_charge: Total Unassigned
   charge: charge
   project_progress: Project Progression
   what_has_been_done_since_last_time: "What has been done since last time?"
@@ -27,3 +30,8 @@ en:
   issue_custom_actions_settings_title: "Issue Action Status Settings"
   issue_custom_actions_settings_error: "Cannot create an action with these parameters"
   no_data_progress_report: "The project hasn't started yet!"
+  time_switching_issues: "Time that is necessary before starting an issue"
+  time_switching_issues_unit: "% of the previous issue's time"
+  nb_days_off: "day(s) off in the following weeks"
+  label_start_time: "Time needed before starting the project"
+  start_time_unit: "% of the project's total estimated charge"

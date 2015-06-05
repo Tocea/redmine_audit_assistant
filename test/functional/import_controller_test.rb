@@ -157,7 +157,7 @@ class ImportControllerTest < ActionController::TestCase
     
   end
   
-  test "should redirect to index if the file cannot be parsed" do
+  test "should redirect to index if the file cannot be found" do
     
     file = create_attachment('file_not_found.yml')
     
@@ -165,7 +165,19 @@ class ImportControllerTest < ActionController::TestCase
     get :import, {'project_id' => @project.id, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
     
     # we should have been redirected to the index page
-    assert_redirected_to :controller => 'import', :action => 'index', :project_id => @project.id, :error_parsing_file => true
+    assert_response :redirect
+    
+  end
+  
+  test "should redirect to index if the file cannot be parsed" do
+    
+    file = create_attachment('meth_dgac_parsing_error.yml')
+    
+    # make the request
+    get :import, {'project_id' => @project.id, 'attachments' => { "1"=>{"filename"=>file[:diskfile], "token"=>file[:token]}} }
+    
+    # we should have been redirected to the index page
+    assert_response :redirect
     
   end
   

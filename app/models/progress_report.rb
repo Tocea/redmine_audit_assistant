@@ -1,59 +1,68 @@
 class ProgressReport
   
-  attr_reader :root, :date_from, :date_to, :occupation_persons
+  attr_reader :root, :period, :data, :time_formatter
   
-  def initialize(root, date_from, date_to, occupation_persons=nil)
-    @root = root
-    @date_from = date_from
-    @date_to = date_to
-    @occupation_persons = format_occupation_persons_map(occupation_persons)
-    if !@date_from
-      @date_from = date_beginning
-    end
-    if !@date_to
-      to_end_of_week
-    end
+  def initialize(root, period, params={})
+    
+    @root = root    
+    @period = period
+    @period.date_from = date_beginning if @period.date_from.nil?
+    @period.date_to = @period.to_end_of_week if @period.date_to.nil?
+    @time_formatter = TimeFormatter.new(@@nb_hours_per_day)
+    params[:time_formatter] = @time_formatter
+    @data = ProgressReportData.new(self, params)
+    
   end
   
-  def to_end_of_week
-    @date_to = Chronic.parse('next friday', :now => @date_from)
-  end
+  @@nb_hours_per_day = 8.00
   
-  @@nb_hours_per_day = 8
-  
+  # Helpers
   include ProgressReportHelper
+  include ToceaCustomFieldsHelper
   
   # abstract method
   def issues
     raise NotImplementedError
   end
   
+  # retrieve the list of users that are assigned to issues
   def users
     issues.map { |issue| issue.assigned_to }.uniq.compact
   end
   
+  # retrieve the date when the project started
   def date_beginning
     issues.map {|issue| issue.created_on }.min
   end
   
+  # retrieve the date where the project is supposed to end
   def date_effective
     issues.map { |issue| issue.due_date }.max
   end
   
-  def date_estimated
+  # get an estimation of the date when the project will be completed
+  def date_estimated   
     
-    days_left = charge_left 'd'
+    DateEstimationStrategy.new(self).calculate
     
-    current = @date_to
+  end
+  
+  # check if the project will be late
+  def late?
     
-    while days_left > 0 do
-      current = current + 1.days
-      if !current.saturday? && !current.sunday?
-        days_left -= 1
-      end
+    estimated = date_estimated
+    effective = date_effective  
+    
+    # the project cannot be late if we don't know the effective date
+    return false if effective.nil?
+    
+    if !estimated
+      # if we don't have an estimated date
+      # the project is not late only if the effective date hasn't been reached yet
+      return Date.today > effective.to_date
     end
     
-    current
+    return estimated.to_date > effective.to_date
     
   end
   
@@ -62,7 +71,7 @@ class ProgressReport
     
     issues_list = issues
     
-    journals = get_issues_journals(issues_list, @date_from, @date_to)
+    journals = get_issues_journals(issues_list, @period.date_from, @period.date_to)
     
     issues_ids_changed = journals.map { |j| j.journalized_id }
     
@@ -70,12 +79,31 @@ class ProgressReport
     
   end
   
+  # return the changes of the issues during the report's period
+  def issue_changelog(issue)
+     
+    if !@changelog
+      journals = get_issues_journals(issues, @period.date_from, @period.date_to)
+      @changelog = get_journal_details(journals)
+    end
+    
+    @changelog.select { |change| change.journal.journalized_id == issue.id } 
+    
+  end
+  
+  # total initial charge (abstract method)
+  def charge_initial(format='h')
+    
+    @time_formatter.format_hours(0.00, format)
+    
+  end
+  
   # total estimated_hours of every issue
   def charge_effective(format='h')
      
     total = leaf_issues.map { |issue| issue.estimated_hours ? issue.estimated_hours : 0 }.reduce(:+) 
-     
-    format_hours(total, format)
+
+    @time_formatter.format_hours(total, format)
      
   end
   
@@ -84,62 +112,85 @@ class ProgressReport
   def charge_estimated(format='h')
     
     total = 0
-    leaf_issues.each do |issue|
+    list_issues = leaf_issues
+    
+    list_issues.each do |issue|
       if issue.estimated_hours
-        tx = 1
-        if @occupation_persons[issue.assigned_to_id]
-          tx = @occupation_persons[issue.assigned_to_id] / 100.00
-        end
-        total += issue.estimated_hours / tx
+        total += issue.estimated_hours / data.person_occupation_rate(issue.assigned_to_id)
       end
     end
     
-    format_hours(total, format)
+    total += data.total_time_before_starting
+    total += data.total_time_switching_issues(list_issues)
+ 
+    @time_formatter.format_hours(total, format)
+    
+  end
+  
+  # total charge that is not affected to anybody
+  def charge_unassigned(format='h')
+    
+    total = 0
+    leaf_issues.each do |issue|
+      if issue.assigned_to_id.nil? && !issue.estimated_hours.nil?
+        total += issue.estimated_hours
+      end
+    end
+    @time_formatter.format_hours(total, format)
     
   end
   
   # total charge left at the end of period
   def charge_left(format='h')
+        
+    total = charge_initial
+    total = charge_effective if total.nil? || total == 0
     
-    total = 0
     leaf_issues.each do |issue|
-      if issue.estimated_hours && !issue.status.is_closed?
-        tx = 1
-        if @occupation_persons[issue.assigned_to_id]
-          tx = @occupation_persons[issue.assigned_to_id] / 100.00        
-        end
-        done_ratio = issue.done_ratio ? issue.done_ratio : 0
-        todo_ratio = 1 - (done_ratio / 100.00)
-        total += todo_ratio * issue.estimated_hours / tx
+      if issue.estimated_hours    
+        total -= issue.estimated_hours * issue_done_ratio(issue)
       end
     end
     
-    format_hours(total, format)
+    @time_formatter.format_hours(total, format)
     
   end
   
-  def get_week_periods
+  # return the time progression in percentage
+  def time_progression
     
-    date_beggining_project = date_beginning
-    periods = Array.new
-    
-    date_from = Chronic.parse('monday', :context => :past)
-    date_to = Chronic.parse('friday', :now => date_from)
-    
-    if date_beggining_project.nil?
-      date_beggining_project = @date_from
+    if Date.today > @period.date_to.to_date
+      actual_date = @period.date_to
+    else  
+      actual_date = Date.today
     end
     
-    while date_to >= date_beggining_project do
-          
-      periods.push([date_from, date_to])
-      
-      date_from = Chronic.parse('last monday', :now => date_from)
-      date_to = Chronic.parse('last friday', :now => date_to)
-      
-    end
+    date_end = date_effective
+    date_end = date_estimated if date_end.nil?
     
-    periods   
+    date_start = date_beginning.to_date
+    
+    burnt = actual_date.to_date - date_start.to_date
+    total = date_end.to_date - date_start.to_date
+    
+    ratio = total > 0 ? (burnt / total) * 100 : 0
+
+    ratio.to_i
+    
+  end
+  
+  # return the percentage value of the charge progression
+  def charge_progression
+    
+    total = charge_initial
+    total = charge_effective if total == 0
+    
+    done = total - charge_left  
+    
+    ratio = total > 0 ? (done.to_f / total.to_f) * 100 : 0
+    
+    ratio.to_i
+    
   end
   
   # return the list of issues which don't have child issues
@@ -147,30 +198,27 @@ class ProgressReport
     issues.select { |issue| leaf? issue }   
   end
   
-  private # ----------------------------------------------------------------
-  
-  def format_occupation_persons_map(occupation_persons)
-    if occupation_persons
-      return Hash[occupation_persons.keys.map(&:to_i).zip(occupation_persons.values.map(&:to_i))]
-    else
-      return Hash.new
-    end
-  end
-  
-  def format_hours(hours, format)   
-    hours = 0 if hours.nil?
-    if format == 'd'
-       hours = hours / @@nb_hours_per_day
-       hours = hours.ceil
-    end
-    hours   
-  end
-  
   def leaf?(issue)
     
     childs = Issue.where(parent_id: issue.id)  
     childs.blank?
 
+  end
+  
+  def issue_todo_ratio(issue)
+    
+    1 - issue_done_ratio(issue)
+    
+  end
+  
+  def issue_done_ratio(issue)
+    
+    return 1 if issue.closed?
+    
+    done_ratio = issue.done_ratio ? issue.done_ratio : 0.00
+    
+    done_ratio / 100.00
+    
   end
   
 end

@@ -50,9 +50,22 @@
 	<% for @user in @users %>
 		<p>
 			<label><%= @user.to_s %></label>
-			<%= text_field_tag "member_occupation["+@user.id.to_s+"]", "100", :size => 3 %> %
+			<%= text_field_tag "member_occupation["+@user.id.to_s+"]", "80", :size => 3 %> %
+			<%= text_field_tag "days_off["+@user.id.to_s+"]", "0", :size => 3, :class => 'input_days_off' %> 
+			<%= l(:nb_days_off) %>
 		</p>
 	<% end %>
+</div>
+
+<div class="box tabular">
+	<p>
+		<label><%= l(:time_switching_issues) %></label>
+		<%= text_field_tag "time_switching_issues", '20', :size => "3" %> <%= l(:time_switching_issues_unit) %>
+	</p>
+	<p>
+		<label><%= l(:label_start_time) %></label>
+		<%= text_field_tag "start_time", '10', :size => "3" %> <%= l(:start_time_unit) %>
+	</p>
 </div>
 
 <div class="box tabular">	

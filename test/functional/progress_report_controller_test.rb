@@ -93,12 +93,88 @@ class ProgressReportControllerTest < ActionController::TestCase
     
   end
   
+  test "it should generate a report even if there is an incorrect value in the member occupation parameter" do
+    
+    get :generate, { 'project_id' => 1, 'period' => Date.today, 'member_occupation' =>  { '1' => 'H'} }
+    assert_response :success
+    
+  end
+  
   test "it should generate a report with a selection of issues" do
     
     issue = Issue.where(project_id: 1).first
         
     get :generate, { 'project_id' => 1, 'period' => Date.today, 'issues_ids' =>  [issue.id] }
     assert_response :success
+    
+  end
+  
+  test "it should generate a report with time_switching_issues parameter" do
+    
+    get :generate, { 'project_id' => 1, 'period' => Date.today, 'time_switching_issues' =>  '50' }
+    assert_response :success
+    
+  end
+  
+  test "it should generate a report with days_off parameter" do
+    
+    get :generate, { 'project_id' => 1, 'period' => Date.today, 'days_off' =>  { '1' => '5' } }
+    assert_response :success
+    
+  end
+  
+  test "it should save the generated report" do
+    
+    assert_difference "Attachment.count" do
+      get :generate, { 'project_id' => 1, 'period' => Date.today }
+    end
+    
+  end
+  
+  test "it should retrieve the last generated report" do
+    
+    # generate a report
+    get :generate, { 'project_id' => 1, 'period' => Date.today }
+    
+    # access the generated report
+    get :last_report, { 'project_id' => 1 }
+
+    attachment = Attachment.all[0]
+
+    assert_redirected_to :controller => 'attachments', :action => 'download', :id => attachment.id
+    
+  end
+  
+  test "it should redirect to the index page if there is no generated report" do
+    
+    get :last_report, { 'project_id' => 1 }
+    assert_redirected_to :controller => 'progress_report', :action => 'index', :project_id => 1
+    
+  end
+  
+  test "it should retrieve the last generated report of a version" do
+    
+    version = Version.new(
+      :project_id => 1, 
+      :name => 'Version 1.0 (with bugs)',
+      :effective_date => Date.today
+    )
+    version.save
+    
+    issue = Issue.find(1)
+    issue.fixed_version_id = version.id
+    issue.start_date = Date.today
+    issue.save
+    
+    # generate a report
+    get :generate, { 'project_id' => 1, 'period' => Date.today, 'version_id' => version.id }
+    
+    # access the generated report
+    get :last_report, { 'project_id' => 1, 'version_id' => version.name }
+    
+    attachment = Attachment.all[0]
+
+    assert_redirected_to :controller => 'attachments', :action => 'download', :id => attachment.id
     
   end
   

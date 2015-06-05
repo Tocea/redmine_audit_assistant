@@ -9,14 +9,17 @@ fr:
   weekly_report: Compte rendu de la semaine
   project_identity: Identité du projet
   project_name: "Nom du projet :"
+  project_code: "Code projet :"
   etape: Etape
   date_start_project: Date de début de projet
-  date_effective_project: Date de fin prévue
+  date_effective_project: Date de fin
   date_estimated_project: Date de fin estimée
-  total_effective_charge: Totale prévue
-  total_estimated_charge: Totale estimée
+  total_effective_charge: Totale estimée
+  total_estimated_charge: Totale prévisionnelle
   total_left_charge: Totale restante
-  charge: charge
+  total_initial_charge: Totale initiale
+  total_unassigned_charge: Totale non affectée
+  charge: Charge
   project_progress: Avancement Projet
   what_has_been_done_since_last_time: "Qu’est ce que l’équipe a réalisé depuis la dernière fois ?"
   what_will_be_done_this_week: "Que fera l'équipe cette semaine ?"
@@ -27,3 +30,8 @@ fr:
   issue_custom_actions_settings_title: "Configuration des boutons de changement de statut"
   issue_custom_actions_settings_error: "Impossible de créer une action avec ces paramétres"
   no_data_progress_report: "Ce projet n'a pas encore commencé !"
+  time_switching_issues: "Temps nécessaire avant de commencer une tâche"
+  time_switching_issues_unit: "% du temps de la tâche précédente"
+  nb_days_off: "jour(s) de congés sur la période restante"
+  label_start_time: "Temps nécessaire avant de commancer le projet"
+  start_time_unit: "% de la charge estimée totale du projet"

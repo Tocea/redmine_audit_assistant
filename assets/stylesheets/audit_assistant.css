@@ -24,3 +24,17 @@
 .progress-report-block table th {
 	-webkit-print-color-adjust: exact; 
 }
+
+.progress-report-block .warning {
+	font-weight: bold;
+	color: #F93E3E;
+}
+
+.progress-report-block .progress-bar {
+	float: left; 
+	width: 50%;
+}
+
+#progress_report_form .input_days_off {
+	margin-left: 40px;
+}

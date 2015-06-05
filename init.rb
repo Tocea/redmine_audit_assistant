@@ -2,7 +2,7 @@ Redmine::Plugin.register :redmine_audit_assistant do
   name 'Audit Assistant plugin'
   author 'Tocea'
   description 'Redmine plugin to assist consultants to perform (code) audits.'
-  version '1.1.2'
+  version '1.2'
   url 'https://github.com/Tocea/redmine_audit_assistant'
   author_url 'http://www.tocea.com'
   
@@ -11,7 +11,7 @@ Redmine::Plugin.register :redmine_audit_assistant do
   menu :admin_menu, :issues_custom_actions, { :controller => 'issues_custom_actions', :action => 'settings', :caption => :issue_custom_actions_settings_title }
   
   project_module :progress_report do
-    permission :progress_report, { :progress_report => [:index, :generate, :empty] }
+    permission :progress_report, { :progress_report => [:index, :generate, :empty, :last_report] }
   end
   
   project_module :import do
