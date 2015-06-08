@@ -1,0 +1,26 @@
+<h3><%= l(:field_default_value) %></h3>
+<div class="box tabular">
+	<p>
+		<label><%= l(:members_occupations)%></label>
+		<input type="text" size="3"
+			id="settings_occupation_person" 
+			value="<%= settings['occupation_person'] %>"
+			name="settings[occupation_person]" /> %
+	</p>
+	<p>
+		<label><%= l(:time_switching_issues)%></label>
+		<input type="text" size="3"
+			id="settings_time_switching_issues" 
+			value="<%= settings['time_switching_issues'] %>"
+			name="settings[time_switching_issues]" />
+		<%= l(:time_switching_issues_unit) %>
+	</p>
+	<p>
+		<label><%= l(:label_start_time)%></label>
+		<input type="text" size="3"
+			id="settings_start_time" 
+			value="<%= settings['start_time'] %>"
+			name="settings[start_time]" />
+		<%= l(:start_time_unit) %>
+	</p>
+</div>

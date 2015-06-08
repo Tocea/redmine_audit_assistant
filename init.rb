@@ -18,6 +18,12 @@ Redmine::Plugin.register :redmine_audit_assistant do
     permission :import, { :import => [:index, :import] }
   end
   
+  settings :default => {
+    'occupation_person' => 80, 
+    'time_switching_issues' => 20, 
+    'start_time' => 10
+  }, :partial => 'settings/audit_assistant_settings'
+  
 end
 
 
