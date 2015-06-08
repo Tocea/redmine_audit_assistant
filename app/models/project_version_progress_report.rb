@@ -12,6 +12,14 @@ class ProjectVersionProgressReport < ProgressReport
     @issues
   end
   
+  def project
+    @root.project
+  end
+  
+  def version
+    @root
+  end
+  
   def date_effective
     @root.effective_date
   end

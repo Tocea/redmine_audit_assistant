@@ -12,7 +12,8 @@ class PeriodProgressReport
   def to_end_of_week
     
     @date_to = Chronic.parse('next friday', :now => @date_from)
-  
+    
+    self
   end
   
   def self.week_periods(date_beggining_project)

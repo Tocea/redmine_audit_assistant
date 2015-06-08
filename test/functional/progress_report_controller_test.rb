@@ -129,6 +129,10 @@ class ProgressReportControllerTest < ActionController::TestCase
       get :generate, { 'project_id' => 1, 'period' => Date.today }
     end
     
+    attachment = Attachment.find(1)
+    assert_equal 'Project', attachment.container_type
+    assert_equal 1, attachment.container_id
+    
   end
   
   test "it should save only one report per week" do
@@ -141,6 +145,25 @@ class ProgressReportControllerTest < ActionController::TestCase
       get :generate, { 'project_id' => 1, 'period' => Date.today }
     end
     
+  end
+  
+  test "it should not delete the report of the previous week" do
+    
+    date_previous_attachment = 7.day.ago
+    
+    attachment = Attachment.new
+    attachment.container_type = 'Project'
+    attachment.container_id = 1
+    attachment.filename = 'Report.html'
+    attachment.created_on = date_previous_attachment
+    attachment.save
+    
+    assert_equal date_previous_attachment.to_date, attachment.created_on.to_date
+    
+    assert_difference "Attachment.count" do
+      get :generate, { 'project_id' => 1, 'period' => Date.today }
+    end
+
   end
   
   test "it should retrieve the last generated report" do

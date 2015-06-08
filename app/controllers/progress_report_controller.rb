@@ -81,7 +81,7 @@ class ProgressReportController < ApplicationController
     @what_went_wrong = params[:what_went_wrong] ? params[:what_went_wrong] : ''
 
     # save the progress report
-    save_report
+    ProgressReportExport.new(@report).export(report_content)
     
   end
   
@@ -94,18 +94,19 @@ class ProgressReportController < ApplicationController
     
     @version = params[:version_id] ? Version.where(name: params[:version_id]).first : nil
     
-    attachments = Attachment.where(
-          container_type: 'Project', 
-          container_id: @project.id, 
-          filename: report_filename
-    ).order('created_on DESC')
+    date_from = Date.today
+    date_from = Chronic.parse('monday', :context => :past) unless date_from.monday?
     
-    if attachments.blank?
+    @report = ProgressReportBuilder.new(@version ? @version : @project).from(date_from).build
+    
+    @attachment = ProgressReportExport.new(@report).last_report
+
+    if @attachment.blank?
       redirect_to :controller => 'progress_report', :action => 'index', :project_id => @project.id
       return
     end
     
-    redirect_to :controller => 'attachments', :action => 'download', :id => attachments[0].id
+    redirect_to :controller => 'attachments', :action => 'download', :id => @attachment.id
     
   end
   
@@ -155,16 +156,6 @@ class ProgressReportController < ApplicationController
     periods
   end
   
-  # get the name of the generated file that contains the report
-  def report_filename
-    
-    filename = 'Report'
-    filename += ' - '+@version.name if @version
-    filename += '.html' 
-    
-    filename
-  end
-  
   def server_path
     
     if Setting.host_name
@@ -187,41 +178,6 @@ class ProgressReportController < ApplicationController
     html += '</head>'
     html += render_to_string "progress_report/generate", :layout => false
     html += '</html>'
-    
-  end
-  
-  # save the generated progress report
-  def save_report
-    
-    filename = report_filename 
-    
-    html = report_content
-    
-    File.open(filename, 'w:UTF-8') do |f|
-      f.puts html.encode('utf-8')
-    end
-    
-    destroy_attachments_same_period(filename, @report.period.date_from, @report.period.date_to)
-    
-    attachment = Attachment.new(:file => File.open(filename, 'r:UTF-8'))
-    attachment.author = User.current
-    attachment.filename = filename
-    attachment.container = @project
-    attachment.save
-    
-  end
-  
-  def destroy_attachments_same_period(filename, date_from, date_to)
-    
-    attachments = Attachment.where("filename = :filename AND created_on >= :date_from AND created_on <= :date_to", {
-      filename: filename,
-      date_from: date_from,
-      date_to: date_to + 1.day
-    })
-    
-    if !attachments.blank?
-      attachments.each { |attachment| attachment.destroy }
-    end
     
   end
   
