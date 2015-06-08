@@ -2,6 +2,7 @@ class ProgressReportController < ApplicationController
   unloadable
   
   before_filter :find_project, :authorize
+  before_filter :find_version, :only => [:index, :generate]
   
   include ToceaCustomFieldsHelper
   
@@ -14,8 +15,6 @@ class ProgressReportController < ApplicationController
   def index
       
     @date_from = params[:date_from] ? params[:date_from].to_date : nil
-        
-    @version = get_version(params[:version_id])
 
     report = ProgressReportBuilder.new(@version ? @version : @project).from(@date_from).to(@date_to).build
     
@@ -39,8 +38,6 @@ class ProgressReportController < ApplicationController
     # retrieve the dates
     @date_from = params[:period].to_date
     @date_to = Chronic.parse('next friday', :now => @date_from)   
-    
-    @version = get_version(params[:version_id])
 
     @report = ProgressReportBuilder
                 .new(@version ? @version : @project)
@@ -120,14 +117,15 @@ class ProgressReportController < ApplicationController
   end
   
   # retrieve the version
-  def get_version(version_id)
+  def find_version
     
-    version = nil
+    @version = nil
+    version_id = params[:version_id]
+    
     if !version_id.blank? && version_id != '0'    
-      version = Version.find(version_id)
+      @version = Version.find(version_id)
     end
-    
-    version
+
   end
   
   # retrieve the list of all open (or locked) versions of a project
