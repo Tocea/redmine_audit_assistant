@@ -43,26 +43,26 @@
 		<tbody>
 			<tr>
 				<td><%= l(:total_initial_charge) %></td>
-				<td><%= l('datetime.distance_in_words.x_days', :count => @initial_charge.to_s) %></td>
+				<td><%= l('datetime.distance_in_words.x_days', :count => @initial_charge) %></td>
 			</tr>
 			<tr>
 				<td><%= l(:total_effective_charge) %></td>
-				<td><%= l('datetime.distance_in_words.x_days', :count => @effective_charge.to_s) %></td>
+				<td><%= l('datetime.distance_in_words.x_days', :count => @effective_charge) %></td>
 			</tr>
 			<tr>
 				<td><%= l(:total_estimated_charge) %></td>
-				<td><%= l('datetime.distance_in_words.x_days', :count => @estimated_charge.to_s) %></td>
+				<td><%= l('datetime.distance_in_words.x_days', :count => @estimated_charge) %></td>
 			</tr>
 			<tr>
 				<td><%= l(:total_left_charge) %></td>
 				<td class="<%= 'warning' if @left_charge < 0 %>">
-					<%= l('datetime.distance_in_words.x_days', :count => @left_charge.to_s) %>
+					<%= l('datetime.distance_in_words.x_days', :count => @left_charge) %>
 				</td>
 			</tr>
 			<tr>
 				<td><%= l(:total_unassigned_charge) %></td>
 				<td class="<%= 'warning' if @unassigned_charge > 0 %>">
-					<%= l('datetime.distance_in_words.x_days', :count => @unassigned_charge.to_s) %>
+					<%= l('datetime.distance_in_words.x_days', :count => @unassigned_charge) %>
 				</td>
 			</tr>
 		</tbody>

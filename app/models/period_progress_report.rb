@@ -12,14 +12,16 @@ class PeriodProgressReport
   def to_end_of_week
     
     @date_to = Chronic.parse('next friday', :now => @date_from)
-  
+    
+    self
   end
   
   def self.week_periods(date_beggining_project)
     
     periods = Array.new
     
-    date_from = Chronic.parse('monday', :context => :past)
+    date_from = Date.today
+    date_from = Chronic.parse('monday', :context => :past) unless date_from.monday?
     date_to = Chronic.parse('friday', :now => date_from)
     
     while date_to >= date_beggining_project do

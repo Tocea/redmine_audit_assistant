@@ -12,6 +12,10 @@ class ProjectProgressReport < ProgressReport
     @issues
   end
   
+  def project
+    @root
+  end
+  
   def versions
     Version.where(project_id: @root.id)
   end

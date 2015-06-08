@@ -2,6 +2,7 @@ class ProgressReportController < ApplicationController
   unloadable
   
   before_filter :find_project, :authorize
+  before_filter :find_version, :only => [:index, :generate]
   
   include ToceaCustomFieldsHelper
   
@@ -10,12 +11,10 @@ class ProgressReportController < ApplicationController
   helper_method :show_detail
   include ERB::Util
   include ActionView::Helpers::TagHelper
-  
+
   def index
       
     @date_from = params[:date_from] ? params[:date_from].to_date : nil
-        
-    @version = get_version(params[:version_id])
 
     report = ProgressReportBuilder.new(@version ? @version : @project).from(@date_from).to(@date_to).build
     
@@ -39,8 +38,6 @@ class ProgressReportController < ApplicationController
     # retrieve the dates
     @date_from = params[:period].to_date
     @date_to = Chronic.parse('next friday', :now => @date_from)   
-    
-    @version = get_version(params[:version_id])
 
     @report = ProgressReportBuilder
                 .new(@version ? @version : @project)
@@ -66,7 +63,7 @@ class ProgressReportController < ApplicationController
     @unassigned_charge = @report.charge_unassigned 'd'
     @time_progression = @report.time_progression
     @charge_progression = @report.charge_progression
-    
+
     # get project or version code    
     @code_project = @version.nil? ? code_project(@project) : code_version(@version)
     
@@ -81,7 +78,7 @@ class ProgressReportController < ApplicationController
     @what_went_wrong = params[:what_went_wrong] ? params[:what_went_wrong] : ''
 
     # save the progress report
-    save_report
+    ProgressReportExport.new(@report).export(report_content)
     
   end
   
@@ -94,18 +91,19 @@ class ProgressReportController < ApplicationController
     
     @version = params[:version_id] ? Version.where(name: params[:version_id]).first : nil
     
-    attachments = Attachment.where(
-          container_type: 'Project', 
-          container_id: @project.id, 
-          filename: report_filename
-    ).order('created_on DESC')
+    date_from = Date.today
+    date_from = Chronic.parse('monday', :context => :past) unless date_from.monday?
     
-    if attachments.blank?
+    @report = ProgressReportBuilder.new(@version ? @version : @project).from(date_from).build
+    
+    @attachment = ProgressReportExport.new(@report).last_report
+
+    if @attachment.blank?
       redirect_to :controller => 'progress_report', :action => 'index', :project_id => @project.id
       return
     end
     
-    redirect_to :controller => 'attachments', :action => 'download', :id => attachments[0].id
+    redirect_to :controller => 'attachments', :action => 'download', :id => @attachment.id
     
   end
   
@@ -119,14 +117,15 @@ class ProgressReportController < ApplicationController
   end
   
   # retrieve the version
-  def get_version(version_id)
+  def find_version
     
-    version = nil
+    @version = nil
+    version_id = params[:version_id]
+    
     if !version_id.blank? && version_id != '0'    
-      version = Version.find(version_id)
+      @version = Version.find(version_id)
     end
-    
-    version
+
   end
   
   # retrieve the list of all open (or locked) versions of a project
@@ -155,14 +154,15 @@ class ProgressReportController < ApplicationController
     periods
   end
   
-  # get the name of the generated file that contains the report
-  def report_filename
+  def server_path
     
-    filename = 'Report'
-    filename += ' - '+@version.name if @version
-    filename += '.html' 
+    if Setting.host_name
+      path = 'http://'+Setting.host_name
+    else
+      path = request.base_url
+    end
     
-    filename
+    path
   end
   
   # get the content of the report as an HTML string
@@ -171,31 +171,11 @@ class ProgressReportController < ApplicationController
     html = '<html>'
     html += '<head>'
     html += '<meta charset="utf-8" />'
-    html += '<link href="'+request.base_url+'/themes/gitmike/stylesheets/application.css" media="all" rel="stylesheet" type="text/css" />'
+    html += '<link href="'+server_path+'/themes/gitmike/stylesheets/application.css" media="all" rel="stylesheet" type="text/css" />'
+    html += '<link href="'+server_path+'/plugin_assets/redmine_audit_assistant/stylesheets/audit_assistant.css" media="screen" rel="stylesheet" type="text/css" />'
     html += '</head>'
     html += render_to_string "progress_report/generate", :layout => false
     html += '</html>'
-    
-    html.gsub("/plugin_assets/", request.base_url+"/plugin_assets/")
-    
-  end
-  
-  # save the generated progress report
-  def save_report
-    
-    filename = report_filename 
-    
-    html = report_content
-    
-    File.open(filename, 'w:UTF-8') do |f|
-      f.puts html.encode('utf-8')
-    end
-    
-    attachment = Attachment.new(:file => File.open(filename, 'r:UTF-8'))
-    attachment.author = User.current
-    attachment.filename = filename
-    attachment.container = @project
-    attachment.save
     
   end
   
