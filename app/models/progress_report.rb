@@ -7,7 +7,7 @@ class ProgressReport
     @root = root    
     @period = period
     @period.date_from = date_beginning if @period.date_from.nil?
-    @period.date_to = @period.to_end_of_week if @period.date_to.nil?
+    @period.to_end_of_week if @period.date_to.nil?
     @time_formatter = TimeFormatter.new(@@nb_hours_per_day)
     params[:time_formatter] = @time_formatter
     @data = ProgressReportData.new(self, params)
@@ -19,6 +19,16 @@ class ProgressReport
   # Helpers
   include ProgressReportHelper
   include ToceaCustomFieldsHelper
+  
+  # abstract method
+  def project
+    nil
+  end
+  
+  # abstract method
+  def version
+    nil
+  end
   
   # abstract method
   def issues

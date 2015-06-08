@@ -19,7 +19,8 @@ class PeriodProgressReport
     
     periods = Array.new
     
-    date_from = Chronic.parse('monday', :context => :past)
+    date_from = Date.today
+    date_from = Chronic.parse('monday', :context => :past) unless date_from.monday?
     date_to = Chronic.parse('friday', :now => date_from)
     
     while date_to >= date_beggining_project do
