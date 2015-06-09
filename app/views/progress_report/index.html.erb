@@ -1,3 +1,5 @@
+<% settings = Setting.plugin_redmine_audit_assistant %>
+
 <h2><%= l(:progress_report_title) %></h2>
 
 <%= form_tag 'progress-report?project_id='+@project.id.to_s, :id => 'progress_report_form' do |f| %>
@@ -50,7 +52,7 @@
 	<% for @user in @users %>
 		<p>
 			<label><%= @user.to_s %></label>
-			<%= text_field_tag "member_occupation["+@user.id.to_s+"]", "80", :size => 3 %> %
+			<%= text_field_tag "member_occupation["+@user.id.to_s+"]", settings['occupation_person'], :size => 3 %> %
 			<%= text_field_tag "days_off["+@user.id.to_s+"]", "0", :size => 3, :class => 'input_days_off' %> 
 			<%= l(:nb_days_off) %>
 		</p>
@@ -60,11 +62,11 @@
 <div class="box tabular">
 	<p>
 		<label><%= l(:time_switching_issues) %></label>
-		<%= text_field_tag "time_switching_issues", '20', :size => "3" %> <%= l(:time_switching_issues_unit) %>
+		<%= text_field_tag "time_switching_issues", settings['time_switching_issues'], :size => "3" %> <%= l(:time_switching_issues_unit) %>
 	</p>
 	<p>
 		<label><%= l(:label_start_time) %></label>
-		<%= text_field_tag "start_time", '10', :size => "3" %> <%= l(:start_time_unit) %>
+		<%= text_field_tag "start_time", settings['start_time'], :size => "3" %> <%= l(:start_time_unit) %>
 	</p>
 </div>
 
