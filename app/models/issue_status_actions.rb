@@ -25,13 +25,16 @@ class IssueStatusActions < ActiveRecord::Base
     status_allowed = issue.new_statuses_allowed_to
     
     if status_id_from == issue.status.id && status_allowed.include?(status_to)
-      
+         
+      journal = issue.init_journal(User.current)
       issue.status = status_to
       issue.save
-      
+       
       AutocloseIssuePatch::AutocloseIssueHook.run(issue)
       #Redmine::Hook.call_hook(:controller_issues_edit_after_save, { :issue => issue })
       
+      issue
+    
     end
     
   end
