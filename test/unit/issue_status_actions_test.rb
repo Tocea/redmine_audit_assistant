@@ -80,6 +80,7 @@ class IssueStatusActionsTest < ActiveSupport::TestCase
     issue.expects(:status).returns(current_status)
     issue.expects(:new_statuses_allowed_to).returns([target_status, IssueStatus.find(3)])
     
+    issue.expects(:init_journal)
     issue.expects(:status=).with(target_status)
     issue.expects(:save)
     
