@@ -22,11 +22,14 @@ class IssueStatusActions < ActiveRecord::Base
   # run the current action on an issue to change its status
   def run(issue)
     
+    user = User.current
+    return nil unless user && user.allowed_to?(:log_time, issue.project)
+    
     status_allowed = issue.new_statuses_allowed_to
     
     if status_id_from == issue.status.id && status_allowed.include?(status_to)
          
-      journal = issue.init_journal(User.current)
+      journal = issue.init_journal(user)
       issue.status = status_to
       issue.save
        
@@ -37,6 +40,19 @@ class IssueStatusActions < ActiveRecord::Base
     
     end
     
+  end
+  
+  # assign the issue to the current user
+  def self.take_task(issue)
+    
+    user = User.current
+    return nil unless user && user.allowed_to?(:log_time, issue.project)
+    
+    issue.init_journal(user)
+    issue.assigned_to = user
+    issue.save
+    
+    issue
   end
   
 end

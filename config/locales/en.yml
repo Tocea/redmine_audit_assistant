@@ -35,3 +35,4 @@ en:
   nb_days_off: "day(s) off in the following weeks"
   label_start_time: "Time needed before starting the project"
   start_time_unit: "% of the project's total estimated charge"
+  btn_take_task: "Take the task"

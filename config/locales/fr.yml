@@ -35,6 +35,7 @@ fr:
   nb_days_off: "jour(s) de congés sur la période restante"
   label_start_time: "Temps nécessaire avant de commencer le projet"
   start_time_unit: "% de la charge estimée totale du projet"
+  btn_take_task: "Prendre la demande"
   datetime:
     distance_in_words:
       x_days:

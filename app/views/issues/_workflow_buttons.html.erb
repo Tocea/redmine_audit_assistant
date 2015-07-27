@@ -1,8 +1,9 @@
 
 <div id="tocea-custom-buttons">
 	<% for @action in IssueStatusActions.available_actions(@issue) %>
-		<%= link_to @action.lib, { :controller => :issues_custom_actions, :action => :run, :action_id => @action.id.to_s, :issue_id => @issue.id.to_s }, :class => 'icon icon-time-add' if User.current.allowed_to?(:log_time, @project) %>
+		<%= link_to @action.lib, { :controller => :issues_custom_actions, :action => :run, :action_id => @action.id.to_s, :issue_id => @issue.id.to_s }, :class => 'icon icon-status-button' if User.current.allowed_to?(:log_time, @project) %>
 	<% end %>
+	<%= link_to l(:btn_take_task), { :controller => :issues_custom_actions, :action => :take_task, :issue_id => @issue.id.to_s }, :class => 'icon icon-take-task' if @issue.assigned_to.nil? && User.current.allowed_to?(:log_time, @project) %>
 </div>
 
 <script type="text/javascript">

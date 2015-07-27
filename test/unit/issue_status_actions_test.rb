@@ -79,8 +79,13 @@ class IssueStatusActionsTest < ActiveSupport::TestCase
     issue = mock()
     issue.expects(:status).returns(current_status)
     issue.expects(:new_statuses_allowed_to).returns([target_status, IssueStatus.find(3)])
+    issue.expects(:project)
     
-    issue.expects(:init_journal)
+    user = mock()
+    user.expects(:allowed_to?).returns(true)
+    User.stubs(:current).returns(user)
+    
+    issue.expects(:init_journal).with(user)
     issue.expects(:status=).with(target_status)
     issue.expects(:save)
     
@@ -102,6 +107,11 @@ class IssueStatusActionsTest < ActiveSupport::TestCase
     issue = mock()
     issue.expects(:status).returns(current_status)
     issue.expects(:new_statuses_allowed_to).returns([IssueStatus.find(3)])
+    issue.expects(:project)
+    
+    user = mock()
+    user.expects(:allowed_to?).returns(true)
+    User.stubs(:current).returns(user)
     
     action.run issue
     
@@ -118,8 +128,61 @@ class IssueStatusActionsTest < ActiveSupport::TestCase
     issue = mock()
     issue.expects(:status).returns(IssueStatus.find(3))
     issue.expects(:new_statuses_allowed_to).returns([target_status])
+    issue.expects(:project)
+    
+    user = mock()
+    user.expects(:allowed_to?).returns(true)
+    User.stubs(:current).returns(user)
     
     action.run issue
+    
+  end
+  
+  test "it should not change the status if the current user is not allowed to change the status on this issue" do
+    
+    current_status = IssueStatus.find(1)
+    target_status = IssueStatus.find(2)
+    
+    action = IssueStatusActions.new(:lib => 'test', :status_from => current_status, :status_to => target_status)
+    action.save
+    
+    issue = mock()
+    issue.expects(:project)
+    
+    user = mock()
+    user.expects(:allowed_to?).returns(false)
+    User.stubs(:current).returns(user)
+    
+    action.run issue
+    
+  end
+  
+  test "it should assign the current user to the issue" do
+    
+    user = mock()
+    user.expects(:allowed_to?).returns(true)
+    User.stubs(:current).returns(user) 
+    
+    issue = mock()
+    issue.expects(:project)
+    issue.expects(:init_journal).with(user)   
+    issue.expects(:assigned_to=).with(user)
+    issue.expects(:save)
+    
+    IssueStatusActions.take_task issue
+    
+  end
+  
+  test "it should not assign the current user to the issue if this user is not supposed to work on this issue" do
+    
+    user = mock()
+    user.expects(:allowed_to?).returns(false)
+    User.stubs(:current).returns(user) 
+    
+    issue = mock()
+    issue.expects(:project)
+    
+    IssueStatusActions.take_task issue
     
   end
    

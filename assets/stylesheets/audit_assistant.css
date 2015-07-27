@@ -7,6 +7,14 @@
 	background-image: url('../images/ticket_edit.png');
 }
 
+.icon-take-task {
+	background-image: url('../images/icon_take_task.png');
+}
+
+.icon-status-button {
+	background-image: url('../images/icon-status-button.png');
+}
+
 /* -----------------------------------------
  *  PROGRESS REPORT
  * -----------------------------------------

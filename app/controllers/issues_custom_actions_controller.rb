@@ -66,6 +66,16 @@ class IssuesCustomActionsController < ApplicationController
     
   end
   
+  def take_task
+    
+    @issue = Issue.find(params[:issue_id])
+    
+    IssueStatusActions.take_task(@issue)
+    
+    redirect_to :controller => 'issues', :action => 'show', :id => @issue.id
+    
+  end
+  
   private # ------------------------------------------------------------------------------
   
   def show_error_msg
