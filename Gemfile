@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
 
 gem 'coveralls', require: false
-gem 'simplecov', :require => false, :group => :test
+gem 'simplecov', "~> 0.9.1", :require => false, :group => :test
 gem 'chronic', require: true
