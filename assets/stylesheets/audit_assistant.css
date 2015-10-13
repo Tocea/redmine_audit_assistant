@@ -22,7 +22,7 @@
 .progress-report-block {
 	margin-top: 20px;
 }
-.charge-table, .issues {
+.progress-report-block .charge-table, .progress-report-block .issues {
 	margin-top: 20px;
 }
 .progress-report-block h4 {
