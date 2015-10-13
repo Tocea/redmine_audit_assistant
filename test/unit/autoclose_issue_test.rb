@@ -311,7 +311,7 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     issue.save
     
     # its status should be the default one
-    assert issue.status.is_default
+    assert CustomIssuesHelper::is_default_status?(issue)
     
     # its start date should not have been set
     assert issue.start_date.nil?
@@ -337,7 +337,7 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     issue.save
     
     # its status should be the default one
-    assert issue.status.is_default
+    assert CustomIssuesHelper::is_default_status?(issue)
     
     # let's change the status and set a start date
     issue.status = IssueStatus.find(2)
@@ -360,7 +360,7 @@ class AutocloseIssueTest < ActiveSupport::TestCase
     issue.save
     
     # its status should be the default one
-    assert issue.status.is_default
+    assert CustomIssuesHelper::is_default_status?(issue)
     
     # its start date should not have been set
     assert issue.start_date.nil?

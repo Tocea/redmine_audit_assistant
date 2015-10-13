@@ -16,6 +16,14 @@ class ImportControllerTest < ActionController::TestCase
     @project = Project.find(1)
     @request.session[:user_id] = 1    # admin user
     @project.enabled_module_names = [:import]
+    register_trackers([4, 5, 6])
+  end
+  
+  def register_trackers(ids)
+    ids.each do |id|
+      tracker = Tracker.find(id)
+      @project.trackers << tracker
+    end
   end
   
   def create_attachment(location, token='X')

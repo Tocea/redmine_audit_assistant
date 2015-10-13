@@ -69,15 +69,18 @@ class ProjectProgressReportTest < ActiveSupport::TestCase
     
     assert_equal version2.effective_date, report.date_effective
     
+    Version.delete_all
+    
   end
   
-  test "the due date should of the project should be the last due date of its issues if there is no version" do
+  test "the due date of the project should be the last due date of its issues if there is no version" do
     
     project = Project.find(1)
     
     issues = Issue.where(project_id: project.id)
     
     assert_not_equal 0, issues.count
+    assert_equal 0, Version.where(project_id: project.id).count
     
     max_due_date = issues.map { |issue| issue.due_date }.max
     

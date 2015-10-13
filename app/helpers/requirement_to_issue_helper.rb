@@ -185,7 +185,8 @@ module RequirementToIssueHelper
     tracker = project.trackers.find_by_name(name)
     
     if !tracker
-      tracker = project.trackers.create(:name => name)
+      #tracker = project.trackers.create(:name => name)
+      raise ArgumentError, "Tracker #{name} not found!"
     end
     
     tracker     

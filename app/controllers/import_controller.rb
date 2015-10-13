@@ -37,7 +37,7 @@ class ImportController < ApplicationController
       # extract data from the attachment file
       data = import_from_yaml(@attachment.diskfile)
       requirements = data[:requirements]
-    rescue StandardError=>e  
+    rescue StandardError => e  
       # redirect to the index page if the file cannot be parsed
       Rails.logger.info "Error parsing file: #{e}"
       flash[:error] = l(:error_parsing_file) + '<br/>' + e.message
@@ -52,7 +52,15 @@ class ImportController < ApplicationController
     
     # create issues from the requirements
     requirements.each do |r|
-      r.toIssue(@version ? @version : @project)  
+      begin
+        r.toIssue(@version ? @version : @project)  
+      rescue ArgumentError => e
+        Rails.logger.info "Invalid requirement data: #{e}"
+        flash[:error] = l(:error_parsing_file) + '<br/>' + e.message
+        redirect_to :controller => 'import', :action => 'index', :project_id => @project.id, :flash => flash
+        return false
+      end
+      
     end
     
     # lock the version

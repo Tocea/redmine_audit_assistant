@@ -16,6 +16,10 @@ class RequirementTest < ActiveSupport::TestCase
 	  # get the objects from the fixtures
 		project = projects(:test_project) #Project.find(1)			
 		requirement = requirements(:req_001) #Requirement.find(1)
+		[4,5,6].each do |id|
+      tracker = Tracker.find(id)
+      project.trackers << tracker
+    end
 		
 		# convert the audit to issues
 		requirement.toIssue(project)
