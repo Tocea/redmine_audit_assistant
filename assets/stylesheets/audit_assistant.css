@@ -22,7 +22,7 @@
 .progress-report-block {
 	margin-top: 20px;
 }
-.charge-table, .issues {
+.progress-report-block .charge-table, .progress-report-block .issues {
 	margin-top: 20px;
 }
 .progress-report-block h4 {
@@ -45,4 +45,8 @@
 
 #progress_report_form .input_days_off {
 	margin-left: 40px;
+}
+
+.progress-report-block .progress-bar table.progress { 
+        width: 75%;
 }
