@@ -79,6 +79,8 @@ class ProjectProgressReportTest < ActiveSupport::TestCase
     
     issues = Issue.where(project_id: project.id)
     
+    Version.delete_all
+    
     assert_not_equal 0, issues.count
     assert_equal 0, Version.where(project_id: project.id).count
     
